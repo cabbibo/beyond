@@ -1,0 +1,150 @@
+<html>
+
+  <style>
+    body{
+      left:0px;
+      top:0px;
+      margin:0px;
+    }
+  </style>
+  <body>
+
+<script src="lib/three.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="lib/TrackballControls.js"></script>
+<script src="lib/MouseMoveControls.js"></script>
+<script src="lib/ShaderLoader.js"></script>
+<script src="lib/underscore.js"></script>
+<script src="lib/dat.gui.min.js"></script>
+<script src="lib/GUI.js"></script>
+<script src="lib/Tween.js"></script>
+<script src="SnowflakeGeometry.js"></script>
+<script src="HexGrid.js"></script>
+
+<script>
+
+    var scene, camera, renderer , clock;
+    var geometry, material, mesh;
+    var controls;
+
+
+    var SIM_SIZE = 256;
+    var snowflake;
+
+    var growSpeed = 200;
+    var shrinkSpeed = 100;
+
+    var shaders = new ShaderLoader('shaders');
+
+    var gui = new dat.GUI();
+
+    shaders.load( 'vs-snow' , 'snow' , 'vertex'   );
+    shaders.load( 'fs-snow' , 'snow' , 'fragment' );
+    
+    shaders.load( 'vs-test1' , 'test1' , 'vertex'   );
+    shaders.load( 'fs-test1' , 'test1' , 'fragment' );
+
+    shaders.shaderSetLoaded = function(){
+      init();
+      animate();
+    }
+
+
+    var matcap = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
+    var uniforms = {
+      t_matcap:{type:"t" , value:matcap},
+      filled:{type:"f" , value:0},
+      time:{type:"f" , value:0 },
+      dT:{type:"f" , value:0 },
+    }
+
+
+    function init() {
+
+
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+     
+      window.addEventListener( 'resize', onWindowResize , false );
+
+      document.body.appendChild( renderer.domElement );
+
+          scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .003, 30000 );
+      camera.position.z = 1;
+
+      controls = new THREE.TrackballControls( camera , renderer.domElement );
+
+      clock = new THREE.Clock();
+
+
+
+
+      var geo = createHexGridGeometry( SIM_SIZE );
+
+
+      var vs = shaders.setValue( shaders.vs.test1 , 'SIZE' , SIM_SIZE );
+      var mat = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vs,
+        fragmentShader: shaders.fs.test1,
+        side: THREE.DoubleSide
+      });
+      var mesh = new THREE.Mesh( geo , mat );
+
+      //scene.add( mesh );
+
+      var lineGeo = createHexGridLineGeometry( SIM_SIZE );
+
+       var mesh = new THREE.Mesh( geo , mat );
+     // scene.add( mesh );
+     var mesh = new THREE.Line( lineGeo , mat , THREE.LinePieces );
+      scene.add( mesh );
+      var mesh = new THREE.PointCloud( geo , mat );
+      scene.add( mesh );
+
+     // uniforms.filled.value = PARAMS.guide.maxDepth*2;
+    }
+
+   
+    function animate() {
+
+      requestAnimationFrame( animate );
+
+      controls.update();
+      TWEEN.update();
+
+      
+      uniforms.dT.value = clock.getDelta();
+      uniforms.time.value += uniforms.dT.value;
+    /*   if( filling == true ){
+          uniforms.filled.value += .03;
+       }else{
+          uniforms.filled.value -= .03;
+       }*/
+
+      renderer.render( scene, camera );
+
+    }
+
+      // Resets the renderer to be the proper size
+    function onWindowResize(){
+
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+
+      renderer.setSize( window.innerWidth, window.innerHeight );
+     
+      var dpr = devicePixelRatio || 1;
+
+      //camUniforms.SS.value.x = window.innerWidth * dpr;
+      //camUniforms.SS.value.y = window.innerHeight * dpr;
+
+
+    }
+  </script>
+
+</body>
+</html>
