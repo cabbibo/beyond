@@ -21,13 +21,6 @@ void main(){
   vec2 uv = gl_FragCoord.xy / resolution ;
   vec4 pos = texture2D( t_pos , uv );
 
-  
-  if( length(uv - vec2(.5 )) < iSize ){
-
-    pos.x = 1.01;
-
-  }
-
 
 
   vec2 sR = uv + vec2( iSize , 0. );
@@ -71,6 +64,20 @@ void main(){
   }
 
 
+  vec2 d = uv - vec2( .5+iSize / 2. );
+    
+  if( length(d) < iSize/8. ){
+
+    pos.x = 1.01;
+
+  }
+
+
+
+  float t = atan( d.y , d.x );
+
+ // int section = 
+
 
   float usable = canUse( sUR , sUL , sDR , sDL , sL , sR );
  
@@ -87,6 +94,16 @@ void main(){
     dP[4] = texture2D( t_pos , sDL  );
     dP[5] = texture2D( t_pos , sDR  );
 
+    for( int i = 0; i < 6; i++ ){
+
+      if( dP[i].x > 1. ){
+        pos.x = min( 1.01 , pos.x + .1);
+        break;
+
+      }
+
+    }
+
     /*vec4 uR = texture2D( t_pos , sUR );
     vec4 uL = texture2D( t_pos , sUL );
     vec4 dR = texture2D( t_pos , sDR );
@@ -94,7 +111,7 @@ void main(){
     vec4 r  = texture2D( t_pos , sR  );
     vec4 l  = texture2D( t_pos , sL  );*/
 
-    if(
+    /*if(
       dP[0].x > 1. || 
       dP[1].x > 1. || 
       dP[2].x > 1. || 
@@ -106,7 +123,7 @@ void main(){
       pos.x = min( 1.01 , pos.x + .1);
 
     }
-    
+    */
     
     //pos.x +=snoise( uv * 10. + vec2( sin( time * .1 ) , cos( time * .52)) ) * .0001;//.01;// snoise( uv.xy * 100000000000. ) * 100.;
   }

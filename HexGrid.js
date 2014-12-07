@@ -36,34 +36,66 @@ function createHexGridGeometry(size ){
       v3 = [  i    / size , (j+1) / size , (j+1) % 2 ];
       v4 = [ (i+1) / size , (j+1) / size , (j+1) % 2 ];
 
-     // if( (j % 2 == 0) ){
-      // Triangle 1
-      positions[ index * 3 + 0  ] = v1[0]; 
-      positions[ index * 3 + 1  ] = v1[1]; 
-      positions[ index * 3 + 2  ] = v1[2];
-      
-      positions[ index * 3 + 3  ] = v2[0]; 
-      positions[ index * 3 + 4  ] = v2[1]; 
-      positions[ index * 3 + 5  ] = v2[2];
-     
-      positions[ index * 3 + 6  ] = v3[0]; 
-      positions[ index * 3 + 7  ] = v3[1]; 
-      positions[ index * 3 + 8  ] = v3[2];
+      if( (j % 2 == 1) ){
+        // Triangle 1
+        positions[ index * 3 + 0  ] = v2[0]; 
+        positions[ index * 3 + 1  ] = v2[1]; 
+        positions[ index * 3 + 2  ] = v2[2];
+        
+        positions[ index * 3 + 3  ] = v3[0]; 
+        positions[ index * 3 + 4  ] = v3[1]; 
+        positions[ index * 3 + 5  ] = v3[2];
+       
+        positions[ index * 3 + 6  ] = v1[0]; 
+        positions[ index * 3 + 7  ] = v1[1]; 
+        positions[ index * 3 + 8  ] = v1[2];
 
-      // Triangle 2
-      positions[ index * 3 + 9  ] = v3[0]; 
-      positions[ index * 3 + 10 ] = v3[1]; 
-      positions[ index * 3 + 11 ] = v3[2];
+        // Triangle 2
+        positions[ index * 3 + 9  ] = v2[0]; 
+        positions[ index * 3 + 10 ] = v2[1]; 
+        positions[ index * 3 + 11 ] = v2[2];
+        
+        positions[ index * 3 + 12 ] = v4[0]; 
+        positions[ index * 3 + 13 ] = v4[1]; 
+        positions[ index * 3 + 14 ] = v4[2];
+       
+        positions[ index * 3 + 15 ] = v3[0]; 
+        positions[ index * 3 + 16 ] = v3[1]; 
+        positions[ index * 3 + 17 ] = v3[2];
+       
       
-      positions[ index * 3 + 12 ] = v2[0]; 
-      positions[ index * 3 + 13 ] = v2[1]; 
-      positions[ index * 3 + 14 ] = v2[2];
-     
-      positions[ index * 3 + 15 ] = v4[0]; 
-      positions[ index * 3 + 16 ] = v4[1]; 
-      positions[ index * 3 + 17 ] = v4[2];
-     
-      
+      }else{
+
+        // Triangle 1
+        positions[ index * 3 + 0  ] = v1[0]; 
+        positions[ index * 3 + 1  ] = v1[1]; 
+        positions[ index * 3 + 2  ] = v1[2];
+        
+        positions[ index * 3 + 3  ] = v4[0]; 
+        positions[ index * 3 + 4  ] = v4[1]; 
+        positions[ index * 3 + 5  ] = v4[2];
+       
+        positions[ index * 3 + 6  ] = v3[0]; 
+        positions[ index * 3 + 7  ] = v3[1]; 
+        positions[ index * 3 + 8  ] = v3[2];
+
+        // Triangle 2
+        positions[ index * 3 + 9  ] = v4[0]; 
+        positions[ index * 3 + 10 ] = v4[1]; 
+        positions[ index * 3 + 11 ] = v4[2];
+        
+        positions[ index * 3 + 12 ] = v2[0]; 
+        positions[ index * 3 + 13 ] = v2[1]; 
+        positions[ index * 3 + 14 ] = v2[2];
+       
+        positions[ index * 3 + 15 ] = v1[0]; 
+        positions[ index * 3 + 16 ] = v1[1]; 
+        positions[ index * 3 + 17 ] = v1[2];
+
+
+
+
+      }
       
      
 
