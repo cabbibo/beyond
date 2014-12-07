@@ -11,10 +11,6 @@ function DiffusionRenderer( size , shader , renderer ){
 
   this.clock = new THREE.Clock();
 
-  this.resolution = { 
-    type:"v2" , 
-    value: new THREE.Vector2( this.size , this.size )
-  }
   
   // Sets up our render targets
   this.rt_1 = new THREE.WebGLRenderTarget( this.size, this.size, {
@@ -163,7 +159,6 @@ DiffusionRenderer.prototype.createSimulationProgram = function(sim){
 
   this.simulationUniforms = {
     t_pos:{   type:"t"  , value:null },
-    resolution: this.resolution
   }
 
 
@@ -317,7 +312,6 @@ DiffusionRenderer.prototype.setUniforms = function( uniforms ){
 
   // Have to make sure that these always remain!
   this.simulation.uniforms.t_pos = { value:"t" , value:null }; 
-  this.simulation.uniforms.resolution = this.resolution;
 
   console.log( this.simulation.uniforms );
 
