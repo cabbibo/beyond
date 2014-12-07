@@ -100,7 +100,7 @@ void main(){
     for( int i = 0; i < 6; i++ ){
 
       float v = float( i ) * 2. * PI;
-      if( dP[i].x > 1. && snoise( vec2( r*20. , t  )) < .8 ){
+      if( dP[i].x > 1. && snoise( vec2( r*20. , t  )) < .6 ){
         pos.x = min( 1.01 , pos.x + 1.);
         break;
 
