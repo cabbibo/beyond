@@ -1,4 +1,5 @@
 const float size = @SIZE;
+const float PI = 3.14159;
 
 uniform vec2 resolution;
 
@@ -75,8 +76,10 @@ void main(){
 
 
   float t = atan( d.y , d.x );
+  float r = length( d );
 
- // int section = 
+  int section = int(mod( t , 3.14159 * (1./3.) ));
+
 
 
   float usable = canUse( sUR , sUL , sDR , sDL , sL , sR );
@@ -96,8 +99,9 @@ void main(){
 
     for( int i = 0; i < 6; i++ ){
 
-      if( dP[i].x > 1. ){
-        pos.x = min( 1.01 , pos.x + .1);
+      float v = float( i ) * 2. * PI;
+      if( dP[i].x > 1. && snoise( vec2( r*20. , t  )) < .8 ){
+        pos.x = min( 1.01 , pos.x + 1.);
         break;
 
       }
