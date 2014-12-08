@@ -140,6 +140,8 @@
       grower.setUniform( 'dT' , uniforms.dT  );
 
       grower.addBoundTexture( uniforms.t_depth , 'output' );
+
+      resetGrowth();
      // uniforms.filled.value = PARAMS.guide.maxDepth*2;
     }
 
@@ -220,7 +222,40 @@
      console.log( e.keyCode );
 
 
-    }
+   }
+
+
+    function resetGrowth(){
+      var size = SIM_SIZE;
+      
+      var data = new Float32Array( SIM_SIZE * SIM_SIZE * 4 );
+
+      for( var i = 0; i < data.length; i+=4 ){
+
+
+        data[ i + 0 ] = 0;
+        data[ i + 1 ] = 100;
+        data[ i + 2 ] = 0;
+        data[ i + 3 ] = 100;
+
+      }
+
+      var texture = new THREE.DataTexture( 
+        data,
+        size,
+        size,
+        THREE.RGBAFormat,
+        THREE.FloatType
+      );
+
+      texture.minFilter =  THREE.NearestFilter,
+      texture.magFilter = THREE.NearestFilter,
+
+      texture.needsUpdate = true;
+
+      grower.reset( texture );
+
+   }
   </script>
 
 </body>

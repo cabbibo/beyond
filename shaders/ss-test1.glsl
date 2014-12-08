@@ -15,6 +15,10 @@ varying vec2 vUv;
 $simplex
 $canUse
 
+// data.x = level
+// data.y = temperature
+// data.z = isCrystal
+
 void main(){
 
   float iSize = 1. / size;
@@ -67,18 +71,30 @@ void main(){
 
   vec2 d = uv - vec2( .5+iSize / 2. );
     
+
+  // Sets our 'seed' 
+  // of the crystal
   if( length(d) < iSize/8. ){
 
-    pos.x = 1.01;
+    pos = vec4( 1.01 );
+    pos.y = .00;
+    pos.z = 1.;
+    pos.w = -.1;
 
   }
-
-
 
   float t = atan( d.y , d.x );
   float r = length( d );
 
-  int section = int(mod( t , 3.14159 * (1./3.) ));
+  float tA = PI * 2. / 6.;
+
+  float tDif = abs(mod( t , tA)-tA*.5);
+  int section = int(mod( t , 3.14159 * (2./6.) ));
+
+
+  // Temperature
+  // Level
+  // crystalized
 
 
 
@@ -97,14 +113,75 @@ void main(){
     dP[4] = texture2D( t_pos , sDL  );
     dP[5] = texture2D( t_pos , sDR  );
 
+    // If we aren't part of the crystal,
+    // cool slightly
+   /* if( pos.z < .5 ){
+
+      pos.y -= .000001;
+
+    }*/
+
+
+    if( pos.a > 0. ){
     for( int i = 0; i < 6; i++ ){
 
-      float v = float( i ) * 2. * PI;
-      if( dP[i].x > 1. && snoise( vec2( r*20. , t  )) < .6 ){
+
+      //float v = float( i ) * 2. * PI;
+
+      vec4 data = dP[i];
+
+      // one of the neighbors is part of the crystal
+      if( data.z > .5 ){
+
+        //pos.y = (pos.y - data.y)*.5 + data.y;
+       
+        pos.y -= 10. * abs(snoise( vec2( r*8. , tDif*3. )));
+
+        pos.a -= 10. * pow((tA * .5 - tDif), .5);// *(tA - tDif) *  (tA - tDif) ;
+
+
+        if( pos.y < .1 ){
+          pos.z = 1.;
+          pos.x = 1.;
+         //// pos.x = 1.;
+        //if( pos.z > .5 ){
+        ///    pos.x = 1.;
+         // }
+        }
+
+      }else{
+
+        float dTemp = pos.y - data.y;
+       
+        if( dTemp > 0. ){
+
+          pos.y -= dTemp / 100.;
+
+        }
+
+      
+      }
+
+      //pos.x = pos.y;
+
+      //pos.y -= dTemp / 30000.;
+
+      // Pos is our current data
+      // data is the other points data
+
+      //pos.y +=  data.y * .1;
+     // if( pos.y <= 10. ){
+
+     // }
+
+    /*  if( dP[i].x > 1. && snoise( vec2( r*500. , tDif*1. )) < .5 ){
+
         pos.x = min( 1.01 , pos.x + 1.);
         break;
 
-      }
+      }*/
+
+    }
 
     }
 
