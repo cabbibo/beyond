@@ -133,23 +133,25 @@ void main(){
     
       }else{
 
-           
-          float aL = abs( snoise( vec2( pow( r , 1. ) * 1. , tDif * .5 ) ));
-
-          vec4 audio = texture2D( t_audio , vec2( aL , 0. ));
+            
+          vec4 audio = texture2D( t_audio , vec2( abs( 1.-tDif ) , 0. ));
        
-          float multiplier =  abs(snoise( abs(vec2( pow(r,.1) * 5. , length( audio ) *length( audio )) )));
+          float multiplier =  abs(snoise( abs(vec2( pow(r,.1) * 5. , 1. -tDif * .1 ) ) ));
 
          
-        pos.a -= .1;
-        pos.a -= abs(multiplier) * length( audio )  * length( audio ) * 4.1  * tDif;
+          pos.a -= .1;
+         pos.a -= abs(multiplier) * length( audio )  * length( audio ) * 4.1  * tDif;
 
         
         vec4 dP[ 6 ];
         vec2 s[ 6 ];
 
-        s[0] = sR; s[1] = sUR; s[2] = sUL; 
-        s[3] = sL; s[4] = sDL; s[5] = sDR;
+        s[0] = sR;
+        s[1] = sUR;
+        s[2] = sUL;
+        s[3] = sL;
+        s[4] = sDL;
+        s[5] = sDR;
 
         dP[0] = texture2D( t_pos , s[0] );
         dP[1] = texture2D( t_pos , s[1] );
@@ -181,13 +183,13 @@ void main(){
               multiplier *= 3.;
             }
 
-            pos.y -= 40.* (10./pos.a) * length( audio ) * ( multiplier *  multiplier  * 5. +.5 );// * data.x;
+            pos.y -= 40.* (10./pos.a) * length( audio ) * ( multiplier *  multiplier  * 5. +1.5 );// * data.x;
 
             if( pos.y < 0. ){
 
               pos.z += .2;
-              pos.x += length( audio );
-              //pos.a -= length( audio ) * length( audio )  * 5.;
+            //  pos.x += length( audio );
+              pos.a -= length( audio ) * length( audio )  * 5.;
 
             }
 

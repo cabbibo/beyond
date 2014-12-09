@@ -18,6 +18,9 @@
 <script src="lib/dat.gui.min.js"></script>
 <script src="lib/GUI.js"></script>
 
+<script src="lib/AudioController.js"></script>
+<script src="lib/AudioTexture.js"></script>
+<script src="lib/UserAudio.js"></script>
 
 <script src="lib/DiffusionRenderer.js" ></script>
 
@@ -35,7 +38,7 @@
 
 
     var updateSim = true;
-    var SIM_SIZE = 1024;
+    var SIM_SIZE = 512;
     var snowflake;
 
     var growSpeed = 200;
@@ -61,6 +64,11 @@
       animate();
     }
 
+   
+    var audioController = new AudioController();
+    audioController.mute.gain.value = 0;
+
+    var userAudio = new UserAudio( audioController ); 
 
     var matcap = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
     var uniforms = {
@@ -69,7 +77,8 @@
       time:{type:"f" , value:0 },
       dT:{type:"f" , value:0 },
       t_depth:{type:"t" ,value:null },
-      debug:{type:"f" , value: 0 }
+      debug:{type:"f" , value: 0 },
+      t_audio:{type:"t" , value: audioController.texture }
     }
 
 
@@ -103,9 +112,10 @@
         uniforms: uniforms,
         vertexShader: vs,
         fragmentShader: shaders.fs.debugMesh,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        transparent: true
       });
-      var mesh = new THREE.Mesh( geo , mat );
+      //var mesh = new THREE.Mesh( geo , mat );
 
       //scene.add( mesh );
 
@@ -138,6 +148,7 @@
       grower = new DiffusionRenderer( SIM_SIZE , ss , renderer );
       grower.setUniform( 'time' , uniforms.time  );
       grower.setUniform( 'dT' , uniforms.dT  );
+      grower.setUniform( 't_audio' , uniforms.t_audio  );
 
       grower.addBoundTexture( uniforms.t_depth , 'output' );
 
@@ -150,6 +161,8 @@
 
       requestAnimationFrame( animate );
 
+
+      audioController.update();
       controls.update();
       TWEEN.update();
 
@@ -214,7 +227,7 @@
 
       if( e.keyCode == 48 ){
 
-        uniforms.debug.value = (uniforms.debug.value + 1) % 3;
+        uniforms.debug.value = (uniforms.debug.value + 1) % 4;
        // debugMesh.visible = !debugMesh.visible;
 
       }
