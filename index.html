@@ -1,13 +1,66 @@
 <html>
 
+  <head>
+  <meta name="twitter:card" content="photo">
+  <meta name="twitter:site" content="@cabbibo">
+  <meta name="twitter:creator" content="@cabbibo">
+  <meta name="twitter:url" content="http://cabbi.bo">
+  <meta name="twitter:title" content="Long Live Synesthesia">
+  <meta name="twitter:description" content="Long Live Synesthesia">
+  <meta name="twitter:creator" content="@cabbibo">
+  <meta name="twitter:image" content="http://cabbi.bo/image.png">
+  <meta name="twitter:image:width" content="1440">
+  <meta name="twitter:image:height" content="900">
+  <meta name="twitter:domain" content="cabbi.bo">
+  <meta itemprop="name" content="Cabbi.bo">
+  <meta itemprop="description" content="Long Live Synesthesia">
+  <meta itemprop="image" src="http://cabbi.bo/image.png">
+  <meta property="og:title" content="Cabbi.bo">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="http://cabbi.bo/image.png"/>
+  <meta property="og:site_name" content="Cabbi.bo">
+  <meta property="og:description" content="Long Live Synesthesia">
   <style>
+     @font-face {
+      font-family: "GeoSans";
+      src: url("lib/GeosansLight.ttf");
+    }
+    
     body{
       left:0px;
       top:0px;
       margin:0px;
+      background:#000;
+      color:#fff;
+      font-family:"GeoSans";
+    }
+
+    #loading{
+
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 400px;
+      height: 50px;
+      text-align: center;
+      margin-top: -25px;
+      margin-left: -200px;
+      font-size: 40px;
+    
     }
   </style>
+
+  </head>
   <body>
+
+
+<div id = "loading">
+
+  <div id="songLoad">
+    Loading Song: 98%
+  </div>
+
+</div>
 
 <script src = "lib/three.js"                  ></script>
 <script src = "lib/jquery.min.js"             ></script>
@@ -107,6 +160,13 @@
         this.firstLoadProgress = true;
       
       }
+
+      var elem = document.getElementById("songLoad");
+      console.log('ELEM')
+
+      var p = Math.floor( this.loaded * 100);
+      p += "%";
+      elem.innerHTML = "Loading Song: " + p;
 
       loadSnowflake.material.uniforms.filled.value = this.loaded * 10.;
       console.log( loadSnowflake.material.uniforms.filled );
