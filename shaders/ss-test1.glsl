@@ -134,15 +134,15 @@ void main(){
       }else{
 
            
-          float aL = abs( snoise( vec2( pow( r , 1. ) * 1. , tDif * .5 ) ));
+        float aL = abs( snoise( vec2( pow( r , 1. ) * 1. , tDif * .5 ) ));
 
-          vec4 audio = texture2D( t_audio , vec2( aL , 0. ));
-       
-          float multiplier =  abs(snoise( abs(vec2( pow(r,.1) * 5. , length( audio ) *length( audio )) )));
+        vec4 audio = texture2D( t_audio , vec2( aL , 0. ));
+     
+        float multiplier =  abs(snoise( abs(vec2( pow(r,.1) * 5. , length( audio ) *length( audio )) )));
 
          
         pos.a -= .1;
-        pos.a -= abs(multiplier) * length( audio )  * length( audio ) * 4.1  * tDif;
+        pos.a -= abs(multiplier) * length( audio )  * length( audio ) * 4.1  * (tDif+.02);
 
         
         vec4 dP[ 6 ];
@@ -181,7 +181,7 @@ void main(){
               multiplier *= 3.;
             }
 
-            pos.y -= 40.* (10./pos.a) * length( audio ) * ( multiplier *  multiplier  * 5. +.5 );// * data.x;
+            pos.y -= 40.* (10./pos.a) *length( audio ) * ( multiplier *  multiplier  * 5. +.5 );// * data.x;
 
             if( pos.y < 0. ){
 
@@ -197,14 +197,13 @@ void main(){
 
         }
 
-   
-
        // pos.a -= 2.;
       }
 
     }
   }
 
+ // pos.x += 1.;
   gl_FragColor = pos;
 
 

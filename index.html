@@ -26,7 +26,9 @@
 
 <script src="lib/Tween.js"></script>
 <script src="SnowflakeGeometry.js"></script>
+<script src="Snowflake.js"></script>
 <script src="HexGrid.js"></script>
+<script src="Choreography.js"></script>
 
 <script>
 
@@ -38,26 +40,33 @@
 
 
     var updateSim = true;
-    var SIM_SIZE = 512;
-    var snowflake;
 
-    var growSpeed = 200;
-    var shrinkSpeed = 100;
+    // Creates the geometry used, the texture to reset, 
+    // by using the simulation size
+    var SIM_SIZE      = 512;
+    var SNOWFLAKE_GEO = createHexGridGeometry( SIM_SIZE-1 );
+    var RESET_TEXTURE = createResetTexture( SIM_SIZE );
+
+    var choreography = new Choreography();
+
+    var snowflakes = [];
+
 
     var shaders = new ShaderLoader('shaders');
 
     var gui = new dat.GUI();
 
-    shaders.load( 'vs-snow' , 'snow' , 'vertex'   );
-    shaders.load( 'fs-snow' , 'snow' , 'fragment' );
+    shaders.load( 'vs-snow'       , 'snow'        , 'vertex'   );
+    shaders.load( 'fs-snow'       , 'snow'        , 'fragment' );
     
-    shaders.load( 'vs-test1' , 'test1' , 'vertex'   );
-    shaders.load( 'fs-test1' , 'test1' , 'fragment' );
-    shaders.load( 'vs-debugMesh' , 'debugMesh' , 'vertex'   );
-    shaders.load( 'fs-debugMesh' , 'debugMesh' , 'fragment' );
+    shaders.load( 'vs-test1'      , 'test1'       , 'vertex'   );
+    shaders.load( 'fs-test1'      , 'test1'       , 'fragment' );
+    shaders.load( 'vs-debugMesh'  , 'debugMesh'   , 'vertex'   );
+    shaders.load( 'fs-debugMesh'  , 'debugMesh'   , 'fragment' );
 
 
-    shaders.load( 'ss-test1' , 'test1' , 'simulation' );
+    shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
+    shaders.load( 'ss-snowflake1' , 'snowflake1'  , 'simulation' );
 
     shaders.shaderSetLoaded = function(){
       init();
@@ -70,15 +79,21 @@
 
     var userAudio = new UserAudio( audioController ); 
 
-    var matcap = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
+    var matcap  = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
+    var aT      = audioController.texture;
+
+    // Our Uniforms!
+    // To be used in both simulation, and renderering
     var uniforms = {
-      t_matcap:{type:"t" , value:matcap},
-      filled:{type:"f" , value:0},
-      time:{type:"f" , value:0 },
-      dT:{type:"f" , value:0 },
-      t_depth:{type:"t" ,value:null },
-      debug:{type:"f" , value: 0 },
-      t_audio:{type:"t" , value: audioController.texture }
+
+      t_matcap:     { type:"t" , value: matcap    },
+      t_audio:      { type:"t" , value: aT        },
+      t_depth:      { type:"t" , value: null      },
+      filled:       { type:"f" , value: 0         },
+      time:         { type:"f" , value: 0         },
+      dT:           { type:"f" , value: 0         },
+      debug:        { type:"f" , value: 0         },
+
     }
 
 
@@ -103,57 +118,15 @@
 
       clock = new THREE.Clock();
 
+      var ss = shaders.ss.test1;
+      var vs = shaders.vs.debugMesh;
+      var fs = shaders.fs.debugMesh;
 
-      var geo = createHexGridGeometry( SIM_SIZE -1);
+      var snowflake = new Snowflake( ss , vs , fs );
+      snowflakes.push( snowflake );
 
+      snowflake.activate();
 
-      var vs = shaders.setValue( shaders.vs.debugMesh , 'SIZE' , SIM_SIZE-1 );
-      var mat = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vs,
-        fragmentShader: shaders.fs.debugMesh,
-        side: THREE.DoubleSide,
-        transparent: true
-      });
-      //var mesh = new THREE.Mesh( geo , mat );
-
-      //scene.add( mesh );
-
-
-      debugMesh = new THREE.Mesh( geo , mat );
-      scene.add( debugMesh);
-
-      var vs = shaders.setValue( shaders.vs.test1 , 'SIZE' , SIM_SIZE-1 );
-      var mat = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vs,
-        fragmentShader: shaders.fs.test1,
-        side: THREE.DoubleSide,
-        linewidth:5
-      });
-
-      var lineGeo = createHexGridLineGeometry( SIM_SIZE-1 );
-      debugLines = new THREE.Line( lineGeo , mat , THREE.LinePieces );
-      scene.add( debugLines );
-      debugLines.position.z = .001;
-
-      debugLines.visible = false;
-      debugPoints = new THREE.PointCloud( geo , mat );
-      scene.add(debugPoints);
-      debugPoints.position.z = .001;
-      debugPoints.visible = false;
-
-
-      var ss = shaders.setValue( shaders.ss.test1 , 'SIZE' , SIM_SIZE+"." );
-      grower = new DiffusionRenderer( SIM_SIZE , ss , renderer );
-      grower.setUniform( 'time' , uniforms.time  );
-      grower.setUniform( 'dT' , uniforms.dT  );
-      grower.setUniform( 't_audio' , uniforms.t_audio  );
-
-      grower.addBoundTexture( uniforms.t_depth , 'output' );
-
-      resetGrowth();
-     // uniforms.filled.value = PARAMS.guide.maxDepth*2;
     }
 
    
@@ -166,18 +139,21 @@
       controls.update();
       TWEEN.update();
 
-      if( updateSim == true ){
-
-        grower.update();
-
-      }
       uniforms.dT.value = clock.getDelta();
       uniforms.time.value += uniforms.dT.value;
-    /*   if( filling == true ){
-          uniforms.filled.value += .03;
-       }else{
-          uniforms.filled.value -= .03;
-       }*/
+
+      choreography.update();
+
+      if( updateSim == true ){
+
+        for( var i = 0; i < snowflakes.length; i++ ){
+
+          snowflakes[i].update();
+
+        }
+
+      }
+
 
       renderer.render( scene, camera );
 
@@ -194,10 +170,6 @@
      
       var dpr = devicePixelRatio || 1;
 
-      //camUniforms.SS.value.x = window.innerWidth * dpr;
-      //camUniforms.SS.value.y = window.innerHeight * dpr;
-
-
     }
 
     function onKeyDown(e){
@@ -208,7 +180,14 @@
 
       }
 
-      if( e.keyCode == 49 ){
+      if( e.keyCode == 48 ){
+
+        uniforms.debug.value = (uniforms.debug.value + 1) % 4;
+
+      }
+
+
+      /*if( e.keyCode == 49 ){
 
         debugLines.visible = !debugLines.visible;
 
@@ -219,18 +198,13 @@
         debugPoints.visible = !debugPoints.visible;
 
       }
+      
       if( e.keyCode == 51 ){
 
         debugMesh.visible = !debugMesh.visible;
 
-      }
+      }*/
 
-      if( e.keyCode == 48 ){
-
-        uniforms.debug.value = (uniforms.debug.value + 1) % 4;
-       // debugMesh.visible = !debugMesh.visible;
-
-      }
 
      console.log( e.keyCode );
 
@@ -238,10 +212,9 @@
    }
 
 
-    function resetGrowth(){
-      var size = SIM_SIZE;
-      
-      var data = new Float32Array( SIM_SIZE * SIM_SIZE * 4 );
+   function createResetTexture( size ){
+
+     var data = new Float32Array( size * size * 4 );
 
       for( var i = 0; i < data.length; i+=4 ){
 
@@ -266,10 +239,12 @@
 
       texture.needsUpdate = true;
 
-      grower.reset( texture );
+      return texture;
 
    }
-  </script>
+
+
+ </script>
 
 </body>
 </html>

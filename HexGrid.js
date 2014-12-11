@@ -62,7 +62,9 @@ function createHexGridGeometry(size ){
         positions[ index * 3 + 15 ] = v3[0]; 
         positions[ index * 3 + 16 ] = v3[1]; 
         positions[ index * 3 + 17 ] = v3[2];
-       
+
+        
+
       
       }else{
 
@@ -80,24 +82,21 @@ function createHexGridGeometry(size ){
         positions[ index * 3 + 8  ] = v3[2];
 
         // Triangle 2
-        positions[ index * 3 + 9  ] = v4[0]; 
-        positions[ index * 3 + 10 ] = v4[1]; 
-        positions[ index * 3 + 11 ] = v4[2];
-        
-        positions[ index * 3 + 12 ] = v2[0]; 
-        positions[ index * 3 + 13 ] = v2[1]; 
-        positions[ index * 3 + 14 ] = v2[2];
+        positions[ index * 3 + 9  ] = v2[0]; 
+        positions[ index * 3 + 10 ] = v2[1]; 
+        positions[ index * 3 + 11 ] = v2[2];
        
+        positions[ index * 3 + 12 ] = v4[0]; 
+        positions[ index * 3 + 13 ] = v4[1]; 
+        positions[ index * 3 + 14 ] = v4[2];
+        
         positions[ index * 3 + 15 ] = v1[0]; 
         positions[ index * 3 + 16 ] = v1[1]; 
         positions[ index * 3 + 17 ] = v1[2];
 
 
 
-
       }
-      
-     
 
     }
   }
