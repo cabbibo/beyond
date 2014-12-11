@@ -11,7 +11,26 @@ Choreography.prototype.addEvent = function( cb , t ){
 
 }
 
-Choreography.prototype.addTweenEvent = function(){
+Choreography.prototype.addTweenEvent = function( valueToTween , endValue , t1 , t2 ){
+
+  var i = valueToTween
+  var f = endValue;
+
+  var t = new TWEEN.Tween( i ).to( f , (t2 - t1 ) * 1000 );
+
+  t.onUpdate( function(){
+
+  });
+
+  var cb = function(){
+    
+    t.start();
+  
+  }
+
+  this.addEvent( cb , t1 );
+
+
 
 
 }

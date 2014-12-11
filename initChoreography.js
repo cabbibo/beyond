@@ -25,6 +25,18 @@ function initChoreography(){
     5                 // Time ( seconds )
   );
 
+
+  c.addTweenEvent(
+    snowflakes[1].body.rotation,        // Value to alter
+    {                                   // Final Value
+      x: snowflakes[1].body.rotation.x + .03,
+      y: snowflakes[1].body.rotation.y + .1,
+      z: snowflakes[1].body.rotation.z + .06,
+    },
+    3,                                  // Start Time ( seconds )
+    5                                   // End Time ( seconds )
+  );
+
   choreography.addEvent( function(){
   
     var p = new THREE.Vector3( 2 , 0 , -1 );
