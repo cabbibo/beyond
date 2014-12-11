@@ -35,18 +35,44 @@
       font-family:"GeoSans";
     }
 
+    
     #loading{
 
       position: fixed;
       top: 50%;
       left: 50%;
-      width: 400px;
+      width:100%;
       height: 50px;
       text-align: center;
       margin-top: -25px;
-      margin-left: -200px;
+      margin-left:-50%;
       font-size: 40px;
     
+    }
+
+    #songLoad{
+
+      font-size: 25px;
+
+    }
+
+    #songLoad a{
+
+      opacity:.6;
+      text-decoration:underline;
+
+    }
+
+    #songLoad a:hover{
+
+      opacity:1;
+
+    }
+
+    #dedication{
+
+      font-size: 40px;
+
     }
   </style>
 
@@ -55,11 +81,8 @@
 
 
 <div id = "loading">
-
-  <div id="songLoad">
-    Loading Song: 98%
-  </div>
-
+  <div id="dedication"></div>
+  <div id="songLoad"></div>
 </div>
 
 <script src = "lib/three.js"                  ></script>
@@ -99,6 +122,15 @@
 
     var loaded = false;
     var loadSnowflake;
+
+
+    var dedication = "For Julia";
+    var quote;
+    /*
+
+    TODO: Get dedication / share information
+
+    */
 
     // Gets a snowflake in so we can keep
     // people entertained while everything loads
@@ -140,46 +172,37 @@
     // Audio should always load after shaders,
     // so lets leave t
     shaders.shaderSetLoaded = function(){
-      onLoad(); 
+      onShadersLoaded();
     }
 
    
     var audioController = new AudioController();
-   // audioController.mute.gain.value = 0;
 
     var audio = new LoadedAudio( audioController , 'audio/beyond.mp3' , {
       texture: false
     });
 
-    audio.firstLoadProgress = false;
+
+    var elem = document.getElementById("dedication");
+
+    elem.innerHTML = dedication;
+
     audio.loadProgress = function(){
 
-      if( this.firstLoadProgress === false ){
-
-        console.log( 'FIRST LOADS');
-        this.firstLoadProgress = true;
-      
-      }
-
       var elem = document.getElementById("songLoad");
-      console.log('ELEM')
 
       var p = Math.floor( this.loaded * 100);
       p += "%";
       elem.innerHTML = "Loading Song: " + p;
 
       loadSnowflake.material.uniforms.filled.value = this.loaded * 10.;
-      console.log( loadSnowflake.material.uniforms.filled );
-
-      console.log( this.loaded );
 
     }
 
     audio.onLoad = function(){
 
-      //loadSnowflake.material.uniforms.filled.value = this.loaded;
-      console.log( loadSnowflake.material.uniforms.filled );
-
+      var elem = document.getElementById("songLoad");
+      elem.innerHTML = "<a onclick='start()'>Let It Snow</a>"
       onLoad();
 
     }
@@ -238,17 +261,9 @@
 
       clock = new THREE.Clock();
 
-      var ss = shaders.ss.test1;
-      var vs = shaders.vs.debugMesh;
-      var fs = shaders.fs.debugMesh;
-
-
       initSnowflakes();
       initChoreography();
 
-      loaded = true;
-      
-      
       /* var snowflake = new Snowflake( ss , vs , fs );
       snowflakes.push( snowflake );
 
@@ -258,14 +273,15 @@
 
    
     function animate() {
+      
       requestAnimationFrame( animate );
 
-        controls.update();
-
+      controls.update();
+      TWEEN.update();
+        
       if( loaded == true ){
 
         audioController.update();
-        TWEEN.update();
 
         uniforms.dT.value = clock.getDelta();
         uniforms.time.value += uniforms.dT.value;
@@ -342,6 +358,40 @@
 
    }
 
+
+   function start(){
+
+     init();
+
+     $("#loading").fadeOut( 1000 , function(){});
+
+
+    var i = { v: loadSnowflake.material.uniforms.filled.value };
+    var f = { v: 0 }
+
+    var t = new TWEEN.Tween( i ).to( f , i.v * 300);
+
+    t.onUpdate( function(){
+      console.log('hello');
+      loadSnowflake.material.uniforms.filled.value = i.v;
+    });
+
+    t.onComplete( function(){
+      scene.remove( loadSnowflake );
+
+      window.setTimeout( function(){
+
+        audio.play();
+        loaded = true;
+
+      }, 1000 );
+
+    });
+
+    t.start();
+
+
+   }
 
    function createResetTexture( size ){
 

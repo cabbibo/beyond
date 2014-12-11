@@ -8,7 +8,10 @@ function initChoreography(){
 
     snowflakes[0].activate();
 
-  } , 1 );
+
+  // First number has to be slightly above 0
+  // because I don't know how to program
+  } , 0.0001);
 
 
   choreography.addEvent( function(){
