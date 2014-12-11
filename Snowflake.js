@@ -4,31 +4,26 @@ function Snowflake( ss , vs , fs , u ){
 
   this.ss = shaders.setValue( ss , 'SIZE' , SIM_SIZE+"." );
 
-
   this.soul = new DiffusionRenderer( SIM_SIZE , this.ss , renderer );
 
-  this.soul.setUniform( 'time'    , uniforms.time     );
-  this.soul.setUniform( 'dT'      , uniforms.dT       );
-  this.soul.setUniform( 't_audio' , uniforms.t_audio  );
 
-  this.soul.addBoundTexture( uniforms.t_depth , 'output' );
+  this.uniforms = this.createNewUniforms( u );
 
-
-  // For specific uniforms of snowflakes
-  if( u ){
-
-    for( var propt in u ){
-      this.soul.setUniform( propt , u[propt] );
-    }
-
+  for( var propt in this.uniforms ){
+    this.soul.setUniform( propt , this.uniforms[propt] );
   }
 
+  console.log( this.uniforms );
+  this.soul.addBoundTexture( this.uniforms.t_depth , 'output' );
+
+
+ 
   this.geo = SNOWFLAKE_GEO;
 
   var vs = shaders.setValue( vs , 'SIZE' , SIM_SIZE-1 );
-  
+ 
   this.mat = new THREE.ShaderMaterial({
-    uniforms: uniforms,
+    uniforms: this.uniforms,
     vertexShader: vs,
     fragmentShader: fs,
    // side: THREE.DoubleSide,
@@ -44,6 +39,33 @@ function Snowflake( ss , vs , fs , u ){
 
 }
 
+
+Snowflake.prototype.createNewUniforms = function(u){
+
+  var newU = {};
+
+  for( var propt in uniforms ){
+
+    // Need our own tDepth
+    if( propt != 't_depth' ){
+      newU[ propt ] = uniforms[propt];
+    }
+
+  }
+
+  // creating our own depth uniform
+  newU.t_depth = { type:"t" , value: null }
+
+  // For specific uniforms of snowflakes
+  if( u ){
+    for( var propt in u ){
+      newU[ propt ] = u[ propt ]
+    }
+  }
+
+  return newU;
+
+}
 
 Snowflake.prototype.update = function(){
 

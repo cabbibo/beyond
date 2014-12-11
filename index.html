@@ -9,34 +9,49 @@
   </style>
   <body>
 
-<script src="lib/three.js"></script>
-<script src="lib/jquery.min.js"></script>
-<script src="lib/TrackballControls.js"></script>
-<script src="lib/MouseMoveControls.js"></script>
-<script src="lib/ShaderLoader.js"></script>
-<script src="lib/underscore.js"></script>
-<script src="lib/dat.gui.min.js"></script>
-<script src="lib/GUI.js"></script>
+<script src = "lib/three.js"                  ></script>
+<script src = "lib/jquery.min.js"             ></script>
+<script src = "lib/TrackballControls.js"      ></script>
+<script src = "lib/MouseMoveControls.js"      ></script>
+<script src = "lib/ShaderLoader.js"           ></script>
+<script src = "lib/underscore.js"             ></script>
+<script src = "lib/dat.gui.min.js"            ></script>
+<script src = "lib/GUI.js"                    ></script>
 
-<script src="lib/AudioController.js"></script>
-<script src="lib/AudioTexture.js"></script>
-<script src="lib/UserAudio.js"></script>
+<script src = "lib/AudioController.js"        ></script>
+<script src = "lib/AudioTexture.js"           ></script>
+<script src = "lib/LoadedAudio.js"            ></script>
+<script src = "lib/UserAudio.js"              ></script>
 
-<script src="lib/DiffusionRenderer.js" ></script>
+<script src = "lib/DiffusionRenderer.js"      ></script>
 
-<script src="lib/Tween.js"></script>
-<script src="SnowflakeGeometry.js"></script>
-<script src="Snowflake.js"></script>
-<script src="HexGrid.js"></script>
-<script src="Choreography.js"></script>
+<script src = "lib/Tween.js"                  ></script>
+<script src = "SnowflakeGeometry.js"          ></script>
+<script src = "Snowflake.js"                  ></script>
+<script src = "HexGrid.js"                    ></script>
+<script src = "Choreography.js"               ></script>
+
+<script src = "initSnowflakes.js"             ></script>
+<script src = "initChoreography.js"           ></script>
+<script src = "initLoadSnowflake.js"          ></script>
 
 <script>
+
 
     var scene, camera, renderer , clock;
     var geometry, material, mesh;
     var controls;
 
     var debugLines , debugPoints , debugMesh;
+
+    var loaded = false;
+    var loadSnowflake;
+
+    // Gets a snowflake in so we can keep
+    // people entertained while everything loads
+    setup();
+    animate();
+
 
 
     var updateSim = true;
@@ -68,16 +83,50 @@
     shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
     shaders.load( 'ss-snowflake1' , 'snowflake1'  , 'simulation' );
 
+
+    // Audio should always load after shaders,
+    // so lets leave t
     shaders.shaderSetLoaded = function(){
-      init();
-      animate();
+      onLoad(); 
     }
 
    
     var audioController = new AudioController();
-    audioController.mute.gain.value = 0;
+   // audioController.mute.gain.value = 0;
 
-    var userAudio = new UserAudio( audioController ); 
+    var audio = new LoadedAudio( audioController , 'audio/beyond.mp3' , {
+      texture: false
+    });
+
+    audio.firstLoadProgress = false;
+    audio.loadProgress = function(){
+
+      if( this.firstLoadProgress === false ){
+
+        console.log( 'FIRST LOADS');
+        this.firstLoadProgress = true;
+      
+      }
+
+      loadSnowflake.material.uniforms.filled.value = this.loaded * 10.;
+      console.log( loadSnowflake.material.uniforms.filled );
+
+      console.log( this.loaded );
+
+    }
+
+    audio.onLoad = function(){
+
+      //loadSnowflake.material.uniforms.filled.value = this.loaded;
+      console.log( loadSnowflake.material.uniforms.filled );
+
+      onLoad();
+
+    }
+
+
+
+   // var userAudio = new UserAudio( audioController ); 
 
     var matcap  = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
     var aT      = audioController.texture;
@@ -96,9 +145,11 @@
 
     }
 
+    
 
-    function init() {
 
+    // Before all our shaders / song are loaded
+    function setup(){
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
@@ -109,12 +160,22 @@
       document.body.appendChild( renderer.domElement );
 
      
-      scene = new THREE.Scene();
+      scene   = new THREE.Scene();
 
-      camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .003, 30 );
+      var ar  = window.innerWidth / window.innerHeight;
+      camera  = new THREE.PerspectiveCamera( 75, ar , .003, 30 );
+
       camera.position.z = 1;
-
       controls = new THREE.TrackballControls( camera , renderer.domElement );
+
+      loadSnowflake = initLoadSnowflake();
+      loadSnowflake.scale.multiplyScalar( .004 );
+      scene.add( loadSnowflake );
+
+    }
+
+    function init(){
+
 
       clock = new THREE.Clock();
 
@@ -122,33 +183,43 @@
       var vs = shaders.vs.debugMesh;
       var fs = shaders.fs.debugMesh;
 
-      var snowflake = new Snowflake( ss , vs , fs );
+
+      initSnowflakes();
+      initChoreography();
+
+      loaded = true;
+      
+      
+      /* var snowflake = new Snowflake( ss , vs , fs );
       snowflakes.push( snowflake );
 
-      snowflake.activate();
+      snowflake.activate();*/
 
     }
 
    
     function animate() {
-
       requestAnimationFrame( animate );
 
+        controls.update();
 
-      audioController.update();
-      controls.update();
-      TWEEN.update();
+      if( loaded == true ){
 
-      uniforms.dT.value = clock.getDelta();
-      uniforms.time.value += uniforms.dT.value;
+        audioController.update();
+        TWEEN.update();
 
-      choreography.update();
+        uniforms.dT.value = clock.getDelta();
+        uniforms.time.value += uniforms.dT.value;
 
-      if( updateSim == true ){
+        choreography.update();
 
-        for( var i = 0; i < snowflakes.length; i++ ){
+        if( updateSim == true ){
 
-          snowflakes[i].update();
+          for( var i = 0; i < snowflakes.length; i++ ){
+
+            snowflakes[i].update();
+
+          }
 
         }
 
@@ -156,6 +227,7 @@
 
 
       renderer.render( scene, camera );
+      
 
     }
 
@@ -243,6 +315,11 @@
 
    }
 
+   //loaded = ++
+   function onLoad(){
+
+
+   }
 
  </script>
 

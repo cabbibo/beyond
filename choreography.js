@@ -16,6 +16,12 @@ Choreography.prototype.addTweenEvent = function(){
 
 }
 
+Choreography.prototype.addCameraPositionEvent = function(){
+
+
+
+}
+
 
 // Checks to see if any events should be called
 Choreography.prototype.update = function(){
