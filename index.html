@@ -62,7 +62,7 @@
     var SNOWFLAKE_GEO = createHexGridGeometry( SIM_SIZE-1 );
     var RESET_TEXTURE = createResetTexture( SIM_SIZE );
 
-    var choreography = new Choreography();
+    var choreography; = new Choreography();
 
     var snowflakes = [];
 
@@ -158,7 +158,6 @@
       window.addEventListener( 'keydown', onKeyDown , false );
 
       document.body.appendChild( renderer.domElement );
-
      
       scene   = new THREE.Scene();
 

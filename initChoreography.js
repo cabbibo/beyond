@@ -1,6 +1,9 @@
 function initChoreography(){
 
 
+  choreography = new Choreography();
+
+
   choreography.addEvent( function(){
 
     snowflakes[0].activate();
