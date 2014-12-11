@@ -22,7 +22,7 @@ function initChoreography(){
 
   c.positionCamera(
     [ 0 , 0 , 1 ],    // Position
-    5                 // Time ( seconds )
+    5.01                // Time ( seconds )
   );
 
 
@@ -44,15 +44,7 @@ function initChoreography(){
   
   } , 3 );
 
-  
-  choreography.addEvent( function(){
 
-    snowflakes[0].deactivate();
-
-    var p = new THREE.Vector3( -1 , 0 , 0 );
-    snowflakes[2].activate(p);
-
-  } , 4 );
 
   //choreography.positionCamera( [ -1 , 0 , 1 ] , 4 );
 
