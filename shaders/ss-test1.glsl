@@ -28,6 +28,13 @@ void main(){
 
 
 
+  vec2 modVec[6];
+
+
+  modVec[0] = vec2( iSize , 0. );
+  modVec[3] = vec2( -iSize , 0. );
+
+
   vec2 sR = uv + vec2( iSize , 0. );
   vec2 sL = uv - vec2( iSize , 0. );
 
@@ -46,11 +53,23 @@ void main(){
     sUL.x -= iSize;
     sUL.y += iSize;
     
+    sDL.x -= iSize;
+    sDL.y -= iSize; 
+    
     sDR.x += 0.;
     sDR.y -= iSize;
 
-    sDL.x -= iSize;
-    sDL.y -= iSize;
+
+    modVec[1] = vec2( 0. , iSize );
+    modVec[2] = vec2( -iSize , iSize );
+    modVec[4] = vec2( -iSize , -iSize );
+    modVec[5] = vec2( 0. , -iSize );
+
+    /*modVec[1] = vec2( iSize , iSize );
+    modVec[2] = vec2( 0. , iSize );
+    modVec[4] = vec2( 0 , -iSize );
+    modVec[5] = vec2( iSize , -iSize );*/
+
 
   }else{
 
@@ -60,15 +79,30 @@ void main(){
     sUL.x += 0.;
     sUL.y += iSize;
     
+    sDL.x += 0.;
+    sDL.y -= iSize;
+    
     sDR.x += iSize;
     sDR.y -= iSize;
 
-    sDL.x += 0.;
-    sDL.y -= iSize;
+    modVec[1] = vec2( iSize , iSize );
+    modVec[2] = vec2( 0. , iSize );
+    modVec[4] = vec2( 0 , -iSize );
+    modVec[5] = vec2( iSize , -iSize );
+
+    /*modVec[1] = vec2( 0. , iSize );
+    modVec[2] = vec2( -iSize , iSize );
+    modVec[4] = vec2( -iSize , -iSize );
+    modVec[5] = vec2( 0. , -iSize );*/
+
 
   }
 
 
+
+  float rand = float( 99. * abs( cos( sin( time * 1000.51612) * cos( time * 10000.12615 ) ) ));
+
+  int rand6 = int( mod( rand , 6. ) );
   vec2 d = uv - vec2( .5+iSize / 2. );
     
 
@@ -83,7 +117,7 @@ void main(){
 
   }
 
-  float t = atan( d.y , d.x );
+  float t = atan( d.y , d.x ) + 3.14159;
   float r = length( d );
 
   float tA = PI * 2. / 6.;
@@ -96,8 +130,11 @@ void main(){
   // Level
   // crystalized
 
+  vec4 audio = texture2D( t_audio , vec2( t , 0.)  );
 
 
+  // Limits our growth using alpha, and makes sure
+  // we don't hit the edge
   if( pos.a > 0. && length( d )  < .5){
     
     float usable = canUse( sUR , sUL , sDR , sDL , sL , sR );
@@ -109,40 +146,36 @@ void main(){
     if( usable > .5 ){
 
 
-      // If we aren't part of the crystal,
-      // cool slightly
+      // If we are part of the crystal,
       if( pos.z > .5 ){
-          vec4 audio = texture2D( t_audio , vec2( abs( length( fromCenter ) ) , 0. ));
+  
 
-      //  if( pos.a 
-         pos.a -=5.5;
-        // pos.a -= 200.4  * tDif * length( audio ) *  length( fromCenter )* length( fromCenter )* length( fromCenter ) + 2.5;
+        vec4 dP[ 6 ];
+        vec2 s[ 6 ];
 
-       // pos.y -= .1 * ( 1. / length(fromCenter ) ) * tDif ;
+        s[0] = sR; s[1] = sUR; s[2] = sUL; 
+        s[3] = sL; s[4] = sDL; s[5] = sDR;
 
-        /*if( pos.y < 0. ){
-          pos.z = 1.;
-          pos.x = 1.;
+        dP[0] = texture2D( t_pos , s[0] );
+        dP[1] = texture2D( t_pos , s[1] );
+        dP[2] = texture2D( t_pos , s[2] );
+        dP[3] = texture2D( t_pos , s[3] );
+        dP[4] = texture2D( t_pos , s[4] );
+        dP[5] = texture2D( t_pos , s[5] );
+       
+       // if( audio.x > .0 ){
+        // pos.a -=  pow((tA * .5 - tDif), .3); 
+        for( int i = 0; i < 6; i++ ){
+
+          if( i != int( pos.y ) ){
+            vec4 data = dP[i];
+            pos.x += .1;//data.z;
+          }
         }
 
-        pos.a -= 1.;*/
-         
-         
-        // pos.x += (4. + length( audio ))/4.;
-         pos.x +=1.;
     
+      // If we aren't part of the crystal
       }else{
-
-           
-          float aL = abs( snoise( vec2( pow( r , 1. ) * 1. , tDif * .5 ) ));
-
-          vec4 audio = texture2D( t_audio , vec2( aL , 0. ));
-       
-          float multiplier =  abs(snoise( abs(vec2( pow(r,.1) * 5. , length( audio ) *length( audio )) )));
-
-         
-        pos.a -= .1;
-        pos.a -= abs(multiplier) * length( audio )  * length( audio ) * 4.1  * tDif;
 
         
         vec4 dP[ 6 ];
@@ -157,49 +190,20 @@ void main(){
         dP[3] = texture2D( t_pos , s[3] );
         dP[4] = texture2D( t_pos , s[4] );
         dP[5] = texture2D( t_pos , s[5] );
-
-            
-
+       
        // if( audio.x > .0 ){
         // pos.a -=  pow((tA * .5 - tDif), .3); 
         for( int i = 0; i < 6; i++ ){
           vec4 data = dP[i];
-          if( data.z > .5 ){
+          if( data.z > .5){
+    
+            pos.z += data.z * .1;
+            pos.x += 1.;
+            pos.y = float( i );
 
-            vec2 dA = s[i] - vec2( .5+iSize / 2. );
-
-            float match = dot( d  , d-dA );
-            vec4 audio = texture2D( t_audio , vec2( abs(match) , 0. ));
-
-            //float multiplier = snoise( abs(vec2(pow(r,.1) * 10.  , tDif * 2. ) ) );
-            if(abs( multiplier )< audio.x){
-
-              multiplier *= 0.5;
-              
-            }else{
-
-              multiplier *= 3.;
-            }
-
-            pos.y -= 40.* (10./pos.a) * length( audio ) * ( multiplier *  multiplier  * 5. +.5 );// * data.x;
-
-            if( pos.y < 0. ){
-
-              pos.z += .2;
-              pos.x += length( audio );
-              //pos.a -= length( audio ) * length( audio )  * 5.;
-
-            }
-
+            break;
           }
-        
-       // }
-
         }
-
-   
-
-       // pos.a -= 2.;
       }
 
     }
