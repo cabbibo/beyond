@@ -110,8 +110,8 @@ void main(){
   // of the crystal
   if( length(d) < iSize/8. ){
 
-    pos = vec4( 1.01 );
-    pos.y = .00;
+    pos.x = 1.;
+    pos.y = .0;
     pos.z = 1.;
     pos.a = -.1;
 
@@ -130,7 +130,7 @@ void main(){
   // Level
   // crystalized
 
-  vec4 audio = texture2D( t_audio , vec2( t , 0.)  );
+  vec4 audio = texture2D( t_audio , vec2( ( tDif * 5.) , 0.)  );
 
 
   // Limits our growth using alpha, and makes sure
@@ -145,68 +145,75 @@ void main(){
     // Order for dataPoints ( dP ) is RHR starting at right sample
     if( usable > .5 ){
 
+      vec4 dP[ 6 ];
+      vec2 s[ 6 ];
 
-      // If we are part of the crystal,
+      s[0] = sR; s[1] = sUR; s[2] = sUL; 
+      s[3] = sL; s[4] = sDL; s[5] = sDR;
+
+      dP[0] = texture2D( t_pos , s[0] );
+      dP[1] = texture2D( t_pos , s[1] );
+      dP[2] = texture2D( t_pos , s[2] );
+      dP[3] = texture2D( t_pos , s[3] );
+      dP[4] = texture2D( t_pos , s[4] );
+      dP[5] = texture2D( t_pos , s[5] );
+    
+
+      // Part of crystal
       if( pos.z > .5 ){
-  
 
-        vec4 dP[ 6 ];
-        vec2 s[ 6 ];
+        pos.x += length( audio );
+        pos.a -= 2.;
 
-        s[0] = sR; s[1] = sUR; s[2] = sUL; 
-        s[3] = sL; s[4] = sDL; s[5] = sDR;
+      //lonely
+      }else{
 
-        dP[0] = texture2D( t_pos , s[0] );
-        dP[1] = texture2D( t_pos , s[1] );
-        dP[2] = texture2D( t_pos , s[2] );
-        dP[3] = texture2D( t_pos , s[3] );
-        dP[4] = texture2D( t_pos , s[4] );
-        dP[5] = texture2D( t_pos , s[5] );
-       
-       // if( audio.x > .0 ){
-        // pos.a -=  pow((tA * .5 - tDif), .3); 
         for( int i = 0; i < 6; i++ ){
 
-          if( i != int( pos.y ) ){
-            vec4 data = dP[i];
+          vec4 data = dP[i];
+
+         // if( i == section ){
+          // Cool down based on neighboring temp
+          pos.y -= pow( length( audio ), 10. ) * data.z * .1 ; //* .0001 /  length( fromCenter );// / (data.y+.0001 );
+
+
+
+
+         // }
+
+          
+       
+         
+        }
+
+
+        // If we are less that 0, freeze dat shit
+          if( pos.y < 0. ){
+
+            pos.z += 1.;
+            pos.x += 1.;
+
+          }
+
+
+
+
+      }
+    
+     /* for( int i = 0; i < 6; i++ ){
+
+        if( i != int( pos.y ) ){
+          vec4 data = dP[i];
+
+          if( data.x < pos.x ){
             pos.x += .1;//data.z;
           }
         }
+      }*/
 
-    
-      // If we aren't part of the crystal
-      }else{
-
-        
-        vec4 dP[ 6 ];
-        vec2 s[ 6 ];
-
-        s[0] = sR; s[1] = sUR; s[2] = sUL; 
-        s[3] = sL; s[4] = sDL; s[5] = sDR;
-
-        dP[0] = texture2D( t_pos , s[0] );
-        dP[1] = texture2D( t_pos , s[1] );
-        dP[2] = texture2D( t_pos , s[2] );
-        dP[3] = texture2D( t_pos , s[3] );
-        dP[4] = texture2D( t_pos , s[4] );
-        dP[5] = texture2D( t_pos , s[5] );
-       
-       // if( audio.x > .0 ){
-        // pos.a -=  pow((tA * .5 - tDif), .3); 
-        for( int i = 0; i < 6; i++ ){
-          vec4 data = dP[i];
-          if( data.z > .5){
-    
-            pos.z += data.z * .1;
-            pos.x += 1.;
-            pos.y = float( i );
-
-            break;
-          }
-        }
-      }
 
     }
+
   }
 
   gl_FragColor = pos;
