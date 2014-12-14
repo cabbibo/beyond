@@ -278,7 +278,7 @@
       scene   = new THREE.Scene();
 
       var ar  = window.innerWidth / window.innerHeight;
-      camera  = new THREE.PerspectiveCamera( 75, ar , .003, 30 );
+      camera  = new THREE.PerspectiveCamera( 75, ar , .003, 10 );
 
       camera.position.z = 1;
       controls = new THREE.TrackballControls( camera , renderer.domElement );
