@@ -61,9 +61,16 @@ function initChoreography(){
   );
 
   c.positionCamera(
-    [ .1 , 0 , 1 ],    
+    [ .1 , 0 , .8 ],    
     32.687          
   );
+
+  c.tweenCamera( 
+    [ .1 , 0 , 1. ] , 
+    [ .1 , 0 , 1.2 ] , 
+    32.690 ,
+    39.250 
+  ); 
  
 
   c.addTweenEvent( snowflakes[0].body.rotation,{
