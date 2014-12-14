@@ -13,7 +13,7 @@ function Snowflake( ss , vs , fs , u ){
     this.soul.setUniform( propt , this.uniforms[propt] );
   }
 
-  console.log( this.uniforms );
+  //console.log( this.uniforms );
   this.soul.addBoundTexture( this.uniforms.t_depth , 'output' );
 
 

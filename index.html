@@ -87,6 +87,7 @@
 
 <script src = "lib/three.js"                  ></script>
 <script src = "lib/jquery.min.js"             ></script>
+<script src = "lib/Tween.js"                  ></script>
 <script src = "lib/TrackballControls.js"      ></script>
 <script src = "lib/MouseMoveControls.js"      ></script>
 <script src = "lib/ShaderLoader.js"           ></script>
@@ -99,17 +100,18 @@
 <script src = "lib/LoadedAudio.js"            ></script>
 <script src = "lib/UserAudio.js"              ></script>
 
+<script src = "lib/TextCreator.js"            ></script>
 <script src = "lib/DiffusionRenderer.js"      ></script>
 
-<script src = "lib/Tween.js"                  ></script>
 <script src = "SnowflakeGeometry.js"          ></script>
 <script src = "Snowflake.js"                  ></script>
 <script src = "HexGrid.js"                    ></script>
 <script src = "Choreography.js"               ></script>
 
+<script src = "initLoadSnowflake.js"          ></script>
 <script src = "initSnowflakes.js"             ></script>
 <script src = "initChoreography.js"           ></script>
-<script src = "initLoadSnowflake.js"          ></script>
+<script src = "initText.js"                   ></script>
 
 <script>
 
@@ -117,18 +119,37 @@
     var scene, camera, renderer , clock;
     var geometry, material, mesh;
     var controls;
-
+  
     var debugLines , debugPoints , debugMesh;
 
     var loaded = false;
     var loadSnowflake;
 
+    var textCreator;
 
-    var dedication = "For AKI";
-    var quote;
+    var dedication = "For You";
+
+    var quoteText = [
+
+      "Out beyond ideas of wrongdoing and rightdoing,",
+      "there is a field. I'll meet you there.",
+      "","",
+      "When the soul lies down in that grass,",
+      "the world is too full to talk about.",
+      "","",
+      "                       - Rumi"
+
+
+    ].join("\n");
+
+
+    // 3D Text Chunks
+    var title , quote;
+
+
     /*
 
-    TODO: Get dedication / share information
+    TODO: Get dedication / quote information
 
     */
 
@@ -170,27 +191,37 @@
 
 
     // Audio should always load after shaders,
-    // so lets leave t
+    // so lets leave it
     shaders.shaderSetLoaded = function(){
-      onShadersLoaded();
+    //  onShadersLoaded();
     }
 
    
     var audioController = new AudioController();
+
+    //audioController.mute.gain.value = 0;
 
     var audio = new LoadedAudio( audioController , 'audio/beyond.mp3' , {
       texture: false
     });
 
 
-    var elem = document.getElementById("dedication");
+    /*
 
+      All of this happens before the project even starts /
+      inits, AKA, keeps people interested while we load things
+
+    */
+    var elem = document.getElementById("dedication");
     elem.innerHTML = dedication;
 
     audio.loadProgress = function(){
 
       var elem = document.getElementById("songLoad");
 
+
+      // Tells people how much of the song is loaded
+      // and shows them, by filling out the snowflake
       var p = Math.floor( this.loaded * 100);
       p += "%";
       elem.innerHTML = "Loading Song: " + p;
@@ -199,6 +230,8 @@
 
     }
 
+
+    // Adds in first start text
     audio.onLoad = function(){
 
       var elem = document.getElementById("songLoad");
@@ -258,11 +291,17 @@
 
     function init(){
 
+      textCreator = new TextCreator( 30 );
 
+
+      //text
       clock = new THREE.Clock();
 
+      initText( quoteText );
       initSnowflakes();
       initChoreography();
+
+
 
       /* var snowflake = new Snowflake( ss , vs , fs );
       snowflakes.push( snowflake );
@@ -372,7 +411,7 @@
     var t = new TWEEN.Tween( i ).to( f , i.v * 300);
 
     t.onUpdate( function(){
-      console.log('hello');
+    //  console.log('hello');
       loadSnowflake.material.uniforms.filled.value = i.v;
     });
 

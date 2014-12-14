@@ -1,0 +1,3 @@
+Things to worry about:
+
+- No promising that shaders will be loaded by the time the audio is loaded...
