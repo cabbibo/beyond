@@ -216,6 +216,13 @@ function initChoreography(){
    snowflakes[4].activate( p );
   } ,  79.960 );
 
+  c.addEvent( function(){
+   snowflakes[4].deactivate();
+  } ,  87.075  );
+
+
+
+
 
   c.addTweenEvent( snowflakes[2].body.rotation,{
     x: snowflakes[2].body.rotation.x + .1,
