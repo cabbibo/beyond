@@ -109,7 +109,7 @@ void main(){
 
   // Sets our 'seed' 
   // of the crystal
-  if( length(d) < iSize * 4. ){
+  if( length(d) < iSize/8. ){
 
     pos.x = 1.;
     pos.y = .0;
@@ -149,41 +149,20 @@ void main(){
   s = xBasis;
   float xAmount = dot( v , s ) / dot( s , s );
 
-  float noiseSize = 20.;
- /* vec2 lookup = vec2( abs(xAmount*noiseSize) , yAmount* noiseSize);
-  float sim = 0.;//snoise( lookup )* abs(xAmount)*10. ;
+  float noiseSize = 10.;
+  vec2 lookup = vec2( abs(xAmount*noiseSize) , yAmount* noiseSize);
+  float sim = snoise( lookup )* abs(xAmount)*10. ;
   
-  lookup = vec2( abs(xAmount*noiseSize/10.) , yAmount* noiseSize/10.);
-  sim += snoise( lookup )* (1.- abs(xAmount)*5.);*/
-
- // vec2 lookup = vec2( abs( xAmount * noiseSize / 10. ) ,abs( yAmount * noiseSize) );
- // float sim = snoise( lookup ) *  (1. /(abs(xAmount)*10.));
-
-  vec2 lookup = vec2( abs(xAmount) * noiseSize  , yAmount);
-  float noiseX = snoise( lookup );
-
-   lookup = vec2( yAmount* noiseSize , abs( xAmount ) );
-  float noiseY = snoise( lookup );
-
-
- // float sim = abs(noiseX * abs(xAmount) * 5.)  + abs(noiseY * ( 1. -  abs(xAmount) * 5.)); 
-
-  float bigNoise = snoise( vec2( abs( xAmount * noiseSize ) , abs( yAmount * noiseSize )));
-
-  float smallNoise = snoise( vec2( abs( xAmount * noiseSize * .1 ) , abs( yAmount * noiseSize * .1 )));
-
-  float sim = bigNoise * ( 1. - xAmount ) + smallNoise * xAmount;
-
- 
-
- // lookup = vec2( abs(xAmount*noiseSize*10.) , yAmount* noiseSize*10.);
- // sim += .1 * snoise( lookup ) * (1.- abs(xAmount)*5.);
+  lookup = vec2( abs(xAmount*noiseSize/2.) , yAmount* noiseSize/2.);
+  sim += snoise( lookup )* (1.- abs(xAmount)*5.);
 
   // Temperature
   // Level
   // crystalized
 
-  vec4 audio = texture2D( t_audio , vec2( abs( sin( yAmount * 10. ) )  , 0.)  );
+  vec4 audio = texture2D( t_audio , vec2( ( abs( xAmount * 3. )) , 0.)  );
+
+  audio *= texture2D( t_audio , vec2( ( abs( yAmount )) , 0.)  );
 
   // Limits our growth using alpha, and makes sure
   // we don't hit the edge
@@ -214,11 +193,8 @@ void main(){
       // Part of crystal
       if( pos.z > .5 ){
 
-        vec4 audio2 = texture2D( t_audio , vec2( abs( abs(xAmount) * 10. ) , 0.)  );
-        
-        //pos.x +=  length(audio2) * .1 *( 1. / (tDif+.5));
-        pos.x +=  (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
-        pos.a -=  5.1;
+        pos.x += length( audio ) * .1;
+        pos.a -= (abs( sim ) + .1) * 5.;
 
       //lonely
       }else{
@@ -229,13 +205,9 @@ void main(){
 
           if( data.z > .5 ){
 
-            sim = float(int(sim * 3. )) + .1;
-            pos.y -= abs(sim) * 10. * (1./(abs(xAmount *10.) +.1)) ;
+            pos.y -= length( audio ) *  (abs( sim )+.1) * 10.;
          //   pos.z += abs( sim );
          //   pos.x += abs( sim );
-
-
-           pos.a -= length( audio )* 1.4;
 
 
           }
@@ -259,8 +231,7 @@ void main(){
 
           }
 
-         // pos.a -= length( audio )* .4 + abs( xAmount * xAmount * xAmount  * 1.) *  1.5;
-
+          pos.a -= length( audio  )* .1;
 
 
 

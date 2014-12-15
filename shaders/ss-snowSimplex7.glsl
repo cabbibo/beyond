@@ -149,7 +149,7 @@ void main(){
   s = xBasis;
   float xAmount = dot( v , s ) / dot( s , s );
 
-  float noiseSize = 20.;
+  float noiseSize = 100.;
  /* vec2 lookup = vec2( abs(xAmount*noiseSize) , yAmount* noiseSize);
   float sim = 0.;//snoise( lookup )* abs(xAmount)*10. ;
   
@@ -185,6 +185,7 @@ void main(){
 
   vec4 audio = texture2D( t_audio , vec2( abs( sin( yAmount * 10. ) )  , 0.)  );
 
+  audio *= audio; 
   // Limits our growth using alpha, and makes sure
   // we don't hit the edge
   if( pos.a > 0. && length( d )  < .5){
@@ -230,12 +231,12 @@ void main(){
           if( data.z > .5 ){
 
             sim = float(int(sim * 3. )) + .1;
-            pos.y -= abs(sim) * 10. * (1./(abs(xAmount *10.) +.1)) ;
+            pos.y -= .5  * 10. * (1./(abs(xAmount *xAmount* 1000.) +.1)) ;
          //   pos.z += abs( sim );
          //   pos.x += abs( sim );
 
 
-           pos.a -= length( audio )* 1.4;
+          pos.a -= length( audio )* 10.4 + abs( xAmount * xAmount + (yAmount * yAmount * 100. )  * 1.) *  1.5;
 
 
           }

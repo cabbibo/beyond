@@ -121,6 +121,9 @@
 
 
       debugMesh = new THREE.Mesh( geo , mat );
+
+      //debugMesh.scale.y *= .9;
+
       scene.add( debugMesh);
 
       var vs = shaders.setValue( shaders.vs.test1 , 'SIZE' , SIM_SIZE-1 );

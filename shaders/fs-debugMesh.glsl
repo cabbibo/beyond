@@ -9,7 +9,7 @@ void main(){
 
 
   if( debug == 0. ){
-    gl_FragColor = vec4( vNorm * .5 + .5 , 1. );
+    gl_FragColor = vec4( vNorm * .5 + .5 , vData.x / 2. ) + vec4( vCol , length( vCol) );
   }else if( debug == 1. ){
     gl_FragColor = vec4( vCol , 1. );
   }else if( debug == 2. ){
