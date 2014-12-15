@@ -18,7 +18,7 @@ void main(){
     gl_FragColor = vData * 100.;
   }else{
 
-    gl_FragColor = texture2D( t_audio ,vec2( abs(vNorm.x) , 0. ) ) * vec4( vNorm * .5 + .5 , 1. );
+    gl_FragColor = texture2D( t_audio ,vec2( abs(vNorm.x) , 0. ) ) * vec4( vNorm * .5 + .5 , vData.x );
 
   }
  // gl_FragColor = vec4( vCol.x , vCol.y , vCol.z , 1. );
