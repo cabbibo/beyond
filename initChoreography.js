@@ -222,8 +222,6 @@ function initChoreography(){
 
 
 
-
-
   c.addTweenEvent( snowflakes[2].body.rotation,{
     x: snowflakes[2].body.rotation.x + .1,
     y: snowflakes[2].body.rotation.y - .1,
@@ -263,6 +261,12 @@ function initChoreography(){
   }, 88.873 , 91.844 );
 
 
+  /*
+  
+     TODO: This seems to move everythign to 0. , .5 , 0.,
+     not what we want?
+
+  */
  // -.8 , .2 , .0
   c.addTweenEvent( snowflakes[2].body.position,{
     x: snowflakes[2].body.position.x,

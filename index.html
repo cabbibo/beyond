@@ -108,6 +108,7 @@
 <script src = "Snowflake.js"                  ></script>
 <script src = "HexGrid.js"                    ></script>
 <script src = "Choreography.js"               ></script>
+<script src = "Aurora.js"               ></script>
 
 <script src = "initLoadSnowflake.js"          ></script>
 <script src = "initSnowflakes.js"             ></script>
@@ -191,6 +192,9 @@
 
     shaders.load( 'vs-snow'       , 'snow'        , 'vertex'   );
     shaders.load( 'fs-snow'       , 'snow'        , 'fragment' );
+    
+    shaders.load( 'vs-aurora'       , 'aurora'        , 'vertex'   );
+    shaders.load( 'fs-aurora'       , 'aurora'        , 'fragment' );
     
     shaders.load( 'vs-test1'      , 'test1'       , 'vertex'   );
     shaders.load( 'fs-test1'      , 'test1'       , 'fragment' );
@@ -314,7 +318,13 @@
       initChoreography();
 
 
+      aurora = createAurora();
+      scene.add( aurora );
 
+      aurora.position.x = -3.;
+      aurora.rotation.y = .3;
+      aurora.rotation.x = .1;
+      aurora.rotation.z = -Math.PI / 2;
       /* var snowflake = new Snowflake( ss , vs , fs );
       snowflakes.push( snowflake );
 
@@ -327,7 +337,7 @@
       
       requestAnimationFrame( animate );
 
-      //controls.update();
+     // controls.update();
       TWEEN.update();
         
       if( loaded == true ){
