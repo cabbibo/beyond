@@ -85,6 +85,7 @@
   <div id="songLoad"></div>
 </div>
 
+
 <script src = "lib/three.js"                  ></script>
 <script src = "lib/jquery.min.js"             ></script>
 <script src = "lib/Tween.js"                  ></script>
@@ -121,30 +122,44 @@
     var controls;
   
     var debugLines , debugPoints , debugMesh;
+    var choreography , sections; 
 
     var loaded = false;
     var loadSnowflake;
 
     var textCreator;
 
-    var dedication = "For JAUME";
+    TWEEN.origTween = TWEEN.Tween;
+    TWEEN.Tween = function (options){
+      var res = new TWEEN.origTween(options);
+      res.easing(TWEEN.Easing.Quadratic.InOut);
+      return res;
+    };
+
+
+    // Lets us skip to different sections of audio
+    // for timing purposes
+    var startingSection = 0;
+    
+
+    // 3D Text Chunks
+    var title , quote;
+
+    var dedication = "For All Mankind";
 
     var quoteText = [
 
       "Out beyond ideas of wrongdoing and rightdoing,",
       "there is a field. I'll meet you there.",
-      "","",
+      "",
       "When the soul lies down in that grass,",
       "the world is too full to talk about.",
-      "","",
+      "",
       "                       - Rumi"
 
 
-    ].join("\n");
+    ];
 
-
-    // 3D Text Chunks
-    var title , quote;
 
 
     /*
@@ -168,10 +183,7 @@
     var SNOWFLAKE_GEO = createHexGridGeometry( SIM_SIZE-1 );
     var RESET_TEXTURE = createResetTexture( SIM_SIZE );
 
-    var choreography; 
-
     var snowflakes = [];
-
 
     var shaders = new ShaderLoader('shaders');
 
@@ -408,7 +420,8 @@
     var i = { v: loadSnowflake.material.uniforms.filled.value };
     var f = { v: 0 }
 
-    var t = new TWEEN.Tween( i ).to( f , i.v * 300);
+    var s = loadSnowflake.material.uniforms.filled.value
+    var t = new TWEEN.Tween( i ).to( f , s * 300);
 
     t.onUpdate( function(){
     //  console.log('hello');
@@ -420,8 +433,17 @@
 
       window.setTimeout( function(){
 
-        audio.play();
+   
+        var t = sections[ startingSection ];
+        console.log( t );
+        console.log( 'HELL');
+        uniforms.time.value += t;
+       
+        
+        audio.play( t );
         loaded = true;
+
+
 
       }, 1000 );
 
@@ -469,6 +491,21 @@
 
    }
 
+
+   function end(){
+
+     $("#loading").fadeIn( 1000 , function(){});
+
+    var elem = document.getElementById("loading");
+    elem.innerHTML =  "<a class='finalLink' onclick='createShareLink()'>Send Your Own Card</a>";
+
+   }
+
+   function createShareLink(){
+
+     console.log('TODO!');
+
+   }
  </script>
 
 </body>

@@ -27,7 +27,8 @@ function Snowflake( ss , vs , fs , u ){
     vertexShader: vs,
     fragmentShader: fs,
    // side: THREE.DoubleSide,
-    transparent: true
+    transparent: true,
+    depthWrite: false
   });
 
   this.body = new THREE.Mesh( this.geo , this.mat );
@@ -93,9 +94,29 @@ Snowflake.prototype.activate = function( position ){
 Snowflake.prototype.deactivate = function(){
 
   this.active = false;
+
+}
+
+Snowflake.prototype.remove = function(){
+
+  this.active = false;  
   scene.remove( this.body );
 
 }
+
+Snowflake.prototype.addInactive = function(){
+
+  this.active = false;
+  scene.add( this.body );
+
+}
+
+/*Snowflake.prototype.addInactive = function(){
+
+  this.active = false;
+  scene.add( this.body );
+
+}*/
 
 Snowflake.prototype.reset = function(){
 
