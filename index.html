@@ -6,9 +6,20 @@
       top:0px;
       margin:0px;
     }
+    #currentShader{
+
+      width:100%;
+      top:0px;
+      position: fixed;
+      color:#fff;
+
+    }
   </style>
   <body>
 
+    <div id="currentShader">
+
+    </div>
 <script src="lib/three.js"></script>
 <script src="lib/jquery.min.js"></script>
 <script src="lib/TrackballControls.js"></script>
@@ -48,6 +59,25 @@
 
     var gui = new dat.GUI();
 
+
+    currentShader = -1;
+    SIM_SHADERS = [
+
+      'test1',
+      'test2',
+      'test3',
+      'snowflake1',
+      'snowflake2',
+      'snowSimplex1',
+      'snowSimplex2',
+      'snowSimplex3',
+      'snowSimplex4',
+      'snowSimplex5',
+      'snowSimplex6',
+      'snowSimplex7',
+      'snowSimplex8'
+
+    ]
     shaders.load( 'vs-snow' , 'snow' , 'vertex'   );
     shaders.load( 'fs-snow' , 'snow' , 'fragment' );
     
@@ -56,6 +86,16 @@
     shaders.load( 'vs-debugMesh' , 'debugMesh' , 'vertex'   );
     shaders.load( 'fs-debugMesh' , 'debugMesh' , 'fragment' );
 
+    for( var i = 0; i < SIM_SHADERS.length; i++ ){
+
+      var s = SIM_SHADERS[i];
+      var n = 'ss-' + s;
+
+      shaders.load( n , s , 'simulation' );
+
+
+    }
+    
 
     shaders.load( 'ss-test1' , 'test1' , 'simulation' );
 
@@ -146,8 +186,26 @@
       debugPoints.position.z = .001;
       debugPoints.visible = false;
 
+      nextSnowflake();
 
-      var ss = shaders.setValue( shaders.ss.test1 , 'SIZE' , SIM_SIZE+"." );
+     /* var ss = shaders.setValue( shaders.ss.test1 , 'SIZE' , SIM_SIZE+"." );
+      grower = new DiffusionRenderer( SIM_SIZE , ss , renderer );
+      grower.setUniform( 'time' , uniforms.time  );
+      grower.setUniform( 'dT' , uniforms.dT  );
+      grower.setUniform( 't_audio' , uniforms.t_audio  );
+
+      grower.addBoundTexture( uniforms.t_depth , 'output' );
+
+      resetGrowth();
+      resetGrowth();
+      resetGrowth();*/
+     // uniforms.filled.value = PARAMS.guide.maxDepth*2;
+    }
+
+
+    function newSnowflake( ss ){
+
+      var ss = shaders.setValue( ss , 'SIZE' , SIM_SIZE+"." );
       grower = new DiffusionRenderer( SIM_SIZE , ss , renderer );
       grower.setUniform( 'time' , uniforms.time  );
       grower.setUniform( 'dT' , uniforms.dT  );
@@ -158,10 +216,32 @@
       resetGrowth();
       resetGrowth();
       resetGrowth();
-     // uniforms.filled.value = PARAMS.guide.maxDepth*2;
+
+
     }
 
-   
+    function nextSnowflake(){
+
+      var div = document.getElementById( 'currentShader' );
+      currentShader++;
+      currentShader  %= SIM_SHADERS.length;
+      console.log( currentShader );
+
+    
+
+      var newShader = SIM_SHADERS[ currentShader ];
+      div.innerHTML = newShader;
+      console.log( newShader );
+
+      var ss = shaders.ss[ newShader ];
+      console.log( ss );
+
+      newSnowflake( ss );
+
+
+
+    }
+
     function animate() {
 
       requestAnimationFrame( animate );
@@ -207,6 +287,7 @@
 
     function onKeyDown(e){
 
+      //console.log( e.keyCode );
       if( e.keyCode == 32 ){
 
         updateSim = !updateSim;
@@ -233,6 +314,14 @@
       if( e.keyCode == 48 ){
 
         uniforms.debug.value = (uniforms.debug.value + 1) % 4;
+       // debugMesh.visible = !debugMesh.visible;
+
+     }
+
+     if( e.keyCode == 39 ){
+
+        nextSnowflake();
+        //uniforms.debug.value = (uniforms.debug.value + 1) % 4;
        // debugMesh.visible = !debugMesh.visible;
 
       }
