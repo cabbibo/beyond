@@ -32,6 +32,7 @@
 <script src="lib/AudioController.js"></script>
 <script src="lib/AudioTexture.js"></script>
 <script src="lib/UserAudio.js"></script>
+<script src="lib/NormalMapper.js"></script>
 
 <script src="lib/DiffusionRenderer.js" ></script>
 
@@ -85,6 +86,11 @@
     shaders.load( 'fs-test1' , 'test1' , 'fragment' );
     shaders.load( 'vs-debugMesh' , 'debugMesh' , 'vertex'   );
     shaders.load( 'fs-debugMesh' , 'debugMesh' , 'fragment' );
+    shaders.load( 'vs-raytrace' , 'raytrace' , 'vertex'   );
+    shaders.load( 'fs-raytrace' , 'raytrace' , 'fragment' );
+
+    shaders.load( 'vs-debugPlane' , 'debugPlane' , 'vertex'   );
+    shaders.load( 'fs-debugPlane' , 'debugPlane' , 'fragment' );
 
     for( var i = 0; i < SIM_SHADERS.length; i++ ){
 
@@ -110,17 +116,26 @@
 
     var userAudio = new UserAudio( audioController ); 
 
-    var matcap = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
+    var matcap = THREE.ImageUtils.loadTexture( 'img/matcap.jpg' );
+    var panoTexture = THREE.ImageUtils.loadTexture( 'img/pano.jpg' );
+    var detailNormal = THREE.ImageUtils.loadTexture( 'img/scratch.png' );
     var uniforms = {
       t_matcap:{type:"t" , value:matcap},
+      t_depth:{type:"t" ,value:null },
+      t_normal:{type:"t" ,value:null },
+      t_audio:{type:"t" , value: audioController.texture },
+      t_pano:{type:"t" , value: panoTexture },
+      t_detailNormal:{type:"t" , value: detailNormal },
       filled:{type:"f" , value:0},
       time:{type:"f" , value:0 },
       dT:{type:"f" , value:0 },
-      t_depth:{type:"t" ,value:null },
       debug:{type:"f" , value: 0 },
-      t_audio:{type:"t" , value: audioController.texture }
     }
 
+    //uniforms.t_normal.value.wrapS        = uniforms.t_normal.value.wrapT        = 
+	uniforms.t_detailNormal.value.wrapS  = uniforms.t_detailNormal.value.wrapT  = 
+	//uniforms.t_depth.value.wrapS         = uniforms.t_depth.value.wrapT         = 
+	THREE.RepeatWrapping;
 
     function init() {
 
@@ -144,47 +159,59 @@
       clock = new THREE.Clock();
 
 
-      var geo = createHexGridGeometry( SIM_SIZE -1);
+      var sphere = new THREE.Mesh(
+          new THREE.SphereGeometry( 5, 36, 36 ),
+          new THREE.MeshBasicMaterial( { map: panoTexture, side: THREE.BackSide } )
+      );
+      //scene.add(sphere );
 
 
-      var vs = shaders.setValue( shaders.vs.debugMesh , 'SIZE' , SIM_SIZE-1 );
+
+
       var mat = new THREE.ShaderMaterial({
         uniforms: uniforms,
-        vertexShader: vs,
-        fragmentShader: shaders.fs.debugMesh,
-        side: THREE.DoubleSide,
-        transparent: true
+        vertexShader: shaders.vs.raytrace,
+        fragmentShader: shaders.fs.raytrace,
+		shading: THREE.SmoothShading,
+		side: THREE.FrontSide,
+		depthTest: false,
+   		depthWrite: false,
+
+		transparent: true
       });
+
+      console.log( shaders.vs );
+
+      /*var mat = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: shaders.vs.debugPlane,
+        fragmentShader: shaders.fs.debugPlane,
+		shading: THREE.SmoothShading,
+		side: THREE.FrontSide,
+		//depthTest: false,
+		//depthWrite: false,
+		//transparent: true
+      });*/
       //var mesh = new THREE.Mesh( geo , mat );
 
       //scene.add( mesh );
 
 
-      debugMesh = new THREE.Mesh( geo , mat );
+           object = new THREE.Object3D();
+      var geometry = new THREE.PlaneGeometry( 2, 2, 2, 2 );
+     
+      mesh = new THREE.Mesh( geometry, mat );
+      mesh.geometry.computeTangents();
+      object.add( mesh );
+      mesh = new THREE.Mesh( geometry, mat );
+      /*mesh.geometry.computeTangents();
+      mesh.rotation.y = Math.PI;
+      object.add( mesh );*/
 
+	  //object.add( mesh );
       //debugMesh.scale.y *= .9;
 
-      scene.add( debugMesh);
-
-      var vs = shaders.setValue( shaders.vs.test1 , 'SIZE' , SIM_SIZE-1 );
-      var mat = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vs,
-        fragmentShader: shaders.fs.test1,
-        side: THREE.DoubleSide,
-        linewidth:5
-      });
-
-      var lineGeo = createHexGridLineGeometry( SIM_SIZE-1 );
-      debugLines = new THREE.Line( lineGeo , mat , THREE.LinePieces );
-      scene.add( debugLines );
-      debugLines.position.z = .001;
-
-      debugLines.visible = false;
-      debugPoints = new THREE.PointCloud( geo , mat );
-      scene.add(debugPoints);
-      debugPoints.position.z = .001;
-      debugPoints.visible = false;
+      scene.add( object );
 
       nextSnowflake();
 
@@ -199,7 +226,10 @@
       resetGrowth();
       resetGrowth();
       resetGrowth();*/
-     // uniforms.filled.value = PARAMS.guide.maxDepth*2;
+      // uniforms.filled.value = PARAMS.guide.maxDepth*2;
+
+//	renderer.autoClear = false;
+      
     }
 
 
@@ -212,6 +242,7 @@
       grower.setUniform( 't_audio' , uniforms.t_audio  );
 
       grower.addBoundTexture( uniforms.t_depth , 'output' );
+      grower.addBoundTexture( uniforms.t_normal , 'normal' );
 
       resetGrowth();
       resetGrowth();
@@ -225,16 +256,16 @@
       var div = document.getElementById( 'currentShader' );
       currentShader++;
       currentShader  %= SIM_SHADERS.length;
-      console.log( currentShader );
+      //console.log( currentShader );
 
     
 
       var newShader = SIM_SHADERS[ currentShader ];
       div.innerHTML = newShader;
-      console.log( newShader );
+      //console.log( newShader );
 
       var ss = shaders.ss[ newShader ];
-      console.log( ss );
+      //console.log( ss );
 
       newSnowflake( ss );
 
@@ -264,6 +295,7 @@
           uniforms.filled.value -= .03;
        }*/
 
+       object.rotation.y += .001;
       renderer.render( scene, camera );
 
     }
