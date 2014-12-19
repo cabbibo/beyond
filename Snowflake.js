@@ -15,12 +15,33 @@ function Snowflake( ss , vs , fs , u ){
 
   //console.log( this.uniforms );
   this.soul.addBoundTexture( this.uniforms.t_depth , 'output' );
+  this.soul.addBoundTexture( this.uniforms.t_normal , 'normal' );
 
 
  
-  this.geo = SNOWFLAKE_GEO;
+  this.geo = new THREE.PlaneGeometry( 2, 2, 2, 2 );
 
-  var vs = shaders.setValue( vs , 'SIZE' , SIM_SIZE-1 );
+  this.mat = new THREE.ShaderMaterial({
+    uniforms: this.uniforms,
+    vertexShader: shaders.vs.raytrace,
+    fragmentShader: shaders.fs.raytrace,
+    shading: THREE.SmoothShading,
+    side: THREE.FrontSide,
+    depthTest: false,
+    depthWrite: false,
+    transparent: true
+  });
+     /* console.log( shaders.vs );
+
+           object = new THREE.Object3D();
+      var geometry = new THREE.PlaneGeometry( 2, 2, 2, 2 );
+     
+      mesh = new THREE.Mesh( geometry, mat );
+      mesh.geometry.computeTangents();
+      object.add( mesh );
+      mesh = new THREE.Mesh( geometry, mat );*/
+
+  /*var vs = shaders.setValue( vs , 'SIZE' , SIM_SIZE-1 );
  
   this.mat = new THREE.ShaderMaterial({
     uniforms: this.uniforms,
@@ -29,9 +50,14 @@ function Snowflake( ss , vs , fs , u ){
    // side: THREE.DoubleSide,
     transparent: true,
     depthWrite: false
-  });
+  });*/
 
-  this.body = new THREE.Mesh( this.geo , this.mat );
+  this.body = new THREE.Object3D();
+
+  this.mesh = new THREE.Mesh( this.geo , this.mat );
+  this.mesh.geometry.computeTangents();
+
+  this.body.add( this.mesh );
 
 
   // Do the reset on creation, so we don't have to 

@@ -103,6 +103,7 @@
 
 <script src = "lib/TextCreator.js"            ></script>
 <script src = "lib/DiffusionRenderer.js"      ></script>
+<script src = "lib/NormalMapper.js"      ></script>
 
 <script src = "SnowflakeGeometry.js"          ></script>
 <script src = "Snowflake.js"                  ></script>
@@ -198,8 +199,12 @@
     
     shaders.load( 'vs-test1'      , 'test1'       , 'vertex'   );
     shaders.load( 'fs-test1'      , 'test1'       , 'fragment' );
+    
     shaders.load( 'vs-debugMesh'  , 'debugMesh'   , 'vertex'   );
     shaders.load( 'fs-debugMesh'  , 'debugMesh'   , 'fragment' );
+
+    shaders.load( 'vs-raytrace'  , 'raytrace'   , 'vertex'   );
+    shaders.load( 'fs-raytrace'  , 'raytrace'   , 'fragment' );
 
 
     shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
@@ -260,20 +265,28 @@
 
    // var userAudio = new UserAudio( audioController ); 
 
-    var matcap  = THREE.ImageUtils.loadTexture( 'img/rough-aluminium.jpg' );
-    var aT      = audioController.texture;
+    var matcap        = THREE.ImageUtils.loadTexture( 'img/matcap.jpg'  );
+    var panoTexture   = THREE.ImageUtils.loadTexture( 'img/pano.jpg'    );
+    var detailNormal  = THREE.ImageUtils.loadTexture( 'img/scratch.png' );
+    
+    var aT = audioController.texture;
 
     // Our Uniforms!
     // To be used in both simulation, and renderering
     var uniforms = {
 
-      t_matcap:     { type:"t" , value: matcap    },
-      t_audio:      { type:"t" , value: aT        },
-      t_depth:      { type:"t" , value: null      },
-      filled:       { type:"f" , value: 0         },
-      time:         { type:"f" , value: 0         },
-      dT:           { type:"f" , value: 0         },
-      debug:        { type:"f" , value: 0         },
+      t_matcap:       { type:"t" , value: matcap        },
+      t_audio:        { type:"t" , value: aT            },
+      t_pano:         { type:"t" , value: panoTexture   },
+      t_detailNormal: { type:"t" , value: detailNormal  },
+      
+      t_depth:        { type:"t" , value: null          },
+      t_normal:       { type:"t" , value: null          },
+      
+      filled:         { type:"f" , value: 0             },
+      time:           { type:"f" , value: 0             },
+      dT:             { type:"f" , value: 0             },
+      debug:          { type:"f" , value: 0             },
 
     }
 
@@ -420,18 +433,19 @@
    }
 
 
-   function start(){
+   function start( speed ){
 
+     var speed = speed || .1;
      init();
 
-     $("#loading").fadeOut( 1000 , function(){});
+     $("#loading").fadeOut( speed * 1000 , function(){});
 
 
     var i = { v: loadSnowflake.material.uniforms.filled.value };
     var f = { v: 0 }
 
     var s = loadSnowflake.material.uniforms.filled.value
-    var t = new TWEEN.Tween( i ).to( f , s * 300);
+    var t = new TWEEN.Tween( i ).to( f , s * speed * 300);
 
     t.onUpdate( function(){
     //  console.log('hello');
@@ -455,7 +469,7 @@
 
 
 
-      }, 1000 );
+      }, 1000 * speed );
 
     });
 
