@@ -1,0 +1,88 @@
+<body></body>
+<script src="ImprovedNoise.js" ></script>
+<script>
+var AudioContext = AudioContext || webkitAudioContext;
+
+var context = new AudioContext();
+var audioBuffer;
+
+var noise = new ImprovedNoise();
+
+var analyser = context.createAnalyser();
+analyser.fftSize = 32;
+analyser.smoothingTimeConstant = .75;
+var frequencyData = new Uint8Array( analyser.fftSize );
+analyser.connect( context.destination );
+
+var canvas = document.createElement( 'canvas' ),
+	ctx = canvas.getContext( '2d' );
+canvas.width = 1024;
+canvas.height = 256;
+canvas.style.border = '1px solid #666'
+document.body.appendChild( canvas );
+
+function loadSound() {
+
+	var request = new XMLHttpRequest();
+	request.open( 'GET', 'sound.mp3', true );
+	request.responseType = 'arraybuffer';
+
+	request.onload = function() {
+
+		context.decodeAudioData( request.response, function( buffer ) {
+			
+			audioBuffer = buffer;
+			window.addEventListener( 'click', playSound );
+
+		}, function() {
+			console.log( 'error' );
+		} );
+
+	};
+
+	request.send();
+
+}
+
+function playSound() {
+
+	var source = context.createBufferSource(); 
+	source.buffer = audioBuffer;
+	source.playbackRate.value = .8 + Math.random() * .4;
+
+	source.connect( analyser );
+	source.start( 0 );
+
+}
+
+var x = 0;
+function update() {
+
+	requestAnimationFrame( update );
+	analyser.getByteFrequencyData( frequencyData );
+
+	var h = frequencyData[ 1 ] / 5;
+	var w = 1 + .5 * frequencyData[ 3 ] / 10;
+
+	if( w > 2 && h > 10 ) {
+
+		h *= .08;
+	var a = frequencyData[ 2 ] * 2 * Math.PI / 255;
+	x += w;
+	h = h * h * h;
+
+	h = .005 * ( canvas.width - x ) * h;
+
+	ctx.save();
+	ctx.translate( x, .5 * canvas.height );
+	ctx.rotate( .25 * Math.PI );
+	ctx.fillRect( 0, 0, w, - h * canvas.height / 255 );
+	ctx.restore();
+}
+
+}
+
+loadSound();
+update();
+
+</script>

@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Carve</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			*{ box-sizing: border-box; margin: 0; padding: 0 }
+			body {
+				color: #ffffff;
+				font-family: tahoma;
+				font-size:13px;
+				background-color: #222;
+				margin: 0px;
+				overflow: hidden;
+			}
+			a{ color: white; text-shadow: 0 1px 0 rgba( 0,0,0,.5 ) }
+			#container canvas{ position: absolute; left: 0; top: 0; width: 100%; height: 100%; bottom: 0;}
+			#title{ position: absolute; left: 10px; top: 10px; right: 0; text-shadow: 0 1px 0 rgba( 0,0,0,.6); color: white;}
+			canvas:nth-child(1) { margin-left: 256px;}
+		</style>
+		<script src="three.min.js" ></script>
+		<script src="OrbitControls.js" ></script>
+		<script src="ImprovedNoise.js" ></script>
+	</head>
+	<body>
+
+<script type="x-shader/x-vertex" id="sem-vs">
+
+attribute vec3 tangent;
+uniform float time;
+
+varying vec2 vUv;
+varying vec3 eyeVec;
+varying mat3 tbnMatrix;
+varying vec3 pos;
+varying vec3 e;
+varying vec3 vNormal;
+
+mat3 m3( mat4 mIn ) {
+
+	mat3 mOut;
+	
+	mOut[ 0 ][ 0 ] = mIn[ 0 ][ 0 ]; 
+	mOut[ 0 ][ 1 ] = mIn[ 0 ][ 1 ]; 
+	mOut[ 0 ][ 2 ] = mIn[ 0 ][ 2 ]; 
+	
+	mOut[ 1 ][ 0 ] = mIn[ 1 ][ 0 ]; 
+	mOut[ 1 ][ 1 ] = mIn[ 1 ][ 1 ]; 
+	mOut[ 1 ][ 2 ] = mIn[ 1 ][ 2 ]; 
+	
+	mOut[ 2 ][ 0 ] = mIn[ 2 ][ 0 ]; 
+	mOut[ 2 ][ 1 ] = mIn[ 2 ][ 1 ]; 
+	mOut[ 2 ][ 2 ] = mIn[ 2 ][ 2 ]; 
+	
+	return mOut;
+}
+
+void main() {
+
+	vUv = uv;
+
+	vec3 pos = position;// + 10. * vec3( cos( a + time ), 0., sin( a + time ) );
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1. );
+
+	vec3 n = m3( modelMatrix ) * normal; 
+	vec3 t = m3( modelMatrix ) * tangent.xyz;
+	vec3 b = m3( modelMatrix ) * cross( n, t );
+	
+	eyeVec = ( modelMatrix * vec4( pos, 1. ) ).xyz - cameraPosition;
+	//eyeVec = ( modelViewMatrix * vec4( eyeVec, 1. ) ).xyz;
+	vec3 v = vec3(
+		dot( eyeVec, t ),
+		dot( eyeVec, b ),
+		dot( eyeVec, n )
+	);
+	eyeVec = normalize( v );
+
+    vec4 p = vec4( position, 1. );
+	e = normalize( vec3( modelViewMatrix * p ) );
+   
+	vNormal = normalMatrix * normal;
+
+}
+
+</script>
+
+<script type="x-shader/x-vertex" id="sem-fs">
+
+uniform sampler2D tHeight;
+uniform sampler2D tNormal;
+uniform sampler2D tMatCap;
+uniform sampler2D tPano;
+uniform sampler2D tDetailNormal;
+
+uniform mat3 normalMatrix;
+uniform float time;
+
+varying vec2 vUv;
+varying vec3 eyeVec;
+varying vec3 e;
+varying vec3 vNormal;
+
+float PI = 3.14159265358979323846264;
+
+/*
+	vec3 vVec = normalize( view );  
+
+	vec4 bumpNormal = texture2D( normalMap, vUv );  
+
+	vec3 n = bumpNormal.rgb * 2.0 - 1.0;
+	vec3 modifiedTangent = normalize( vec3( n.xy * bumpiness, sqrt( 1. - n.y * n.y - n.x * n.x ) ) );
+	vec3 nVec = tbnMatrix * modifiedTangent;
+*/
+
+vec2 normalToUV( vec3 n ) {
+
+	vec3 normal = normalize( n );
+	float lon = atan( normal.z , - normal.x );
+	float lat = asin( - normal.y );
+	vec2 uv = 0.5 - vec2( lon, lat ) / vec2( PI * 2.0, PI );
+    return uv;
+
+}
+
+void main() {
+
+	//vec3 vVec = normalize( view );  
+	//vec3 nVec = tbnMatrix * modifiedTangent;
+
+	vec3 d = normalize( eyeVec );
+	float depth = 0.;
+	int found = 0;
+	float shade = 0.;
+	vec2 vUv2 = vec2( 1. - vUv.x, vUv.y );
+	d.y *= -1.;
+	vec2 uv2;
+	const float layers = 10.;
+	float step = .0025;
+	float luh = 0.;
+	float previousLuh = 0.;
+	for( float j = 0.; j < layers; j ++ ){
+		if( found == 0 ) {
+			uv2 = vUv2 + step * d.xy * j / d.z;
+			if( uv2.x < 0. || uv2.x > 1. || uv2.y < 0. || uv2.y > 1. ) {
+				gl_FragColor = vec4( 1., 0., 1., 0. );
+				return;
+			}
+			luh = 1. - texture2D( tHeight, uv2 + vec2( time, 0. ) ).r;
+			if( luh < depth ){ 
+				float x = ( previousLuh - luh + ( j / layers ) - ( ( j - 1. ) / layers ) ) / ( previousLuh - ( j - 1. ) / layers );
+				depth = previousLuh + ( luh - previousLuh ) / x;
+				found = 1;
+			} else {
+				depth = j / layers;
+			}
+			previousLuh = luh;
+		}
+	}
+
+	float c = depth;
+	if( found == 0 ) c = 1.;
+
+	uv2 = vUv2 + step * d.xy * ( depth * layers ) / d.z;
+
+
+	vec3 heightNormal = texture2D( tNormal, uv2 ).rgb;
+	vec3 detailNormal = texture2D( tDetailNormal, 5. * uv2 ).rgb;
+	vec3 n = normalize( vNormal + heightNormal + detailNormal );
+	vec3 eye = normalize( e );
+
+    vec3 r = reflect( eye, n );
+    float m = 2. * sqrt( 
+        pow( r.x, 2. ) + 
+        pow( r.y, 2. ) + 
+        pow( r.z + 1., 2. ) 
+    );
+    vec2 vN = r.xy / m + .5;
+
+	vec3 light = texture2D( tMatCap, vN ).rgb;
+	//color = color + color + color;
+    vec3 env = texture2D( tPano, normalToUV( r ) ).rgb;
+	vec3 rR = refract( normalize( e ), n, .6 );
+	vec3 rEnv = texture2D( tPano, normalToUV( rR ) ).rgb;
+	vec3 color = .1 + vec3( 95. / 255., 185. / 255., 255. / 255. ) * ( .5 * env + .5 * light ) + pow( light, vec3( 2. ) );//mix( env, rEnv, .2 ) + light;
+
+	float a = texture2D( tHeight, uv2 + vec2( time, 0. ) ).r;
+	gl_FragColor = vec4( color, a );
+
+}
+	
+</script>
+
+<script>
+
+function init() {
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+
+	var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+	camera.position.z = -300;
+
+	var controls = new THREE.OrbitControls( camera );
+	controls.damping = 0.2;
+	
+	var scene = new THREE.Scene();
+
+	var panoTexture = THREE.ImageUtils.loadTexture( 'pano.jpg' );
+
+	var sphere = new THREE.Mesh(
+		new THREE.SphereGeometry( 500, 36, 36 ),
+		new THREE.MeshBasicMaterial( { map: panoTexture, side: THREE.BackSide } )
+	);
+	scene.add(sphere );
+
+	material = new THREE.ShaderMaterial( {
+
+		uniforms: { 
+			//tHeight: { type: 't', value: THREE.ImageUtils.loadTexture( 'smiley-face-stencil.png' ) }
+			//tHeight: { type: 't', value: THREE.ImageUtils.loadTexture( 'noise.jpg' ) }
+			//tDiffuse: { type: 't', value: THREE.ImageUtils.loadTexture( 'snowfakes/height.png' ) },
+			tHeight: { type: 't', value: heightTexture },
+			tNormal: { type: 't', value: normalTexture },
+			tDetailNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'Scratch-Norm.png' ) },
+			tPano: { type: 't', value: panoTexture },
+			tMatCap: { type: 't', value: THREE.ImageUtils.loadTexture( 'matcap2.jpg' ) },
+			time: { type: 'f', value: 0 }
+		},
+		vertexShader: document.getElementById( 'sem-vs' ).textContent,
+		fragmentShader: document.getElementById( 'sem-fs' ).textContent,
+		shading: THREE.SmoothShading,
+		side: THREE.FrontSide,
+		depthTest: false,
+		depthWrite: false,
+		transparent: true
+	} );
+
+	//material.uniforms.tDiffuse.value.wrapS = material.uniforms.tDiffuse.value.wrapT = 
+	material.uniforms.tNormal.value.wrapS = material.uniforms.tNormal.value.wrapT = 
+	material.uniforms.tDetailNormal.value.wrapS = material.uniforms.tDetailNormal.value.wrapT = 
+	material.uniforms.tHeight.value.wrapS = material.uniforms.tHeight.value.wrapT = 
+	THREE.RepeatWrapping;
+
+	wireframeMaterial = new THREE.MeshBasicMaterial( { 
+		wireframe: true, color: 0xff00ff, wireframeLinewidth: 2, opacity: .5, transparent: true, depthTest: false, depthWrite: false } );
+
+	object = new THREE.Object3D();
+
+	var geometry = new THREE.PlaneGeometry( 512, 512, 40, 40 );
+	mesh = new THREE.Mesh( geometry, material );
+	mesh.geometry.computeTangents();
+	object.add( mesh );
+
+	mesh = new THREE.Mesh( geometry, material );
+	mesh.geometry.computeTangents();
+	mesh.rotation.y = Math.PI;
+	object.add( mesh );
+
+	scene.add( object );
+	//object.rotation.x = Math.random() * Math.PI;
+	//object.rotation.y = Math.random() * Math.PI;
+	//object.rotation.z = Math.random() * Math.PI;
+
+	renderer.setClearColor( 0x202020, 1 );
+
+	renderer.autoClear = false;
+
+	var startTime = Date.now();
+
+	function render() {
+		
+		requestAnimationFrame( render );
+
+		var t = Date.now() - startTime;
+		material.uniforms.time.value = 0.;//.0001 * t;
+
+		object.rotation.y += .001;
+		renderer.clear();
+		/*renderer.autoClear = false;
+		scene.overrideMaterial = null;
+		renderer.render( scene, camera );
+		scene.overrideMaterial = wireframeMaterial;*/
+
+		renderer.render( scene, camera );
+
+	}
+
+	render();
+
+	window.addEventListener( 'resize', function() {
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+	
+	} );
+
+}
+
+var noise = new ImprovedNoise();
+
+var canvas = document.createElement( 'canvas' ),
+	ctx = canvas.getContext( '2d' );
+canvas.width = canvas.height = 2048;
+
+var heightTexture = new THREE.Texture( canvas );
+
+var normalCanvas = document.createElement( 'canvas' ),
+	normalCtx = normalCanvas.getContext( '2d' );
+normalCanvas.width =canvas.width;
+normalCanvas.height = canvas.height;
+
+var normalTexture = new THREE.Texture( normalCanvas );
+
+function drawPlate( x, y, s ) {
+
+	var y = Math.sqrt( 3 ) / 2;
+
+	//for( var j = 1; j < s; j++ ) {
+		var j = 0;
+		ctx.save();
+		ctx.translate( x, 0 );
+		ctx.scale( s - j, s - j );
+		ctx.beginPath();
+		ctx.moveTo( 1, 0 );
+		ctx.lineTo( .5, y );
+		ctx.lineTo( -.5, y );
+		ctx.lineTo( -1, 0 );
+		ctx.lineTo( -.5, -y );
+		ctx.lineTo( .5, -y );
+		ctx.lineTo( 1, 0 );
+		ctx.lineTo( .5, y );
+		var c = Math.floor( Math.random() * 255 );
+		//ctx.fillStyle = 'rgb('+c+','+c+','+c+')';
+		ctx.lineWidth = .25 + Math.random() * .5;
+		ctx.stroke();
+		ctx.restore();
+		j += 1 + Math.random() * 10;
+	//}
+
+}
+
+function drawNeedle( x, y, l, s ) {
+
+	ctx.save();
+	ctx.translate( x, y );
+	ctx.scale( s, s );
+	ctx.lineWidth = s;
+	ctx.beginPath();
+	ctx.moveTo( 0, 0 );
+	ctx.lineTo( l, l );
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.moveTo( 0, 0 );
+	ctx.lineTo( l, -l );
+	ctx.stroke();
+	ctx.restore();
+
+}
+
+function repeat( f ) {
+
+	for( var j = 0; j < 6; j++ ) {
+		ctx.save();
+		ctx.rotate( 2 * Math.PI * j / 6 );
+		f();
+		ctx.restore();
+	}
+}
+
+function draw() {
+
+	var seed = Math.random() * Date.now();
+
+	ctx.globalAlpha = 1;
+	ctx.fillStyle = '#000000';
+	ctx.fillRect( 0, 0, canvas.width, canvas.height );
+
+	ctx.save();
+	ctx.translate( .5 * canvas.width, .5 * canvas.height );
+	ctx.rotate( Math.random() * 2 * Math.PI );
+
+	ctx.fillStyle = '#ffffff';
+	ctx.strokeStyle = '#ffffff';
+	ctx.globalAlpha = .5;
+
+	var length = ( .1 + Math.random() * .45 ) * canvas.width;
+
+	for( var x = 0; x < length; x++ ) {
+
+		var r = x / length;
+
+		var v = Math.abs( noise.noise( x * 2.75 + seed, 1.34, .12 ) );
+		var w = Math.max( 1, ( 3 - r ) * .25 * length * v );
+		repeat( function() { drawPlate( x, 0, w ) } );
+
+		var v2 = .5 + Math.abs( noise.noise( x * 2.275 + seed, 5.134, 2.12 ) );
+		var l = Math.min( Math.max( 0, w + r * .5 * length * v2 ), length * .1 );
+		var w2 = Math.max( 1, 3 * v2 );
+		repeat( function() { drawNeedle( x, 0, l, w2 ) } );
+	
+		x += .5 * w;
+
+	}
+
+	ctx.restore();
+
+	heightTexture.needsUpdate = true;
+
+	heightToNormal( canvas );
+
+}
+
+//draw();
+
+window.addEventListener( 'keydown', function( e ) {
+	if( e.keyCode === 32 ) draw();
+} );
+
+function normalize( x, y, z ) {
+
+	var l = Math.sqrt( x * x + y * y + z * z );
+	return {
+		x: x / l,
+		y: y / l,
+		z: z / l
+	}
+}
+
+function cross( a, b ) {
+
+	return { 
+		x: a.y * b.z - a.z * b.y, 
+		y: a.z * b.x - a.x * b.z,
+		z: a.x * b.y - a.y * b.x
+	};
+
+}
+
+function heightToNormal( c ) {
+
+	var iSrcData = ctx.getImageData( 0, 0, canvas.width, canvas.height );
+	var iData = ctx.getImageData( 0, 0, canvas.width, canvas.height );
+	var d = iData.data;
+	var srcD = iSrcData.data;
+
+	var p = 0;
+	for( var y = 1; y < canvas.height - 1; y++ ) {
+		for( var x = 1; x < canvas.width - 1; x++ ) {
+			p = y * canvas.width * 4 + x * 4;
+
+			var h01 = srcD[ p - 4 ];
+			var h21 = srcD[ p - canvas.width * 4 ];
+			var h10 = srcD[ p + 4 ];
+			var h12 = srcD[ p + canvas.width * 4 ];
+
+			var va = normalize( 2, 0, h10 - h01 );
+			var vb = normalize( 0, 2, h12 - h21 );
+			var n = cross( va, vb );
+			n = normalize( n.x, n.y, n.z );
+			
+			d[ p ] = ( .5 + .5 * n.x ) * 255;
+			d[ p + 1 ] = ( .5 + .5 * n.y ) * 255;
+			d[ p + 2 ] = ( .5 + .5 * n.z ) * 255;
+		}
+	}
+
+	normalCtx.putImageData( iData, 0, 0 );
+
+	normalTexture.needsUpdate = true;
+
+}
+
+window.addEventListener( 'load', init );
+
+draw();
+
+</script>
+
+	</body>
+</html>
