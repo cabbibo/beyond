@@ -141,7 +141,7 @@
 
     // Lets us skip to different sections of audio
     // for timing purposes
-    var startingSection = 3;
+    var startingSection = 0;
     
 
     // 3D Text Chunks
@@ -256,7 +256,7 @@
     audio.onLoad = function(){
 
       var elem = document.getElementById("songLoad");
-      elem.innerHTML = "<a onclick='start()'>Let It Snow</a>"
+      elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
       onLoad();
 
     }
