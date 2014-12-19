@@ -13,9 +13,16 @@ function Snowflake( ss , vs , fs , u ){
     this.soul.setUniform( propt , this.uniforms[propt] );
   }
 
+  // We need to make sure we have out own normal and depth
+  this.t_depth = { type:"t" , value:null };
+  this.t_normal = { type:"t" , value:null };
+
+  this.uniforms.t_depth = this.t_depth;
+  this.uniforms.t_normal = this.t_normal;
+  
   //console.log( this.uniforms );
-  this.soul.addBoundTexture( this.uniforms.t_depth , 'output' );
-  this.soul.addBoundTexture( this.uniforms.t_normal , 'normal' );
+  this.soul.addBoundTexture( this.t_depth , 'output' );
+  this.soul.addBoundTexture( this.t_normal , 'normal' );
 
 
  

@@ -141,7 +141,7 @@
 
     // Lets us skip to different sections of audio
     // for timing purposes
-    var startingSection = 0;
+    var startingSection = 3;
     
 
     // 3D Text Chunks
@@ -268,6 +268,9 @@
     var matcap        = THREE.ImageUtils.loadTexture( 'img/matcap.jpg'  );
     var panoTexture   = THREE.ImageUtils.loadTexture( 'img/pano.jpg'    );
     var detailNormal  = THREE.ImageUtils.loadTexture( 'img/scratch.png' );
+
+    /*detailNormal.wrapS = detailNormal.value.wrapT  = 
+	THREE.RepeatWrapping;*/
     
     var aT = audioController.texture;
 
