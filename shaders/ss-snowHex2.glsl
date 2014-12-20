@@ -113,7 +113,7 @@ void main(){
 
   // Sets our 'seed' 
   // of the crystal
-  if( length(d) < iSize * .1 ){
+  if( length(d) < iSize * 1. ){
 
     pos.x = 1.;
     pos.y = .0;
@@ -153,16 +153,14 @@ void main(){
   s = xBasis;
   float xAmount = dot( v , s ) / dot( s , s );
 
-  float sim = 1.;
+  float sim = 0.;
   vec2 pHex = vec2( xAmount , -yAmount );
- 
-  vec2 pCenter = getCenterPos( pHex * vec2( .69282 , 1. ) * vec2( 14. )  );
-
-  //sim *= hexNoise( pHex , 14. , 8.1 );
-  sim *= hexNoise( pHex , 20. , 10.1 ) * length(abs(pHex)-abs(pCenter));// * length(pHex);
-  //sim *= pow( hexNoise( pHex , 50. , 4.1 ), 2. );
+  
+  sim = hexNoise( pHex , 5. , 3.1 );
+  sim *= hexNoise( pHex , 20. , 30.1 );
+  sim *= hexNoise( pHex , 15. , 20.1 );
  // sim += hexNoise( pHex , 100. , 10.1 );
-  //sim *= hexNoise( pHex , 25. , 10.1 );
+  sim *= hexNoise( pHex , 25. , 10.1 );
 
   sim = pow( sim , .4 );// 100.;
   
@@ -205,14 +203,11 @@ void main(){
       // Part of crystal
       if( pos.z > .5 ){
 
-        float hexL = length(abs(pHex)-abs(pCenter));
-        vec4 audio2 = texture2D( t_audio , vec2( abs(sin( hexL ))  , 0.)  );
-       // audio2 *= texture2D( t_audio , vec2( abs( abs(yAmount) * 10. ) , 0.)  );
+        vec4 audio2 = texture2D( t_audio , vec2( abs( abs(xAmount) * 10. ) , 0.)  );
         
         //pos.x +=  length(audio2) * .1 *( 1. / (tDif+.5));
-        pos.x += length( audio2 ); //* (abs(xAmount ) + ( 1. -tDif)) ;//pow( abs( xAmount ) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
-        pos.a -= abs( sim ) * 5.;
-        pos.a -= .1;//pow( length( audio ) , .1 );
+        pos.x += 1.5 * abs(sim) * length( audio ) * pow( (1.-tDif) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
+        pos.a -= abs( sim ) * 5.;//pow( length( audio ) , .1 );
 
       //lonely
       }else{
@@ -251,15 +246,13 @@ void main(){
           if( pos.y < 0. ){
 
             pos.z += 1.;
-            //pos.x += 0.;//length( audio ) / 10.;//abs(sim);
+            pos.x += abs(sim);
 
 
           }
 
-        pos.a -= abs( sim ) * abs( xAmount ) * 2.3;
-       /// pos.a -= pow( abs(xAmount) , 3. ) * 1000.;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
+        pos.a -= abs( sim) * .3;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
 
-       // pos.a -= length( d ) * length( d ) * .1;
 
 
 
@@ -272,7 +265,7 @@ void main(){
 
   }
 
-  //pos.x = sim * 10.;
+ //  pos.x = sim * 10.;
   gl_FragColor = pos;
 
 

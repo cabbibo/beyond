@@ -50,7 +50,7 @@
 
 
     var updateSim = true;
-    var SIM_SIZE = 512;
+    var SIM_SIZE = 1024;
     var snowflake;
 
     var growSpeed = 200;
@@ -66,7 +66,12 @@
 
       'test1',
       'snowHex1',
-      'test3',
+      'snowHex2',
+      'snowHex3',
+      'snowHex4',
+      'snowHex5',
+      'snowHex6',
+      /*'test3',
       'snowflake1',
       'snowflake2',
       'snowSimplex1',
@@ -76,7 +81,7 @@
       'snowSimplex5',
       'snowSimplex6',
       'snowSimplex7',
-      'snowSimplex8'
+      'snowSimplex8'*/
 
     ]
     shaders.load( 'vs-snow' , 'snow' , 'vertex'   );
@@ -199,7 +204,7 @@
 
 
            object = new THREE.Object3D();
-      var geometry = new THREE.PlaneGeometry( 2, 2, 2, 2 );
+      var geometry = new THREE.PlaneGeometry( 2, 2, 100,100 );
      
       mesh = new THREE.Mesh( geometry, mat );
       mesh.geometry.computeTangents();

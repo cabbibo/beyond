@@ -87,6 +87,9 @@ void main() {
     
 
   	gl_FragColor = vec4( color, a ) * (vec4( .3 ) + audio *.7 );
+
+
+   // gl_FragColor = vec4( (texture2D( t_normal , vUv )).xyz , 1.);
 	//gl_FragColor = vec4( 1. );
 }
 	
