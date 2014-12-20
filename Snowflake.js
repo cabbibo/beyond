@@ -2,6 +2,7 @@ function Snowflake( ss , vs , fs , u ){
 
   this.active = false;
 
+  //console.log( ss );
   this.ss = shaders.setValue( ss , 'SIZE' , SIM_SIZE+"." );
 
   this.soul = new DiffusionRenderer( SIM_SIZE , this.ss , renderer );

@@ -181,7 +181,7 @@
 
     // Creates the geometry used, the texture to reset, 
     // by using the simulation size
-    var SIM_SIZE      = 1024;
+    var SIM_SIZE      = 512;
     var SNOWFLAKE_GEO = createHexGridGeometry( SIM_SIZE-1 );
     var RESET_TEXTURE = createResetTexture( SIM_SIZE );
 
@@ -210,6 +210,11 @@
     shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
     shaders.load( 'ss-snowflake1' , 'snowflake1'  , 'simulation' );
     shaders.load( 'ss-snowHex1' , 'snowHex1'  , 'simulation' );
+    shaders.load( 'ss-snowHex2' , 'snowHex2'  , 'simulation' );
+    shaders.load( 'ss-snowHex3' , 'snowHex3'  , 'simulation' );
+    shaders.load( 'ss-snowHex4' , 'snowHex4'  , 'simulation' );
+    shaders.load( 'ss-snowHex5' , 'snowHex5'  , 'simulation' );
+    shaders.load( 'ss-snowHex6' , 'snowHex6'  , 'simulation' );
 
 
     // Audio should always load after shaders,
