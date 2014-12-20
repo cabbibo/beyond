@@ -18,7 +18,6 @@ varying vec2 vUv;
 $simplex
 $canUse
 $getCenterPos
-$hexNoise
 
 // data.x = level
 // data.y = temperature
@@ -155,13 +154,52 @@ void main(){
 
   float sim = 0.;
   vec2 pHex = vec2( xAmount , -yAmount );
+  pHex *= 10.;
+  //pHex.x *= .69282;
+
+  vec2 pCenter = getCenterPos( pHex );
+
+  sim += snoise( abs(pCenter)/20. );//length( pCenter - pHex );
+
+  pHex = vec2( xAmount , -yAmount );
+  pHex *= 20.;
+  //pHex.x *= .69282;
+
+  pCenter = getCenterPos( pHex );
+
+  float dFromCenter = length( pCenter - pHex );
+
+  sim +=  snoise( abs(pCenter)/20. );//length( pCenter - pHex );
+
+  pHex = vec2( xAmount , -yAmount );
+  pHex *= 30.;
+ // pHex.x *= .69282;
+
+  pCenter = getCenterPos( pHex );
+
+  sim += snoise( abs(pCenter)/2. ) ;
+
   
-  sim = hexNoise( pHex , 10. , 3.1 );
-  sim += hexNoise( pHex , 20. , 30.1 );
-  sim += hexNoise( pHex , 15. , 20.1 );
- // sim += hexNoise( pHex , 100. , 10.1 );
-  sim += hexNoise( pHex , 1000000. , 3.1 );
-  
+
+  pHex = vec2( xAmount , -yAmount );
+  pHex *= 40.;
+  //pHex.x *= .69282;
+
+  pCenter = getCenterPos( pHex );
+
+  sim +=  snoise( abs(pCenter)/200. );
+
+  float largeSim = sim;
+
+  pHex = vec2( xAmount , -yAmount );
+  pHex *= 30.;
+  //pHex.x *= .69282;
+
+  pCenter = getCenterPos( pHex );
+
+  sim +=  snoise( abs(pCenter) / 10.) * 10.3;
+
+  sim = floor( sim * 10. );
   //pos.x = sim;
  // lookup = vec2( abs(xAmount*noiseSize*10.) , yAmount* noiseSize*10.);
  // sim += .1 * snoise( lookup ) * (1.- abs(xAmount)*5.);
@@ -170,7 +208,7 @@ void main(){
   // Level
   // crystalized
 
-  vec4 audio = texture2D( t_audio , vec2( abs(sin(sim * 100.))   , 0.)  );
+  vec4 audio = texture2D( t_audio , vec2( abs(sin(dFromCenter * 3.))   , 0.)  );
 
   // Limits our growth using alpha, and makes sure
   // we don't hit the edge
@@ -204,8 +242,8 @@ void main(){
         vec4 audio2 = texture2D( t_audio , vec2( abs( abs(xAmount) * 10. ) , 0.)  );
         
         //pos.x +=  length(audio2) * .1 *( 1. / (tDif+.5));
-        pos.x += .5 * abs(sim) * length( audio );/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
-        pos.a -= abs( sim ) * 5.;//pow( length( audio ) , .1 );
+        pos.x += .5 * abs(largeSim) * length( audio );/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
+        pos.a -= abs( largeSim ) * 5. * dFromCenter;//pow( length( audio ) , .1 );
 
       //lonely
       }else{
@@ -218,7 +256,7 @@ void main(){
 
             //sim = float(int(sim * 3. )) + .1;
             pos.y -= abs(sim) * 5.;
-            //pos.y -=( pow(  length( audio ) , 10. ) + .4);// * length( audio ) * length( audio );// * max( .1 ,  (abs(sim)-2.)) * 10. * (1./(abs(xAmount *10.) +.1)) ;
+            pos.y -=( pow(  length( audio ) , 10. ) + .4);// * length( audio ) * length( audio );// * max( .1 ,  (abs(sim)-2.)) * 10. * (1./(abs(xAmount *10.) +.1)) ;
 
          //   pos.z += abs( sim );
          //   pos.x += abs( sim );
@@ -244,12 +282,12 @@ void main(){
           if( pos.y < 0. ){
 
             pos.z += 1.;
-            pos.x += abs(sim);
+            pos.x += abs(largeSim);
 
 
           }
 
-        // pos.a -= abs( sim) * .3;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
+         pos.a -= abs( largeSim ) * .3;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
 
 
 
@@ -263,7 +301,7 @@ void main(){
 
   }
 
-   // pos.x = sim * 10.;
+  //  pos.x = sim;
   gl_FragColor = pos;
 
 
