@@ -46,6 +46,9 @@
     var geometry, material, mesh;
     var controls;
 
+    var grower;
+
+
     var debugLines , debugPoints , debugMesh;
 
 
@@ -64,10 +67,10 @@
     currentShader = -1;
     SIM_SHADERS = [
 
-      'image',
-     // 'test1',
+     // 'image',
+      'test1',
       'snowHex1',
-      'snowHex2',
+      //'snowHex2',
       'snowHex3',
       'snowHex4',
       'snowHex5',
@@ -99,6 +102,7 @@
     shaders.load( 'fs-debugPlane' , 'debugPlane' , 'fragment' );
     
     shaders.load( 'fs-depthToNormal' , 'depthToNormal' , 'fragment' );
+    shaders.load( 'fs-hexCorrection' , 'hexCorrection' , 'fragment' );
 
     for( var i = 0; i < SIM_SHADERS.length; i++ ){
 
@@ -222,6 +226,7 @@
 	  //object.add( mesh );
       //debugMesh.scale.y *= .9;
 
+      object.position.z = .1;
       scene.add( object );
 
       nextSnowflake();
@@ -247,6 +252,12 @@
     function newSnowflake( ss ){
 
       var ss = shaders.setValue( ss , 'SIZE' , SIM_SIZE+"." );
+      
+      if( grower ){
+        grower.removeDebugScene( scene );
+      }
+      
+      
       grower = new DiffusionRenderer( SIM_SIZE , ss , renderer );
       grower.setUniform( 'time' , uniforms.time  );
       grower.setUniform( 'dT' , uniforms.dT  );
@@ -257,9 +268,14 @@
       grower.addBoundTexture( uniforms.t_depth , 'output' );
       grower.addBoundTexture( uniforms.t_normal , 'normal' );
 
+
       resetGrowth();
       resetGrowth();
       resetGrowth();
+      
+      
+      //grower.addDebugScene( scene );
+
 
 
     }
