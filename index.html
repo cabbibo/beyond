@@ -50,7 +50,7 @@
 
 
     var updateSim = true;
-    var SIM_SIZE = 1024;
+    var SIM_SIZE = 512;
     var snowflake;
 
     var growSpeed = 200;
@@ -64,14 +64,15 @@
     currentShader = -1;
     SIM_SHADERS = [
 
-      'test1',
+      'image',
+     // 'test1',
       'snowHex1',
       'snowHex2',
       'snowHex3',
       'snowHex4',
       'snowHex5',
       'snowHex6',
-      /*'test3',
+      'test3',
       'snowflake1',
       'snowflake2',
       'snowSimplex1',
@@ -81,7 +82,7 @@
       'snowSimplex5',
       'snowSimplex6',
       'snowSimplex7',
-      'snowSimplex8'*/
+      'snowSimplex8'
 
     ]
     shaders.load( 'vs-snow' , 'snow' , 'vertex'   );
@@ -96,6 +97,8 @@
 
     shaders.load( 'vs-debugPlane' , 'debugPlane' , 'vertex'   );
     shaders.load( 'fs-debugPlane' , 'debugPlane' , 'fragment' );
+    
+    shaders.load( 'fs-depthToNormal' , 'depthToNormal' , 'fragment' );
 
     for( var i = 0; i < SIM_SHADERS.length; i++ ){
 
@@ -124,8 +127,10 @@
     var matcap = THREE.ImageUtils.loadTexture( 'img/matcap.jpg' );
     var panoTexture = THREE.ImageUtils.loadTexture( 'img/pano.jpg' );
     var detailNormal = THREE.ImageUtils.loadTexture( 'img/scratch.png' );
+    var sim = THREE.ImageUtils.loadTexture( 'img/SF.png' );
     
     var uniforms = {
+      t_sim:{type:"t" , value:sim },
       t_matcap:{type:"t" , value:matcap},
       t_depth:{type:"t" ,value:null },
       t_normal:{type:"t" ,value:null },
@@ -245,7 +250,9 @@
       grower = new DiffusionRenderer( SIM_SIZE , ss , renderer );
       grower.setUniform( 'time' , uniforms.time  );
       grower.setUniform( 'dT' , uniforms.dT  );
+
       grower.setUniform( 't_audio' , uniforms.t_audio  );
+      grower.setUniform( 't_sim' , uniforms.t_sim  );
 
       grower.addBoundTexture( uniforms.t_depth , 'output' );
       grower.addBoundTexture( uniforms.t_normal , 'normal' );
@@ -301,7 +308,7 @@
           uniforms.filled.value -= .03;
        }*/
 
-       object.rotation.y += .001;
+      // object.rotation.y += .001;
       renderer.render( scene, camera );
 
     }

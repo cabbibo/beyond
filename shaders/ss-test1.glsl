@@ -165,7 +165,8 @@ void main(){
   //sim *= hexNoise( pHex , 25. , 10.1 );
 
   sim = pow( sim , .4 );// 100.;
-  
+ 
+  //sim = tDif;
   //pos.x = sim;
  // lookup = vec2( abs(xAmount*noiseSize*10.) , yAmount* noiseSize*10.);
  // sim += .1 * snoise( lookup ) * (1.- abs(xAmount)*5.);
