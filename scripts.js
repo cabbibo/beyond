@@ -5,7 +5,7 @@ var planeObject;
 function createShafts() {
 
 	planeObject = new THREE.Object3D();
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'shaft.png' ), color: 0x17249b, emissive: 0xffffff, opacity: .1, transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending } );
+	var planeMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'img/shaft.png' ), color: 0x17249b, emissive: 0xffffff, opacity: .1, transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending } );
 	var planeGeometry = new THREE.PlaneGeometry( 100, 10000 );
 	for( var j = 0; j < 100; j++ ) {
 		var plane = new THREE.Mesh( planeGeometry, planeMaterial );
@@ -27,7 +27,7 @@ function createParticles() {
 	
 	var pMaterial = new THREE.PointCloudMaterial({
 		color: 0xFFFFFF,
-		map: THREE.ImageUtils.loadTexture( 'coc.png' ),
+		map: THREE.ImageUtils.loadTexture( 'img/coc.png' ),
 		blending: THREE.AdditiveBlending,
 		depthTest: false,
 		transparent: true,
@@ -94,15 +94,15 @@ function initScene() {
 	var material = new THREE.ShaderMaterial( {
 
 		uniforms: { 
-			tHeight: { type: 't', value: THREE.ImageUtils.loadTexture( 'heightmap.png' ) },
-			tPano: { type: 't', value: THREE.ImageUtils.loadTexture( 'pano-blur-red.jpg' ) },
-			tNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'NormalMap.png' ) },
-			tDetailNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'Scratch-Norm.png' ) },
-			tMatCap: { type: 't', value: THREE.ImageUtils.loadTexture( 'matcap-red.jpg' ) },
+			tHeight: { type: 't', value: THREE.ImageUtils.loadTexture( 'img/heightmap.png' ) },
+			tPano: { type: 't', value: THREE.ImageUtils.loadTexture( 'img/pano-blur-red.jpg' ) },
+			tNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'img/NormalMap.png' ) },
+			tDetailNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'img/Scratch-Norm.png' ) },
+			tMatCap: { type: 't', value: THREE.ImageUtils.loadTexture( 'img/matcap-red.jpg' ) },
 			time: { type: 'f', value: 0 }
 		},
-		vertexShader: document.getElementById( 'sem-vs' ).textContent,
-		fragmentShader: document.getElementById( 'sem-fs' ).textContent,
+		vertexShader: shaders.vs.spiteSnow,
+        fragmentShader: shaders.fs.spiteSnow,
 		shading: THREE.SmoothShading,
 		side: THREE.DoubleSide,
 		depthTest: false,
@@ -134,7 +134,7 @@ function initScene() {
 		flakes.push( group );
 	}
 
-	cylinder = new THREE.Mesh( new THREE.CylinderGeometry( 500, 500, 5000, 36, 50 ), new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'tunnel.jpg' ), side: THREE.DoubleSide } ) ) ;
+	cylinder = new THREE.Mesh( new THREE.CylinderGeometry( 500, 500, 5000, 36, 50 ), new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'img/tunnel.jpg' ), side: THREE.DoubleSide } ) ) ;
 	scene.add( cylinder );
 
 	var top = new THREE.Mesh( new THREE.PlaneGeometry( 1024, 1024 ), new THREE.MeshBasicMaterial( { color: 0xffffff, emissive: 0xffffff, side: THREE.DoubleSide } ) );

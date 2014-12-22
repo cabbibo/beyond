@@ -92,6 +92,9 @@
 
 
     <div id="pano" ></div>
+<div id="fade"></div>
+		<div id="time"></div>
+    
 
 <div id = "loading">
   <div id="dedication"></div>
@@ -146,7 +149,9 @@
     var scene, camera, renderer , clock;
     var geometry, material, mesh;
     var controls;
-  
+
+    // uses space to switch from sweeping to non sweeping
+    var canSweep = false;
     var debugLines , debugPoints , debugMesh;
     var choreography , sections; 
 
@@ -166,6 +171,8 @@
     var vignettePass, FXAAPass, bloomPass, noisePass, lensPass, chromaticAbberationPass;
 
 
+    var startTime;
+var timeLabel = document.getElementById( 'time' );
 
 
     TWEEN.origTween = TWEEN.Tween;
@@ -244,6 +251,9 @@
     shaders.load( 'vs-raytrace'  , 'raytrace'   , 'vertex'   );
     shaders.load( 'fs-raytrace'  , 'raytrace'   , 'fragment' );
 
+    shaders.load( 'vs-spiteSnow'  , 'spiteSnow'   , 'vertex'   );
+    shaders.load( 'fs-spiteSnow'  , 'spiteSnow'   , 'fragment' );
+
 
     shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
     shaders.load( 'ss-snowflake1' , 'snowflake1'  , 'simulation' );
@@ -314,6 +324,7 @@
 
     }
 
+    audio.duration  = 107
 
 
    // var userAudio = new UserAudio( audioController ); 
@@ -367,7 +378,7 @@
       scene   = new THREE.Scene();
 
       var ar  = window.innerWidth / window.innerHeight;
-      camera  = new THREE.PerspectiveCamera( 70, ar , .003, 10 );
+      camera  = new THREE.PerspectiveCamera( 70, ar , .1, 3000 );
 
       camera.target = new THREE.Vector3( 0, 0, 0 );
       //camera.position.set( 50, 50, 50 );
@@ -410,6 +421,7 @@
       initText( quoteText );
       initSnowflakes();
       //initChoreography();
+      initScene();
 
 
       aurora = createAurora();
@@ -456,8 +468,8 @@
       }
 
 
-    if( playing ) {
-      var t = t = audio.currentTime;
+    if( playing && !canSweep ) {
+      var t = t = uniforms.time.value;//audio.currentTime;
       timeLabel.textContent = t;
       updateStory( t );
       updateScene( t );
@@ -515,7 +527,8 @@
 
       if( e.keyCode == 32 ){
 
-        updateSim = !updateSim;
+        canSweep = !canSweep; //true;
+       // updateSim = !updateSim;
 
       }
 
@@ -586,7 +599,8 @@
         audio.play( t );
         loaded = true;
 
-        var playing = true;
+        playing = true;
+        startTime = Date.now();
 
 
 
@@ -636,6 +650,21 @@
 
    }
 
+
+   var ellapsedTime;
+var isEnded = false;
+
+window.addEventListener( 'mousemove', function( e ) {
+	console.log( 'mousemove' );
+    if( !audio || !canSweep ) return;
+
+    console.log( audio );
+	var t = audio.duration * ( e.pageX / window.innerWidth );
+	updateStory( t );
+	updateScene( t );
+	timeLabel.textContent = t;
+} );
+   
 
    function end(){
 
