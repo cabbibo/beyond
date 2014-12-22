@@ -88,19 +88,7 @@ void main() {
 
   	gl_FragColor = vec4( color, a ) * (vec4( .3 ) + audio *.7 );
 
-  /*  vec2 correctedLookup = vUv;
-    correctedLookup *= 512.;
-    // = floor( correctedLookup );
-    float off = mod( floor( correctedLookup.y ) , 2. );
-    correctedLookup.x += off;//abs(off - .5 );
-
-    correctedLookup /= 512.;
-
-
-    vec3 fCol =  max( vec3( 0. ) , (texture2D( t_normal , vUv )).xyz);
-   // fCol += vec3( .1 , .1 , .1 ) * off;
-
-    //vec3 fCol = (texture2D( t_depth , vUv )).xyz / 10.+ vec3( .1 , .1 , .1 ) * off; 
-	gl_FragColor = vec4( fCol , 1. );*/
+    vec4 fCol =  max( vec4( 0. ) , texture2D( t_normal , vUv ));
+	//gl_FragColor = fCol;//vec4( fCol , 1. );
 }
 	
