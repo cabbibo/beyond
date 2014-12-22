@@ -33,8 +33,19 @@
       background:#000;
       color:#fff;
       font-family:"GeoSans";
+      overflow: hidden ;
     }
 
+      #pano{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; width: 100%; height: 100%; }
+      #pano canvas{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; width: 100%; height: 100%; }
+      #fade{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; background-color: black; opacity: 0; pointer-events: none;}
+      #time{
+        color: red;
+        z-index: 100;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
     
     #loading{
 
@@ -80,10 +91,13 @@
   <body>
 
 
+    <div id="pano" ></div>
+
 <div id = "loading">
   <div id="dedication"></div>
   <div id="songLoad"></div>
 </div>
+
 
 
 <script src = "lib/three.js"                  ></script>
@@ -91,7 +105,7 @@
 <script src = "lib/Tween.js"                  ></script>
 <script src = "lib/TrackballControls.js"      ></script>
 <script src = "lib/MouseMoveControls.js"      ></script>
-<script src = "lib/ShaderLoader.js"           ></script>
+<script src = "lib/CabShaderLoader.js"           ></script>
 <script src = "lib/underscore.js"             ></script>
 <script src = "lib/dat.gui.min.js"            ></script>
 <script src = "lib/GUI.js"                    ></script>
@@ -116,6 +130,16 @@
 <script src = "initChoreography.js"           ></script>
 <script src = "initText.js"                   ></script>
 
+
+<script src="Wagner/Wagner.js"></script>
+<script src="Wagner/Wagner.base.js"></script>
+<script src="Wagner/ShaderLoader.js"></script>
+
+<script src="timeline.js"></script>
+<script src="storyboard.js"></script>
+<script src="scripts.js"></script>
+
+
 <script>
 
 
@@ -131,6 +155,19 @@
 
     var textCreator;
 
+    WAGNER.vertexShadersPath = 'Wagner/vertex-shaders';
+    WAGNER.fragmentShadersPath = 'Wagner/fragment-shaders';
+    WAGNER.assetsPath = 'Wagner/assets/';
+
+   // var container, renderer, camera, scene, controls, fov = 70;
+   var rendering = false;
+   var playing = false;
+    var composer;
+    var vignettePass, FXAAPass, bloomPass, noisePass, lensPass, chromaticAbberationPass;
+
+
+
+
     TWEEN.origTween = TWEEN.Tween;
     TWEEN.Tween = function (options){
       var res = new TWEEN.origTween(options);
@@ -139,6 +176,7 @@
     };
 
 
+  
     // Lets us skip to different sections of audio
     // for timing purposes
     var startingSection = 0;
@@ -187,7 +225,7 @@
 
     var snowflakes = [];
 
-    var shaders = new ShaderLoader('shaders');
+    var shaders = new CabShaderLoader('shaders');
 
    // var gui = new dat.GUI();
 
@@ -226,7 +264,8 @@
     // Audio should always load after shaders,
     // so lets leave it
     shaders.shaderSetLoaded = function(){
-    //  onShadersLoaded();
+      //  onShadersLoaded();
+      console.log('SHRDERS LOADES');
     }
 
    
@@ -253,6 +292,7 @@
       var elem = document.getElementById("songLoad");
 
 
+      console.log('PROGS');
       // Tells people how much of the song is loaded
       // and shows them, by filling out the snowflake
       var p = Math.floor( this.loaded * 100);
@@ -267,6 +307,7 @@
     // Adds in first start text
     audio.onLoad = function(){
 
+      console.log('HELLO')
       var elem = document.getElementById("songLoad");
       elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
       onLoad();
@@ -311,18 +352,25 @@
     // Before all our shaders / song are loaded
     function setup(){
 
+      console.log( 'SETTING UP' );
+      container = document.getElementById( 'pano' );
+
       renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
      
       window.addEventListener( 'resize', onWindowResize , false );
       window.addEventListener( 'keydown', onKeyDown , false );
 
-      document.body.appendChild( renderer.domElement );
+      //document.body.appendChild( renderer.domElement );
+      container.appendChild( renderer.domElement );
      
       scene   = new THREE.Scene();
 
       var ar  = window.innerWidth / window.innerHeight;
-      camera  = new THREE.PerspectiveCamera( 75, ar , .003, 10 );
+      camera  = new THREE.PerspectiveCamera( 70, ar , .003, 10 );
+
+      camera.target = new THREE.Vector3( 0, 0, 0 );
+      //camera.position.set( 50, 50, 50 );
 
       camera.position.z = 1;
       controls = new THREE.TrackballControls( camera , renderer.domElement );
@@ -331,10 +379,25 @@
       loadSnowflake.scale.multiplyScalar( .004 );
       scene.add( loadSnowflake );
 
+      composer = new WAGNER.Composer( renderer, { useRGBA: true } );
+	
+      bloomPass = new WAGNER.MultiPassBloomPass();
+      bloomPass.params.blurAmount = 20;
+      FXAAPass = new WAGNER.FXAAPass();
+      vignettePass = new WAGNER.Vignette2Pass();
+      vignettePass.params.boost = 2;
+      vignettePass.params.reduction = 3;
+      noisePass = new WAGNER.NoisePass();
+      noisePass.params.amount = .05;
+      chromaticAbberationPass = new WAGNER.ChromaticAberrationPass();
+      
+
+      rendering = true;
     }
 
     function init(){
 
+      console.log( 'INITING');
       textCreator = new TextCreator( 30 );
 
 
@@ -390,7 +453,33 @@
       }
 
 
-      renderer.render( scene, camera );
+    if( playing ) {
+      var t = t = audio.currentTime;
+      timeLabel.textContent = t;
+      updateStory( t );
+      updateScene( t );
+    /*var r = 50;
+    camera.position.x += r * noise.noise( .01 * t, .234234, .456465 );
+    camera.position.y += r * noise.noise( .01 * t, .456456, .109208 );
+    camera.position.z += r * noise.noise( .01 * t, .234672, .523423 );*/
+    }
+	/*camera.position.copy( sampleAtTime( t ) );
+	camera.lookAt( camera.target );*/
+	camera.lookAt( camera.target );
+	//renderer.render( scene, camera );
+
+    //console.log('HESSS');
+	composer.reset();
+		
+	composer.render( scene, camera );
+	composer.pass( chromaticAbberationPass );
+	composer.pass( bloomPass );
+	composer.pass( vignettePass );
+	composer.pass( FXAAPass );
+	composer.pass( noisePass );
+	
+	composer.toScreen();
+     // renderer.render( scene, camera );
       
 
     }
@@ -398,13 +487,24 @@
       // Resets the renderer to be the proper size
     function onWindowResize(){
 
-      camera.aspect = window.innerWidth / window.innerHeight;
+      var s = window.location.hash.substr( 1 ) || 1;
+	var w = s * container.clientWidth, 
+		h = s * container.clientHeight;
+	renderer.setSize( w, h );
+	camera.aspect = w / h;
+	camera.updateProjectionMatrix();
+	composer.setSize( renderer.domElement.width, renderer.domElement.height );
+	renderer.domElement.style.width = window.innerWidth + 'px';
+    renderer.domElement.style.height = window.innerHeight + 'px';
+
+
+      /*camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
 
       renderer.setSize( window.innerWidth, window.innerHeight );
      
-      var dpr = devicePixelRatio || 1;
+      var dpr = devicePixelRatio || 1;*/
 
     }
 
@@ -481,6 +581,8 @@
         
         audio.play( t );
         loaded = true;
+
+        var playing = true;
 
 
 
