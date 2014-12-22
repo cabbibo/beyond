@@ -490,14 +490,14 @@ var timeLabel = document.getElementById( 'time' );
 	composer.reset();
 		
 	composer.render( scene, camera );
-	composer.pass( chromaticAbberationPass );
-	composer.pass( bloomPass );
-	composer.pass( vignettePass );
+	//composer.pass( chromaticAbberationPass );
+//	composer.pass( bloomPass );
+//	composer.pass( vignettePass );
 	composer.pass( FXAAPass );
-	composer.pass( noisePass );
+	//composer.pass( noisePass );
 	
 	composer.toScreen();
-    //renderer.render( scene, camera );
+   // renderer.render( scene, camera );
       
 
     }

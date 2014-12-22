@@ -140,7 +140,7 @@ function initScene() {
         snowflakes.push( snowflake );
         snowflake.activate();
 
-        flakes.push( snowflake.body );
+        flakes.push( snowflake );
 
         console.log( snowflakes );
         //snowflakes,

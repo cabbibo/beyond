@@ -130,10 +130,34 @@ function setValue( original, value ) {
 function updateStory( t ) {
 	
 	for( var j = 0; j < flakes.length; j++ ) {
-		flakes[ j ].position.x = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'x' ) || flakes[ j ].position.x;
-		flakes[ j ].position.y = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'y' ) || flakes[ j ].position.y;
-		flakes[ j ].position.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'z' ) || flakes[ j ].position.z;
-		flakes[ j ].rotation.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'a' ) || flakes[ j ].rotation.z;
+
+      var f = flakes[ j ];
+
+      //console.log( flakes[j] );
+		f.body.position.x = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'x' ) || f.body.position.x;
+		f.body.position.y = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'y' ) || f.body.position.y;
+		f.body.position.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'z' ) || f.body.position.z;
+		f.body.rotation.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'a' ) || f.body.rotation.z;
+	
+
+       
+       /* var active = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'ACT' )
+
+        if( active > .5 ){
+
+          f.active = true;
+
+
+        }else{
+
+          f.active = false;
+
+        }
+         console.log( active );*/
+            // var isActive averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'ACT' )
+
+        
+      //  flakes[ j ].rotation.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'a' ) || flakes[ j ].rotation.z;
 	}
 
 	camera.position.x = setValue( camera.position.x, averageData( cameraStoryline, t, 'x' ) );

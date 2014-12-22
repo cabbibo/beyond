@@ -46,7 +46,7 @@ vec3 getXYZPos( sampler2D texture, vec3 position ){
   vec3 pos;
 
   pos.xy  = getXYPos( position );
-  pos.z   = (getDepth( texture , position  )).x *.1;
+  pos.z   = (getDepth( texture , position  )).x *4.1;
   
   return pos;
 

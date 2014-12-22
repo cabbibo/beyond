@@ -3,6 +3,7 @@ uniform sampler2D t_normal;
 uniform sampler2D t_matCap;
 uniform sampler2D t_detailNormal;
 uniform sampler2D t_pano;
+uniform sampler2D t_audio;
 uniform mat3 normalMatrix;
 uniform float time;
 varying vec2 vUv;
@@ -45,7 +46,10 @@ void main() {
 	f = smoothstep( .6, 1., f ); // <- controls glass look
 	color += vec3( f ); // <- much icier
 	float a =  texture2D( t_normal, vUv ).a;
-	gl_FragColor = vec4( color, a/5. );
+
+   // vec4 aColor = 
+   // vec4 aColor = 
+	gl_FragColor = vec4( color, a /100. );
 
    // gl_FragColor = vec4( 1. );
 //	gl_FragColor = vec4( .5 + .5 * n, 1. );
