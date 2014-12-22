@@ -45,7 +45,7 @@ void main() {
 	float f = clamp( rimPower * abs( dot( n, normalize( vEye ) ) ), 0., 1. );
 	f = smoothstep( .6, 1., f ); // <- controls glass look
 	color += vec3( f ); // <- much icier
-	float a =  texture2D( t_normal, vUv ).a;
+	float a =  length( color ) * texture2D( t_normal, vUv ).a;
 
    // vec4 aColor = 
    // vec4 aColor = 

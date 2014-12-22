@@ -332,8 +332,8 @@ var timeLabel = document.getElementById( 'time' );
 
    // var userAudio = new UserAudio( audioController ); 
 
-    var matcap        = THREE.ImageUtils.loadTexture( 'img/matcap.jpg'  );
-    var panoTexture   = THREE.ImageUtils.loadTexture( 'img/pano.jpg'    );
+    var matcap        = THREE.ImageUtils.loadTexture( 'img/matcap-red.jpg'  );
+    var panoTexture   = THREE.ImageUtils.loadTexture( 'img/pano-blur-red.jpg'    );
     var detailNormal  = THREE.ImageUtils.loadTexture( 'img/scratch.png' );
 
     /*detailNormal.wrapS = detailNormal.value.wrapT  = 
@@ -490,11 +490,11 @@ var timeLabel = document.getElementById( 'time' );
 	composer.reset();
 		
 	composer.render( scene, camera );
-	//composer.pass( chromaticAbberationPass );
-//	composer.pass( bloomPass );
-//	composer.pass( vignettePass );
+	composer.pass( chromaticAbberationPass );
+	composer.pass( bloomPass );
+	composer.pass( vignettePass );
 	composer.pass( FXAAPass );
-	//composer.pass( noisePass );
+	composer.pass( noisePass );
 	
 	composer.toScreen();
    // renderer.render( scene, camera );

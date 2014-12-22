@@ -140,7 +140,9 @@ function updateStory( t ) {
 		f.body.rotation.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'a' ) || f.body.rotation.z;
 	
 
-       
+      
+	console.log( averageData( simulationStoryline, t, 'flake1' ) );
+        
        /* var active = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'ACT' )
 
         if( active > .5 ){
