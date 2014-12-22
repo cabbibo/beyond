@@ -116,12 +116,12 @@ function initScene() {
 
     var sims = [
 
-      'snowHex3',
-      'snowHex4',
       'snowHex5',
-      'snowSimplex6',
-      'snowSimplex7',
+      'snowHex4',
       'snowSimplex8',
+      'snowSimplex6',
+      'snowHex3',
+      //'snowSimplex7',
 
     ]
 
