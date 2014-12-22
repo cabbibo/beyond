@@ -392,6 +392,9 @@
       chromaticAbberationPass = new WAGNER.ChromaticAberrationPass();
       
 
+
+      onWindowResize();
+
       rendering = true;
     }
 
@@ -406,7 +409,7 @@
 
       initText( quoteText );
       initSnowflakes();
-      initChoreography();
+      //initChoreography();
 
 
       aurora = createAurora();
@@ -438,7 +441,7 @@
         uniforms.dT.value = clock.getDelta();
         uniforms.time.value += uniforms.dT.value;
 
-        choreography.update();
+       // choreography.update();
 
         if( updateSim == true ){
 
@@ -479,7 +482,7 @@
 	composer.pass( noisePass );
 	
 	composer.toScreen();
-     // renderer.render( scene, camera );
+    //renderer.render( scene, camera );
       
 
     }
@@ -490,12 +493,12 @@
       var s = window.location.hash.substr( 1 ) || 1;
 	var w = s * container.clientWidth, 
 		h = s * container.clientHeight;
-	renderer.setSize( w, h );
-	camera.aspect = w / h;
-	camera.updateProjectionMatrix();
-	composer.setSize( renderer.domElement.width, renderer.domElement.height );
-	renderer.domElement.style.width = window.innerWidth + 'px';
-    renderer.domElement.style.height = window.innerHeight + 'px';
+      renderer.setSize( w, h );
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      composer.setSize( renderer.domElement.width, renderer.domElement.height );
+      renderer.domElement.style.width = window.innerWidth + 'px';
+      renderer.domElement.style.height = window.innerHeight + 'px';
 
 
       /*camera.aspect = window.innerWidth / window.innerHeight;
@@ -573,11 +576,12 @@
       window.setTimeout( function(){
 
    
-        var t = sections[ startingSection ];
+        /*var t = sections[ startingSection ];
         console.log( t );
         console.log( 'HELL');
-        uniforms.time.value += t;
-       
+        uniforms.time.value += t;*/
+
+        var t = 0;
         
         audio.play( t );
         loaded = true;
