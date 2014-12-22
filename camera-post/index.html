@@ -1,0 +1,299 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>SplineCam</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300' rel='stylesheet' type='text/css'>
+		<style type="text/css">
+		*{ box-sizing: border-box; margin: 0; padding: 0; font-family: inherit; }
+		body{ font-family: roboto condensed; font-size: 14px; overflow: hidden ;}
+		#pano{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; width: 100%; height: 100%; }
+		#pano canvas{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; width: 100%; height: 100%; }
+		#fade{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; background-color: black; opacity: 0; pointer-events: none;}
+		#time{color: red;
+z-index: 100;
+position: absolute;
+left: 0;
+top: 0;
+}
+	</style>
+	</head>
+	<body>
+
+		<div id="pano" ></div>
+		<div id="fade"></div>
+		<div id="time"></div>
+		
+		<script src="js/three.min.js"></script>
+
+		<script src="Wagner/Wagner.js"></script>
+		<script src="Wagner/Wagner.base.js"></script>
+		<script src="Wagner/ShaderLoader.js"></script>
+
+		<script src="timeline.js"></script>
+		<script src="storyboard.js"></script>
+		<script src="scripts.js"></script>
+
+<script type="x-shader/x-vertex" id="sem-vs">
+
+attribute vec4 tangent;
+uniform float time;
+
+varying vec2 vUv;
+varying mat3 tbnMatrix;
+varying vec3 pos;
+varying vec3 e;
+varying vec3 vNormal;
+varying vec3 vTangent;
+varying vec3 vBinormal;
+varying vec3 vEye;
+
+void main() {
+
+	vUv = uv;
+
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1. );
+   
+	vNormal = normalize( normalMatrix * normal );
+	vTangent = normalize( normalMatrix * tangent.xyz );
+	vBinormal = cross( vNormal, vTangent );
+
+	vec3 vertexPosition = vec3( modelViewMatrix * vec4( position, 1. ) );
+
+	vEye = normalize( vec3( 
+		dot( vertexPosition, vTangent ),
+		dot( vertexPosition, vBinormal ),
+		dot( vertexPosition, vNormal )
+	) );
+
+	vec4 p = vec4( position, 1. );
+	vEye = normalize( vec3( modelViewMatrix * p ) );
+
+}
+
+</script>
+
+<script type="x-shader/x-vertex" id="sem-fs">
+
+uniform sampler2D tHeight;
+uniform sampler2D tNormal;
+uniform sampler2D tMatCap;
+uniform sampler2D tDetailNormal;
+uniform sampler2D tPano;
+
+uniform mat3 normalMatrix;
+uniform float time;
+
+varying vec2 vUv;
+varying vec3 e;
+varying vec3 vNormal;
+varying vec3 vTangent;
+varying vec3 vBinormal;
+varying vec3 vEye;
+
+float PI = 3.14159265358979323846264;
+
+vec2 normalToUV( vec3 n ) {
+
+	vec3 normal = normalize( n );
+	float lon = atan( normal.z , - normal.x );
+	float lat = asin( - normal.y );
+	vec2 uv = 0.5 - vec2( lon, lat ) / vec2( PI * 2.0, PI );
+    return uv;
+
+}
+
+void main() {
+
+	mat3 tsb = mat3( normalize( vTangent ), normalize( vBinormal ), normalize( vNormal ) );
+
+	vec3 heightNormal = normalize( .5 * texture2D( tNormal, vUv ).rgb * 2.0 - 1.0 );
+	//vec3 heightNormal = normalize( .5 * vec3( .5, .5, 1. ).rgb * 2.0 - 1.0 );
+	vec3 detailNormal = normalize( 1. * texture2D( tDetailNormal, 5. * vUv ).rgb * 2.0 - 1.0 );
+	vec3 n = normalize( tsb * normalize( heightNormal + detailNormal ) );
+	vec3 eye = normalize( vEye );
+
+    vec3 r = reflect( eye, n );
+    float m = 2. * sqrt( 
+        pow( r.x, 2. ) + 
+        pow( r.y, 2. ) + 
+        pow( r.z + 1., 2. ) 
+    );
+    vec2 vN = r.xy / m + .5;
+
+	vec3 light = texture2D( tMatCap, vN ).rgb;
+    vec3 env = texture2D( tPano, normalToUV( r ) ).rgb;
+    vec3 refract = texture2D( tPano, normalToUV( refract( eye, n, .1 ) ) ).rgb;
+	vec3 color = clamp( env + light, 0., 1. );
+	//color = light; // alabaster looking flakes
+	color = mix( refract, env, .7 );
+
+	float rimPower = 1.;
+	float useRim = 1.;
+	float f = clamp( rimPower * abs( dot( n, normalize( vEye ) ) ), 0., 1. );
+	f = smoothstep( .6, 1., f ); // <- controls glass look
+	color += vec3( f ); // <- much icier
+
+	float a = length( color ) * texture2D( tHeight, vUv ).r;
+	gl_FragColor = vec4( color, a );
+
+//	gl_FragColor = vec4( .5 + .5 * n, 1. );
+}
+	
+</script>
+
+		<script >
+		
+		'use strict';
+
+WAGNER.vertexShadersPath = 'Wagner/vertex-shaders';
+WAGNER.fragmentShadersPath = 'Wagner/fragment-shaders';
+WAGNER.assetsPath = 'Wagner/assets/';
+
+var container, renderer, camera, scene, controls, fov = 70;
+var rendering = false;
+var composer;
+var vignettePass, FXAAPass, bloomPass, noisePass, lensPass, chromaticAbberationPass;
+
+var startTime;
+var timeLabel = document.getElementById( 'time' );
+var audio;
+
+function initialize() {
+		
+	rendering = true;
+
+	container = document.getElementById( 'pano' );
+	
+	camera = new THREE.PerspectiveCamera( fov, window.innerWidth / window.innerHeight, 1, 5000 );
+	camera.target = new THREE.Vector3( 0, 0, 0 );
+	camera.position.set( 50, 50, 50 );
+
+	scene = new THREE.Scene();
+	scene.add( camera );
+
+	renderer = new THREE.WebGLRenderer( { antialiasing: false });
+	renderer.setClearColor( 0, 1 );
+
+	container.appendChild( renderer.domElement );
+
+	window.addEventListener( 'resize', onWindowResize, false );
+
+	composer = new WAGNER.Composer( renderer, { useRGBA: true } );
+	
+	bloomPass = new WAGNER.MultiPassBloomPass();
+	bloomPass.params.blurAmount = 20;
+	FXAAPass = new WAGNER.FXAAPass();
+	vignettePass = new WAGNER.Vignette2Pass();
+	vignettePass.params.boost = 2;
+	vignettePass.params.reduction = 3;
+	noisePass = new WAGNER.NoisePass();
+	noisePass.params.amount = .05;
+	chromaticAbberationPass = new WAGNER.ChromaticAberrationPass();
+
+	initScene();
+
+	onWindowResize();
+
+	render();
+	
+	audio = document.createElement( 'audio' );
+	audio.addEventListener( 'canplay', function(){
+		playing = true;
+		audio.currentTime = 0;
+		start();
+	} );
+	audio.src = 'beyond.mp3';
+	audio.play();
+	//audio.playbackRate = 3;
+	
+}
+
+function start() {
+	startTime = Date.now();
+}
+
+window.addEventListener( 'load', initialize, false );
+
+function onWindowResize( event ) {
+	var s = window.location.hash.substr( 1 ) || 1;
+	var w = s * container.clientWidth, 
+		h = s * container.clientHeight;
+	renderer.setSize( w, h );
+	camera.aspect = w / h;
+	camera.updateProjectionMatrix();
+	composer.setSize( renderer.domElement.width, renderer.domElement.height );
+	renderer.domElement.style.width = window.innerWidth + 'px';
+	renderer.domElement.style.height = window.innerHeight + 'px';
+}
+
+var ellapsedTime;
+var isEnded = false;
+
+window.addEventListener( 'mousemove', function( e ) {
+
+	console.log( 'mousemove' );
+	if( !audio || playing ) return;
+	var t = audio.duration * ( e.pageX / window.innerWidth );
+	updateStory( t );
+	updateScene( t );
+	timeLabel.textContent = t;
+
+} );
+
+window.addEventListener( 'keydown', function( e ) {
+
+	if( e.keyCode === 32 ) {
+		//points = [];
+		//addLine();
+		audio.pause();
+		playing = !playing;
+	}
+
+} );
+
+var playing = false;
+
+function render() {
+
+	requestAnimationFrame( render );
+	//controls.update();
+	
+	if( playing ) {
+		var t = t = audio.currentTime;
+		timeLabel.textContent = t;
+		updateStory( t );
+		updateScene( t );
+
+		/*var r = 50;
+		camera.position.x += r * noise.noise( .01 * t, .234234, .456465 );
+		camera.position.y += r * noise.noise( .01 * t, .456456, .109208 );
+		camera.position.z += r * noise.noise( .01 * t, .234672, .523423 );*/
+
+	}
+
+	/*camera.position.copy( sampleAtTime( t ) );
+	camera.lookAt( camera.target );*/
+
+	camera.lookAt( camera.target );
+
+	//renderer.render( scene, camera );
+	
+	composer.reset();
+		
+	composer.render( scene, camera );
+	composer.pass( chromaticAbberationPass );
+	composer.pass( bloomPass );
+	composer.pass( vignettePass );
+	composer.pass( FXAAPass );
+	composer.pass( noisePass );
+	
+	composer.toScreen();
+
+}
+		
+		</script>
+	
+	</body>
+</html>

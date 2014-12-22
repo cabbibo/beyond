@@ -1,0 +1,1048 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>SplineCam</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300' rel='stylesheet' type='text/css'>
+		<style type="text/css">
+		*{ box-sizing: border-box; margin: 0; padding: 0; font-family: inherit; }
+		body{ font-family: roboto condensed; font-size: 14px;}
+		#pano{ position: absolute; left: 0; top: 0;right: 0;bottom: 0;}
+		#vignette{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; background-image: url( vignette.png ); background-size: cover; opacity: .5;}
+		#fade{ position: absolute; left: 0; top: 0;right: 0;bottom: 0; background-color: black; opacity: 0;}
+		#time{color: red;
+z-index: 100;
+position: absolute;
+left: 0;
+top: 0;
+}
+	</style>
+	</head>
+	<body>
+
+		<div id="pano" ></div>
+		<div id="fade"></div>
+		<div id="vignette"></div>
+		<div id="time"></div>
+		
+		<script src="js/three.min.js"></script>
+		<script src="js/DeviceOrientationControls.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/THREE.ConstantSpline.js"></script>
+		<script src="js/ImprovedNoise.js"></script>
+
+<script type="x-shader/x-vertex" id="sem-vs">
+
+attribute vec3 tangent;
+uniform float time;
+
+varying vec2 vUv;
+varying vec3 eyeVec;
+varying mat3 tbnMatrix;
+varying vec3 pos;
+varying vec3 e;
+varying vec3 vNormal;
+
+mat3 m3( mat4 mIn ) {
+
+	mat3 mOut;
+	
+	mOut[ 0 ][ 0 ] = mIn[ 0 ][ 0 ]; 
+	mOut[ 0 ][ 1 ] = mIn[ 0 ][ 1 ]; 
+	mOut[ 0 ][ 2 ] = mIn[ 0 ][ 2 ]; 
+	
+	mOut[ 1 ][ 0 ] = mIn[ 1 ][ 0 ]; 
+	mOut[ 1 ][ 1 ] = mIn[ 1 ][ 1 ]; 
+	mOut[ 1 ][ 2 ] = mIn[ 1 ][ 2 ]; 
+	
+	mOut[ 2 ][ 0 ] = mIn[ 2 ][ 0 ]; 
+	mOut[ 2 ][ 1 ] = mIn[ 2 ][ 1 ]; 
+	mOut[ 2 ][ 2 ] = mIn[ 2 ][ 2 ]; 
+	
+	return mOut;
+}
+
+void main() {
+
+	vUv = uv;
+
+	vec3 pos = position;// + 10. * vec3( cos( a + time ), 0., sin( a + time ) );
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1. );
+
+	vec3 n = m3( modelMatrix ) * normal; 
+	vec3 t = m3( modelMatrix ) * tangent.xyz;
+	vec3 b = m3( modelMatrix ) * cross( n, t );
+	
+	eyeVec = ( modelMatrix * vec4( pos, 1. ) ).xyz - cameraPosition;
+	eyeVec = ( modelViewMatrix * vec4( eyeVec, 1. ) ).xyz;
+	vec3 v = vec3(
+		dot( eyeVec, t ),
+		dot( eyeVec, b ),
+		dot( eyeVec, n )
+	);
+	eyeVec = normalize( v );
+
+    vec4 p = vec4( position, 1. );
+	e = normalize( vec3( modelViewMatrix * p ) );
+   
+	vNormal = normalMatrix * normal;
+
+}
+
+</script>
+
+<script type="x-shader/x-vertex" id="sem-fs">
+
+uniform sampler2D tHeight;
+uniform sampler2D tNormal;
+uniform sampler2D tMatCap;
+uniform sampler2D tDetailNormal;
+uniform sampler2D tPano;
+
+uniform mat3 normalMatrix;
+uniform float time;
+
+varying vec2 vUv;
+varying vec3 eyeVec;
+varying vec3 e;
+varying vec3 vNormal;
+
+float PI = 3.14159265358979323846264;
+
+/*
+	vec3 vVec = normalize( view );  
+
+	vec4 bumpNormal = texture2D( normalMap, vUv );  
+
+	vec3 n = bumpNormal.rgb * 2.0 - 1.0;
+	vec3 modifiedTangent = normalize( vec3( n.xy * bumpiness, sqrt( 1. - n.y * n.y - n.x * n.x ) ) );
+	vec3 nVec = tbnMatrix * modifiedTangent;
+*/
+
+vec2 normalToUV( vec3 n ) {
+
+	vec3 normal = normalize( n );
+	float lon = atan( normal.z , - normal.x );
+	float lat = asin( - normal.y );
+	vec2 uv = 0.5 - vec2( lon, lat ) / vec2( PI * 2.0, PI );
+    return uv;
+
+}
+
+void main() {
+
+	vec3 heightNormal = .5 * texture2D( tNormal, vUv ).rgb;
+	vec3 detailNormal = texture2D( tDetailNormal, 5. * vUv ).rgb;
+	vec3 n = normalize( vNormal + heightNormal + detailNormal );
+	vec3 eye = normalize( e );
+
+    vec3 r = reflect( eye, n );
+    float m = 2. * sqrt( 
+        pow( r.x, 2. ) + 
+        pow( r.y, 2. ) + 
+        pow( r.z + 1., 2. ) 
+    );
+    vec2 vN = r.xy / m + .5;
+
+	vec3 light = texture2D( tMatCap, vN ).rgb;
+    vec3 env = texture2D( tPano, normalToUV( r ) ).rgb;
+	vec3 color = env + light;//.1 + vec3( 1. ) * ( .5 * env + .5 * light ) + pow( light, vec3( 2. ) );//mix( env, rEnv, .2 ) + light;
+	//vec3 color = light;
+
+	float a = length( color ) * texture2D( tHeight, vUv ).r;
+	gl_FragColor = vec4( color, a );
+
+}
+	
+</script>
+
+		<script >
+		
+		'use strict';
+
+		var ACTIONS = {
+			CUT: 0,
+			EASE: 1,
+			LINEAR: 2
+		}
+
+		var planeObject;
+
+		function createShafts() {
+
+			planeObject = new THREE.Object3D();
+			var planeMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'shaft.png' ), color: 0x17249b, emissive: 0xffffff, opacity: .1, transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending } );
+			var planeGeometry = new THREE.PlaneGeometry( 100, 10000 );
+			for( var j = 0; j < 100; j++ ) {
+				var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+				plane.position.x = ( .5 - Math.random() ) * 500;
+				plane.position.y = ( .5 - Math.random() ) * 5000;
+				plane.position.z = ( .5 - Math.random() ) * 500;
+				plane.rotation.z = ( .5 - Math.random() ) * Math.PI / 4;
+				planeObject.add( plane );
+			}
+			scene.add( planeObject );
+
+		}
+
+		var fade = document.getElementById( 'fade' );
+		var particles, particleSystem;
+		var shadowParticles;
+		
+		function createParticles() {
+
+			particles = new THREE.Geometry();
+			
+			var pMaterial = new THREE.PointCloudMaterial({
+				color: 0xFFFFFF,
+				map: THREE.ImageUtils.loadTexture( 'coc.png' ),
+				blending: THREE.NormalBlending,
+				depthTest: false,
+				transparent: true,
+				opacity: .8,
+				size: 2
+			} );
+
+			var num = 2000;
+			for(var p = 0; p < num; p++) {
+
+				var particle = new THREE.Vector3(
+					Math.random() * 1000 - 500, 
+					Math.random() * 1000 - 500, 
+					Math.random() * 1000 - 500 
+				);
+				particle.velocity = new THREE.Vector3(
+					.5 - Math.random(),
+					-( .1 + Math.random() ),
+					.5 - Math.random()
+				);
+				particle.velocity.multiplyScalar( .1 );
+
+				particles.vertices.push(particle);
+			}
+
+			particleSystem = new THREE.PointCloud( particles, pMaterial );
+			particleSystem.sortParticles = true;
+
+			scene.add( particleSystem );
+
+		}
+
+		function updateParticles( t, p ) {
+
+			particleSystem.position.copy( p );
+			particleSystem.rotation.y = .05 * t;
+
+			var pCount = particles.vertices.length;
+			while( pCount-- ) {
+				
+				var particle = particles.vertices[ pCount ];
+				
+				if( particle.y < -500 ){
+					particle.set (
+						Math.random() * 1000 - 500,
+						500,
+						Math.random() * 1000 - 500			
+					);
+				}
+				
+				particle.x += .1 * Math.sin( t );
+				particle.y += .1 * Math.sin( .9 * t );
+				particle.z += .1 * Math.sin( 1.1 * t );
+				
+				particle.add( particle.velocity );
+			}
+
+		}
+
+		var container, renderer, camera, scene, controls, fov = 70;
+		var dummy, cube;
+		var rendering = false;
+		var noise = new ImprovedNoise();
+
+		var flakeStoryline = parseStoryline( {
+
+			flake1a: [
+				'0 cut to .3433',
+				'30 ease to -1.123'
+			],
+
+			flake2a: [
+				'27 cut to 1.3433',
+				'40 ease to 3.123'
+			],
+
+			flake3a: [
+				'35 cut to 2.3433',
+				'60 ease to 4.123'
+			],
+
+			flake4a: [
+				'50 cut to 2.3433',
+				'60 ease to 1.123',
+				'60 cut to -1.123',
+				'80 ease to 2.123'
+			],
+			
+			flake5a: [
+				'70 cut to .3433',
+				'107 ease to -5.123'
+			]
+
+		} );
+
+		var effectsStoryline = parseStoryline( {
+
+			fade: [
+				'0 cut to 1',
+				'11 ease to 1',
+				'14 ease to 0',
+				
+				'15 cut to 0',
+				'17 ease to 1',
+				'19 ease to 0',
+				
+				'26 cut to 0',
+				'27 ease to 1',
+				'28 ease to 0',
+
+				'29 cut to 0',
+				'30 ease to 1',
+				'31 ease to 0',
+
+				'36 cut to 0',
+				'37 ease to 1',
+				'38 ease to 0',
+
+				'43.5 cut to 0',
+				'44.5 ease to 1',
+				'45.5 ease to 0',
+
+				'47 cut to 0',
+				'48 ease to 1',
+				'49 ease to 0',
+
+				'53 cut to 0',
+				'54 ease to 1',
+				'55 ease to 0',
+
+				'59 cut to 0',
+				'60 ease to 1',
+				'61 ease to 0',
+
+				'65 cut to 0',
+				'66 ease to 1',
+				'67 ease to 0',
+
+				'68.5 cut to 0',
+				'69.5 ease to 1',
+				'70.5 ease to 0',
+
+				'74 cut to 0',
+				'75 ease to 1',
+				'76 ease to 0',
+
+				'106 cut to 0',
+				'107 ease to 1'
+			]
+
+		} );
+
+		var cameraStoryline = parseStoryline( {
+			
+			x: [
+				'0 cut to 0',
+				'97 ease to 0'
+			],
+
+			y: [
+				'0 cut to -1400',
+				'11 cut to -800',
+				'97 linear to 750',
+				'107 linear to 900'
+			],
+
+			z: [
+				'0 cut to 0',
+				'97 ease to 0'
+			],
+			
+			targetx: [
+				'0 cut to 20',
+				'97 ease to 20',
+			],
+
+			targety: [
+				'0 cut to -820',
+				'11 cut to -820',
+				'97 linear to 800',
+				'107 linear to 1000'
+			],
+
+			targetz: [
+				'0 cut to 50',
+				'97 ease to 50',
+			],
+			
+			cutx: [
+				'17 cut to -10',
+				'27 linear to 15',
+				'30 cut to 0',
+				'37 ease to 0',
+
+				'37 cut to -10',
+				'44.5 ease to -10',
+				'44.5 cut to -10',
+				'48 linear to -10',
+				
+				'54 cut to -10',
+				'66 ease to 10',
+
+				'69.5 cut to -50',
+				'75 ease to -60',
+
+				'75 cut to 0',
+				'90 ease to 0',
+
+				'90 cut to 0',
+				'107 ease to 0',
+			],
+
+			cuty: [
+				'17 cut to -750',
+				'27 ease to -750',
+				'27 cut to -500',
+				'30 ease to -375',
+				'30 cut to -375',
+				'37 ease to -375',
+
+				'37 cut to 0',
+				'44.5 ease to 10',
+				'44.5 cut to -20',
+				'48 linear to 20',
+
+				'54 cut to 375',
+				'66 ease to 375',
+
+				'69.5 cut to 355',
+				'75 linear to 395',
+
+				'75 cut to 750',
+				'90 ease to 750',
+
+				'90 cut to 750',
+				'107 ease to 1000',
+			],
+
+			cutz: [
+				'17 cut to -50',
+				'27 linear to 0',
+				'30 cut to 0',
+				'37 ease to -100',
+
+				'37 cut to -10',
+				'44.5 ease to -80',
+				'44.5 cut to 60',
+				'48 linear to 80',
+
+				'54 cut to 80',
+				'60 ease to 80',
+				'60 cut to 30',
+				'62 ease to 40',
+				'66 ease to 0',
+				'66 cut to 40',
+				'66 ease to -20',
+
+				'69.5 cut to 40',
+				'75 ease to 50',
+
+				'75 cut to 100',
+				'90 linear to -50',
+				
+				'107 ease to 0',
+			],
+
+			targetcutx: [
+				
+				'17 cut to -10',
+				'27 linear to 10',
+				'30 cut to 0',
+				'37 ease to 0',
+
+				'37 cut to 0',
+				'44.5 ease to 0',
+				'44.5 cut to 0',
+				'48 ease to 0',
+
+				'54 cut to -10',
+				'66 ease to 10',
+
+				'69.5 cut to 0',
+				'75 ease to 0',
+
+				'75 cut to 0',
+				'90 ease to 0',
+
+				'90 cut to 0',
+				'107 ease to 0',
+			],
+
+			targetcuty: [
+				'17 cut to -750',
+				'27 ease to -750',
+				'27 cut to -500',
+				'30 ease to -375',
+				'30 cut to -365',
+				'37 ease to -385',
+
+				'37 cut to 0',
+				'44.5 ease to 10',
+				'44.5 cut to -20',
+				'48 linear to 20',
+
+				'54 cut to 375',
+				'66 ease to 375',
+
+				'69.5 cut to 355',
+				'75 linear to 395',
+				
+				'75 cut to 750',
+				'90 ease to 750',
+
+				'90 cut to 750',
+				'107 ease to 1300',
+			],
+
+			targetcutz: [
+				'17 cut to 100',
+				'27 linear to 100',
+				'30 cut to 100',
+				'37 ease to 100',
+
+				'37 cut to 100',
+				'44.5 ease to 100',
+				'44.5 cut to 100',
+				'48 ease to 100',
+
+				'54 cut to 100',
+				'66 ease to 100',
+
+				'69.5 cut to 100',
+				'75 ease to 100',
+
+				'75 cut to 100',
+				'90 ease to 100',
+
+				'90 cut to 100',
+				'107 ease to 100',
+			],
+
+		} );
+
+		function Event() {
+			this.start = null;
+			this.end = null;
+			this.action = null;
+			this.from = 0;
+			this.to = 0;
+			this.duration = 0;
+		}
+
+		function parseStoryline( story ) {
+
+			var result = {};
+
+			for( var v in story ) {
+				if( story.hasOwnProperty( v ) ) {
+
+					var storyboard = [];
+
+					story[ v ].forEach( function( e ) {
+						var start = e.match( /([^\s]+)/ );
+						var event = new Event();
+						if( e.indexOf( 'cut to' ) != -1 ) {
+							event.start = parseFloat( start[ 1 ] );
+							event.end = event.start;
+							event.action = ACTIONS.CUT;
+							var v = e.match( /[^\s]+ cut to ([^\s]+)/ );
+							event.from = parseFloat( v[ 1 ] );
+							event.to = event.from;
+						}
+						if( e.indexOf( 'ease to' ) != -1 ) {
+							event.end = parseFloat( start[ 1 ] );
+							event.action = ACTIONS.EASE;
+							event.from = 0;
+							var v = e.match( /[^\s]+ ease to ([^\s]+)/ );
+							event.to = parseFloat( v[ 1 ] );
+						}
+						if( e.indexOf( 'linear to' ) != -1 ) {
+							event.end = parseFloat( start[ 1 ] );
+							event.action = ACTIONS.LINEAR;
+							event.from = 0;
+							var v = e.match( /[^\s]+ linear to ([^\s]+)/ );
+							event.to = parseFloat( v[ 1 ] );
+						}
+						storyboard.push( event );
+					} );
+
+					storyboard.forEach( function( e, i ) {
+						if( e.action === ACTIONS.EASE || e.action == ACTIONS.LINEAR ) {
+							e.start = storyboard[ i - 1 ].end;
+							e.from = storyboard[ i - 1 ].to;
+						}
+						e.duration = e.end - e.start;
+					} );
+
+					storyboard.forEach( function( e, i ) {
+						console.log( e.from + '(' + e.start + ')' + ' to ' + e.to + '(' + e.end + ') in ' + e.duration );
+					} );
+
+					result[ v ] = storyboard;
+
+				}
+			}
+
+			return result;
+
+		}
+
+		var cylinder;
+		var startTime;
+		var tmpCameraVector;
+		var timeLabel = document.getElementById( 'time' );
+		var audio;
+		var flakes = [];
+
+		function initialize() {
+				
+			rendering = true;
+
+			container = document.getElementById( 'pano' );
+			
+			camera = new THREE.PerspectiveCamera( fov, window.innerWidth / window.innerHeight, 1, 5000 );
+			camera.target = new THREE.Vector3( 0, 0, 0 );
+			camera.position.set( 50, 50, 50 );
+	
+			tmpCameraVector = camera.position.clone();
+
+			//controls = new THREE.DeviceOrientationControls( camera );
+			//controls.connect();
+
+			controls = new THREE.OrbitControls( camera );
+
+			scene = new THREE.Scene();
+			scene.add( camera );
+
+			var material = new THREE.ShaderMaterial( {
+
+				uniforms: { 
+					tHeight: { type: 't', value: THREE.ImageUtils.loadTexture( 'heightmap.png' ) },
+					tPano: { type: 't', value: THREE.ImageUtils.loadTexture( 'pano-blur-red.jpg' ) },
+					tNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'NormalMap.png' ) },
+					tDetailNormal: { type: 't', value: THREE.ImageUtils.loadTexture( 'Scratch-Norm.png' ) },
+					tMatCap: { type: 't', value: THREE.ImageUtils.loadTexture( 'matcap-red.jpg' ) },
+					time: { type: 'f', value: 0 }
+				},
+				vertexShader: document.getElementById( 'sem-vs' ).textContent,
+				fragmentShader: document.getElementById( 'sem-fs' ).textContent,
+				shading: THREE.SmoothShading,
+				side: THREE.DoubleSide,
+				depthTest: false,
+				depthWrite: false,
+				transparent: true,
+				//blending: THREE.AdditiveBlending
+			} );
+
+			//var material = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'flake.png' ), transparent: true, side: THREE.DoubleSide }) 
+
+
+			for( var j = 0; j < 5; j++ ) {
+				var size = 140;
+				var group = new THREE.Object3D();
+				for( var i = 0; i < 3; i++ ) {
+					var flake = new THREE.Mesh( new THREE.PlaneGeometry( size, size, 1, 1 ), material );
+					flake.geometry.computeTangents();
+					var s = .5 + .5 * Math.random();
+					flake.position.z = i * 5;
+					flake.scale.set( s, s, s );
+					//flake.rotation.x = Math.random() * 2 * Math.PI;
+					flake.rotation.z = Math.random() * 2 * Math.PI;
+					group.add( flake );
+				}
+				group.position.x = 0;
+				group.position.y = -750 + 1500 * j / 4;
+				group.position.z = 100;
+				scene.add( group );
+				flakes.push( group );
+			}
+
+			renderer = new THREE.WebGLRenderer( { antialiasing: true });
+			renderer.setClearColor( 0, 1 );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+			container.appendChild( renderer.domElement );
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			//addLine();
+
+			cylinder = new THREE.Mesh( new THREE.CylinderGeometry( 500, 500, 5000, 36, 50 ), new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'tunnel.jpg' ), side: THREE.DoubleSide } ) ) ;
+			scene.add( cylinder );
+
+			var top = new THREE.Mesh( new THREE.PlaneGeometry( 1024, 1024 ), new THREE.MeshBasicMaterial( { color: 0xffffff, emissive: 0xffffff, side: THREE.DoubleSide } ) );
+			top.position.y = 2490;
+			top.rotation.x = Math.PI / 2;
+			scene.add( top );
+
+			var bottom = new THREE.Mesh( new THREE.PlaneGeometry( 1024, 1024 ), new THREE.MeshBasicMaterial( { color: 0, emissive: 0, side: THREE.DoubleSide } ) );
+			bottom.position.y = -2490;
+			bottom.rotation.x = Math.PI / 2;
+			scene.add( bottom );
+
+			createParticles();
+			createShafts();
+
+			render();
+			
+			audio = document.createElement( 'audio' );
+			audio.addEventListener( 'canplay', function(){
+				playing = true;
+				audio.currentTime = 0;
+				start();
+			} );
+			audio.src = 'beyond.mp3';
+			audio.play();
+			//audio.playbackRate = 3;
+			
+		}
+		
+		function start() {
+			startTime = Date.now();
+		}
+
+		window.addEventListener( 'load', initialize, false );
+		
+		function onWindowResize( event ) {
+			renderer.setSize( container.clientWidth, container.clientHeight );
+			camera.aspect = container.clientWidth / container.clientHeight;
+			camera.updateProjectionMatrix();
+		}
+		
+		var ellapsedTime;
+		var isEnded = false;
+		
+		var s = new THREE.ConstantSpline();
+		var points = [];
+
+		function addPoint( p, size ) {
+
+			return;
+
+			var m = new THREE.Mesh( new THREE.IcosahedronGeometry( size, 2 ), new THREE.MeshNormalMaterial() );
+			m.position.copy( p );
+			scene.add( m );
+
+		}
+
+		function addVector( p, v ) {
+
+			return;
+
+			var geometry = new THREE.Geometry();
+
+			geometry.vertices.push( p.clone() );
+		    geometry.vertices.push( p.clone().add( v ) );
+
+			material = new THREE.LineBasicMaterial( { 
+				color: 0x404040 + Math.random() * 0xbfbfbf, 
+				linewidth: 4
+			} );
+
+			var line = new THREE.Line( geometry, material );
+			scene.add( line );
+
+		}
+
+		var current = null;
+
+		function addLine() {
+
+			s.inc = .001;
+			var rVar = Math.PI / 4;
+
+			var origin = new THREE.Vector3();
+			var fudge = new THREE.Vector3();
+
+			if( current ) {
+				start = current.clone();
+			} else {
+				var r = 10 + Math.random() * 50;
+				var phi = Math.random() * 2 * Math.PI;
+				var theta = Math.random() * 2 * Math.PI;
+				var start = new THREE.Vector3();
+				start.x = r * Math.sin( phi ) * Math.cos( theta );
+				start.y = r * Math.cos( phi );
+				start.z = r * Math.sin( phi ) * Math.sin( theta );
+			}
+
+			addPoint( start, 2 );
+
+			var r = 10 + Math.random() * 50;
+			var phi = Math.random() * 2 * Math.PI;
+			var theta = Math.random() * 2 * Math.PI;
+			var end = new THREE.Vector3();
+			end.x = r * Math.sin( phi ) * Math.cos( theta );
+			end.y = r * Math.cos( phi );
+			end.z = r * Math.sin( phi ) * Math.sin( theta );
+
+			addPoint( end, 2 );
+
+			var up = start.clone().cross( end );
+			up.normalize();
+
+			var distance = .5 * start.clone().distanceTo( end );
+
+			addVector( origin, start );
+			addVector( start, up.clone().multiplyScalar( 10 ) );
+			addVector( origin, end );
+			addVector( end, up.clone().multiplyScalar( 10 ) );
+
+			var dir = start.clone().cross( up );
+			dir.normalize();
+			dir.multiplyScalar( -distance );
+			fudge.copy( up );
+			fudge.normalize();
+			fudge.multiplyScalar( .5 - Math.random() );
+			fudge.multiplyScalar( 5 * distance );
+			dir.add( fudge );
+			addVector( start, dir );
+
+			var p1 = start.clone();
+			p1.add( dir );
+
+			var dir = end.clone().cross( up );
+			dir.normalize();
+			dir.multiplyScalar( distance );
+			fudge.copy( up );
+			fudge.normalize();
+			fudge.multiplyScalar( .5 - Math.random() );
+			fudge.multiplyScalar( 5 * distance );
+			dir.add( fudge );
+			addVector( end, dir );
+
+			var p2 = end.clone();
+			p2.add( dir );
+
+			addPoint( p1, 1 );
+			addPoint( p2, 1 );
+			
+			s.p0 = start;
+			s.p1 = p1;
+			s.p2 = p2;
+			s.p3 = end;
+
+			s.calculate();
+
+			var geometry = new THREE.Geometry();
+
+			s.calculateDistances();
+			s.reticulate( { distancePerStep: .1 });
+			//s.reticulate( { steps: 500 } );
+
+			var geometry = new THREE.Geometry();
+
+			for( var j = 0; j < s.lPoints.length - 1; j++ ) {
+
+				var from = s.lPoints[ j ],
+					to = s.lPoints[ j + 1 ];
+				geometry.vertices.push( from.clone() );
+			    geometry.vertices.push( to.clone() );
+
+			}
+
+			var material = new THREE.LineBasicMaterial( { 
+				color: 0x404040 + Math.random() * 0xbfbfbf, 
+				linewidth: 4
+			} );
+
+			var line = new THREE.Line( geometry, material );
+			scene.add( line );
+
+			points = points.concat( s.lPoints );
+
+			current = end;
+
+		}
+
+		var tmpPoint = new THREE.Vector3();
+		var camPoint = new THREE.Vector3();
+		var speed = 50;
+
+		function sampleAtTime( time ) {
+
+			var t = Math.floor( time / speed );
+			var f = ( time % speed ) / speed;
+			t %= points.length - 1;
+
+			tmpPoint.copy( points[ t + 1 ] );
+			tmpPoint.sub( points[ t ] );
+			tmpPoint.multiplyScalar( f );
+			tmpPoint.add( points[ t ] );
+
+			return tmpPoint;
+		}
+
+		window.addEventListener( 'keydown', function( e ) {
+
+			if( e.keyCode === 32 ) {
+				//points = [];
+				//addLine();
+				audio.pause();
+				playing = !playing;
+			}
+
+		} );
+
+		function getPointInStoryline( storyline, t, value ) {
+			
+			if( !storyline[ value ] ) return null;
+
+			for( var j = 0; j < storyline[ value ].length; j++ ) {
+				var e = storyline[ value ][ j ];
+				if( e.start <= t && e.end > t ) {
+					return e;
+				}
+			}
+
+			return null;
+
+		}
+
+		function averageData( story, t, value ) {
+
+			var p = getPointInStoryline( story, t, value );
+
+			if( !p ) return null;
+
+			if( p.action === ACTIONS.CUT ) {
+				return p.from;
+			}
+
+			if( p.action === ACTIONS.EASE ) {
+			
+				var et = ( t - p.start ) / p.duration;
+				var easing;
+				if ( ( et *= 2 ) < 1 ) easing = 0.5 * et * et;
+				else easing = - 0.5 * ( --et * ( et - 2 ) - 1 );
+
+				var v = p.from + ( easing * ( p.to - p.from ) );
+
+				return v;
+
+			}
+
+			if( p.action === ACTIONS.LINEAR ) {
+			
+				var et = ( t - p.start ) / p.duration;
+				var v = p.from + ( et * ( p.to - p.from ) );
+
+				return v;
+
+			}
+
+		}
+
+		function easeVector( current, next, ease ) {
+
+			var inc = next.clone().sub( current );
+			inc.multiplyScalar( ease );
+			current.add( inc );
+
+		}
+
+		function setValue( original, value ) {
+
+			if( value !== null ) return value;
+			return original
+
+		}
+
+		function updateStory( t ) {
+
+			if( isNaN( t ) ) return;
+			
+			for( var j = 0; j < flakes.length; j++ ) {
+				flakes[ j ].position.x = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'x' ) || flakes[ j ].position.x;
+				flakes[ j ].position.y = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'y' ) || flakes[ j ].position.y;
+				flakes[ j ].position.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'z' ) || flakes[ j ].position.z;
+				flakes[ j ].rotation.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'a' ) || flakes[ j ].rotation.z;
+			}
+
+			camera.position.x = setValue( camera.position.x, averageData( cameraStoryline, t, 'x' ) );
+			camera.position.y = setValue( camera.position.y, averageData( cameraStoryline, t, 'y' ) );
+			camera.position.z = setValue( camera.position.z, averageData( cameraStoryline, t, 'z' ) );
+
+			camera.position.x = setValue( camera.position.x, averageData( cameraStoryline, t, 'cutx' ) );
+			camera.position.y = setValue( camera.position.y, averageData( cameraStoryline, t, 'cuty' ) );
+			camera.position.z = setValue( camera.position.z, averageData( cameraStoryline, t, 'cutz' ) );
+
+			camera.target.x = setValue( camera.target.x, averageData( cameraStoryline, t, 'targetx' ) );
+			camera.target.y = setValue( camera.target.y, averageData( cameraStoryline, t, 'targety' ) );
+			camera.target.z = setValue( camera.target.z, averageData( cameraStoryline, t, 'targetz' ) );
+
+			camera.target.x = setValue( camera.target.x, averageData( cameraStoryline, t, 'targetcutx' ) );
+			camera.target.y = setValue( camera.target.y, averageData( cameraStoryline, t, 'targetcuty' ) );
+			camera.target.z = setValue( camera.target.z, averageData( cameraStoryline, t, 'targetcutz' ) );
+
+			fade.style.opacity = setValue( fade.style.opacity, averageData( effectsStoryline, t, 'fade' ) );
+
+			updateParticles( t, camera.position );
+			planeObject.rotation.y = .05 * t;
+			cylinder.rotation.y = .05 * t;
+			
+		}
+
+		window.addEventListener( 'mousemove', function( e ) {
+
+			if( !audio || playing ) return;
+			var t = audio.duration * ( e.pageX / window.innerWidth );
+			updateStory( t );
+			timeLabel.textContent = t;
+
+		} );
+
+		var playing = false;
+
+		function render() {
+
+			requestAnimationFrame( render );
+			//controls.update();
+			
+			if( playing ) {
+				var t = Date.now() - startTime;
+				t /= 1000;
+				t = audio.currentTime;
+				timeLabel.textContent = t;
+				updateStory( t );
+
+				/*var r = 50;
+				camera.position.x += r * noise.noise( .01 * t, .234234, .456465 );
+				camera.position.y += r * noise.noise( .01 * t, .456456, .109208 );
+				camera.position.z += r * noise.noise( .01 * t, .234672, .523423 );*/
+
+			}
+
+			/*camera.position.copy( sampleAtTime( t ) );
+			camera.lookAt( camera.target );*/
+
+			camera.lookAt( camera.target );
+
+			renderer.render( scene, camera );
+			
+		}
+		
+		</script>
+	
+	</body>
+</html>

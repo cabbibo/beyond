@@ -1,0 +1,391 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>SplineCam</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300' rel='stylesheet' type='text/css'>
+		<style type="text/css">
+		*{ box-sizing: border-box; margin: 0; padding: 0; font-family: inherit; }
+		body{ font-family: roboto condensed; font-size: 14px;}
+		#time{color: red;
+z-index: 100;
+position: absolute;
+left: 0;
+top: 0;
+}
+	</style>
+	</head>
+	<body>
+
+		<div id="pano" ></div>
+		<div id="time"></div>
+		
+		<script src="js/three.min.js"></script>
+		<script src="js/DeviceOrientationControls.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/THREE.ConstantSpline.js"></script>
+		<script >
+		
+		var renderer, camera, scene, controls, fov = 70;
+		var dummy, cube;
+
+		var flakesStoryline = [
+			{ timestamp: 1, data: { y: 0 } },
+			{ timestamp: 100, data: { y: 2000 } }
+		];
+
+		var cameraStoryline = [
+			
+			{ timestamp: 1, data: { y: -50 } },
+			{ timestamp: 100, data: { y: 2050 } },
+
+			{ timestamp: 1, data: { x: -50 } },
+			{ timestamp: 10, data: { x: 50 } },
+
+			{ timestamp: 10.00000001, data: { x: 0, z: 10 } },
+			{ timestamp: 20, data: { x: 100, z: 100 } }
+
+		];
+
+		var startTime;
+		var tmpCameraVector;
+		var timeLabel = document.getElementById( 'time' );
+
+		function initialize() {
+				
+			rendering = true;
+
+			container = document.getElementById( 'pano' );
+			
+			camera = new THREE.PerspectiveCamera( fov, window.innerWidth / window.innerHeight, 1, 1100 );
+			camera.target = new THREE.Vector3( 0, 0, 0 );
+			camera.position.set( 50, 50, 50 );
+	
+			tmpCameraVector = camera.position.clone();
+
+			//controls = new THREE.DeviceOrientationControls( camera );
+			//controls.connect();
+
+			controls = new THREE.OrbitControls( camera );
+
+				
+			scene = new THREE.Scene();
+			scene.add( camera );
+
+			cube = new THREE.Mesh( new THREE.CubeGeometry( 10, 10, 10 ), new THREE.MeshNormalMaterial() );
+			scene.add( cube );
+
+			renderer = new THREE.WebGLRenderer( { antialiasing: true });
+			renderer.setClearColor( 0xffffff, 1 );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+			container.appendChild( renderer.domElement );
+
+			dummy = new THREE.Mesh( new THREE.CubeGeometry( 3, 3, 3 ), new THREE.MeshNormalMaterial() );
+			scene.add( dummy );
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			addLine();
+
+			var cylinder = new THREE.Mesh( new THREE.CylinderGeometry( 500, 500, 5000, 36, 100 ), new THREE.MeshNormalMaterial( { wireframe: true } ) ) ;
+			scene.add( cylinder );
+
+			render();
+			start();
+			
+		}
+		
+		function start() {
+			startTime = Date.now();
+		}
+
+		window.addEventListener( 'load', initialize, false );
+		
+		function onWindowResize( event ) {
+			renderer.setSize( container.clientWidth, container.clientHeight );
+			camera.aspect = container.clientWidth / container.clientHeight;
+			camera.updateProjectionMatrix();
+		}
+		
+		var ellapsedTime;
+		var isEnded = false;
+		
+		var s = new THREE.ConstantSpline();
+		var points = [];
+
+		function addPoint( p, size ) {
+
+			return;
+
+			var m = new THREE.Mesh( new THREE.IcosahedronGeometry( size, 2 ), new THREE.MeshNormalMaterial() );
+			m.position.copy( p );
+			scene.add( m );
+
+		}
+
+		function addVector( p, v ) {
+
+			return;
+
+			var geometry = new THREE.Geometry();
+
+			geometry.vertices.push( p.clone() );
+		    geometry.vertices.push( p.clone().add( v ) );
+
+			material = new THREE.LineBasicMaterial( { 
+				color: 0x404040 + Math.random() * 0xbfbfbf, 
+				linewidth: 4
+			} );
+
+			var line = new THREE.Line( geometry, material );
+			scene.add( line );
+
+		}
+
+		var current = null;
+
+		function addLine() {
+
+			s.inc = .001;
+			var rVar = Math.PI / 4;
+
+			var origin = new THREE.Vector3();
+			var fudge = new THREE.Vector3();
+
+			if( current ) {
+				start = current.clone();
+			} else {
+				var r = 10 + Math.random() * 50;
+				var phi = Math.random() * 2 * Math.PI;
+				var theta = Math.random() * 2 * Math.PI;
+				var start = new THREE.Vector3();
+				start.x = r * Math.sin( phi ) * Math.cos( theta );
+				start.y = r * Math.cos( phi );
+				start.z = r * Math.sin( phi ) * Math.sin( theta );
+			}
+
+			addPoint( start, 2 );
+
+			var r = 10 + Math.random() * 50;
+			var phi = Math.random() * 2 * Math.PI;
+			var theta = Math.random() * 2 * Math.PI;
+			var end = new THREE.Vector3();
+			end.x = r * Math.sin( phi ) * Math.cos( theta );
+			end.y = r * Math.cos( phi );
+			end.z = r * Math.sin( phi ) * Math.sin( theta );
+
+			addPoint( end, 2 );
+
+			var up = start.clone().cross( end );
+			up.normalize();
+
+			var distance = .5 * start.clone().distanceTo( end );
+
+			addVector( origin, start );
+			addVector( start, up.clone().multiplyScalar( 10 ) );
+			addVector( origin, end );
+			addVector( end, up.clone().multiplyScalar( 10 ) );
+
+			var dir = start.clone().cross( up );
+			dir.normalize();
+			dir.multiplyScalar( -distance );
+			fudge.copy( up );
+			fudge.normalize();
+			fudge.multiplyScalar( .5 - Math.random() );
+			fudge.multiplyScalar( 5 * distance );
+			dir.add( fudge );
+			addVector( start, dir );
+
+			p1 = start.clone();
+			p1.add( dir );
+
+			var dir = end.clone().cross( up );
+			dir.normalize();
+			dir.multiplyScalar( distance );
+			fudge.copy( up );
+			fudge.normalize();
+			fudge.multiplyScalar( .5 - Math.random() );
+			fudge.multiplyScalar( 5 * distance );
+			dir.add( fudge );
+			addVector( end, dir );
+
+			p2 = end.clone();
+			p2.add( dir );
+
+			addPoint( p1, 1 );
+			addPoint( p2, 1 );
+			
+			s.p0 = start;
+			s.p1 = p1;
+			s.p2 = p2;
+			s.p3 = end;
+
+			s.calculate();
+
+			var geometry = new THREE.Geometry();
+
+			s.calculateDistances();
+			s.reticulate( { distancePerStep: .1 });
+			//s.reticulate( { steps: 500 } );
+
+			var geometry = new THREE.Geometry();
+
+			for( var j = 0; j < s.lPoints.length - 1; j++ ) {
+
+				var from = s.lPoints[ j ],
+					to = s.lPoints[ j + 1 ];
+				geometry.vertices.push( from.clone() );
+			    geometry.vertices.push( to.clone() );
+
+			}
+
+			material = new THREE.LineBasicMaterial( { 
+				color: 0x404040 + Math.random() * 0xbfbfbf, 
+				linewidth: 4
+			} );
+
+			var line = new THREE.Line( geometry, material );
+			scene.add( line );
+
+			points = points.concat( s.lPoints );
+
+			current = end;
+
+		}
+
+		var tmpPoint = new THREE.Vector3();
+		var camPoint = new THREE.Vector3();
+		var speed = 50;
+
+		function sampleAtTime( time ) {
+
+			var t = Math.floor( time / speed );
+			var f = ( time % speed ) / speed;
+			t %= points.length - 1;
+
+			tmpPoint.copy( points[ t + 1 ] );
+			tmpPoint.sub( points[ t ] );
+			tmpPoint.multiplyScalar( f );
+			tmpPoint.add( points[ t ] );
+
+			return tmpPoint;
+		}
+
+		window.addEventListener( 'keydown', function( e ) {
+
+			if( e.keyCode === 32 ) {
+				//points = [];
+				//addLine();
+				playing = !playing;
+			}
+
+		} );
+
+		function getPointInStoryline( storyline, t, value ) {
+			
+			var min = null, max = null;
+
+			t /= 1000;
+			for( var j = 0; j < storyline.length; j++ ) {
+				var s = storyline[ j ];
+				if( !max && t >= s.timestamp && s.data[ value ] !== undefined ) {
+					min = s;
+				}
+				if( min && !max && t < s.timestamp && s.data[ value ] !== undefined ) {
+					max = s;
+				}
+			}
+
+			if( min && max ) {
+				var dt = max.timestamp - min.timestamp;
+				return { start: min, end: max, dt: dt, t: t - min.timestamp };
+			}
+
+			return null;
+
+		}
+
+		function averageData( story, t, value ) {
+
+			var p = getPointInStoryline( story, t, value );
+
+			if( !p ) return null;
+
+			var s = p.start.data[ value ];
+			var e = p.end.data[ value ];
+			var d = e - s;
+			var v = s + ( p.t * d / p.dt );
+
+			var et = p.t / p.dt;
+			var easing;
+			if ( ( et *= 2 ) < 1 ) easing = 0.5 * et * et;
+			easing = - 0.5 * ( --et * ( et - 2 ) - 1 );
+
+			v = s + ( easing * d );
+
+			return v;
+
+		}
+
+		function processFlakeStoryline( t ) {
+			
+			cube.position.y = averageData( flakesStoryline, t, 'y' ) || cube.position.y;
+			
+		}
+
+		function easeVector( current, next, ease ) {
+
+			var inc = next.clone().sub( current );
+			inc.multiplyScalar( ease );
+			current.add( inc );
+
+		}
+
+		function processCameraStoryline( t ) {
+			
+			camera.position.x = averageData( cameraStoryline, t, 'x' ) || camera.position.x;
+			camera.position.y = averageData( cameraStoryline, t, 'y' ) || camera.position.y;
+			camera.position.z = averageData( cameraStoryline, t, 'z' ) || camera.position.z;
+			
+		}
+
+		window.addEventListener( 'mousemove', function( e ) {
+
+			var t = 120 * 1000 * ( e.pageX / window.innerWidth );
+			processFlakeStoryline( t );
+			processCameraStoryline( t );
+			timeLabel.textContent = t / 1000;
+
+		} );
+
+		var playing = true;
+
+		function render() {
+
+			requestAnimationFrame( render );
+			//controls.update();
+			
+			if( playing ) {
+				var t = Date.now() - startTime;
+				processFlakeStoryline( t );
+				processCameraStoryline( t );
+			}
+
+			/*camera.position.copy( sampleAtTime( t ) );
+			camera.lookAt( camera.target );*/
+
+			//dummy.position.copy( sampleAtTime( t ) );
+			//dummy.lookAt( camera.target );
+
+			camera.lookAt( cube.position );
+
+			renderer.render( scene, camera );
+			
+		}
+		
+		</script>
+	
+	</body>
+</html>
