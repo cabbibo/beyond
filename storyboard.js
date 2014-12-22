@@ -5,10 +5,6 @@ var flakeStoryline = parseStoryline( {
 		'30 ease to -5.123'
 	],
 
-    flake1ACT:[
-
-    ],
-
 	flake2a: [
 		'27 cut to 1.3433',
 		'40 ease to 3.123'
@@ -35,12 +31,76 @@ var flakeStoryline = parseStoryline( {
 
 var simulationStoryline = parseStoryline( {
 
-	flake1: [
+    flake1: [
 		'0 cut to 1',
 		'30 linear to 1',
 		'30 cut to 0',
 		'107 linear to 0'
 	],
+
+    flake2: [
+        '0 cut to 0',
+        '27 linear to 0',
+		'27 cut to 1',
+		'40 linear to 1',
+		'40 cut to 0',
+		'107 linear to 0'
+	],
+
+    flake3: [
+        '0 cut to 0',
+        '35 linear to 0',
+		'35 cut to 1',
+		'60 linear to 1',
+		'60 cut to 0',
+		'107 linear to 0'
+	],
+
+    flake4: [
+        '0 cut to 0',
+        '55 linear to 0',
+		'50 cut to 1',
+		'80 linear to 1',
+		'80 cut to 0',
+		'107 linear to 0'
+	],
+
+    flake5: [
+        '0 cut to 0',
+        '70 linear to 0',
+		'70 cut to 1',
+		'107 linear to 1',
+		'107 cut to 0',
+
+		//'107 linear to 0'
+	],
+
+
+
+/*	flake1: [
+		'0 cut to 1',
+        '30 cut to 0'
+	],
+
+    flake2: [
+		'27 cut to 1',
+        '40 cut to 0'
+	],
+
+    flake3: [
+		'35 cut to 1',
+        '60 cut to 0'
+	],
+
+    flake4: [
+		'50 cut to 1',
+        '80 cut to 0'
+	],
+
+    flake5: [
+		'70 cut to 1',
+        '107 cut to 0'
+	],*/
 
 
 } );

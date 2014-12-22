@@ -141,12 +141,14 @@ function updateStory( t ) {
 	
 
       
-	console.log( averageData( simulationStoryline, t, 'flake1' ) );
+
+        console.log( averageData( simulationStoryline, t,'flake' + ( j + 1 ) ) );
         
-       /* var active = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'ACT' )
+        var active =   averageData( simulationStoryline, t,'flake' + ( j + 1 ) ) || 0;
 
         if( active > .5 ){
 
+          console.log( 'ACTIVE' );
           f.active = true;
 
 
@@ -155,8 +157,8 @@ function updateStory( t ) {
           f.active = false;
 
         }
-         console.log( active );*/
-            // var isActive averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'ACT' )
+        
+        // var isActive averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'ACT' )
 
         
       //  flakes[ j ].rotation.z = averageData( flakeStoryline, t, 'flake' + ( j + 1 ) + 'a' ) || flakes[ j ].rotation.z;
