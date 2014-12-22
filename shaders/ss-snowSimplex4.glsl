@@ -1,5 +1,3 @@
-
-// NEEDS TO STOP
 const float size = @SIZE;
 const float PI = 3.14159265359;
 const float PI2 = 2. * PI;
@@ -12,15 +10,11 @@ uniform sampler2D t_og;
 
 uniform float time;
 uniform sampler2D t_audio;
-uniform sampler2D t_sim;
-
 
 varying vec2 vUv;
 
 $simplex
 $canUse
-$getCenterPos
-$hexNoise
 
 // data.x = level
 // data.y = temperature
@@ -32,6 +26,15 @@ void main(){
 
   vec2 uv = gl_FragCoord.xy / resolution ;
   vec4 pos = texture2D( t_pos , uv );
+
+
+
+  vec2 modVec[6];
+
+
+  modVec[0] = vec2( iSize , 0. );
+  modVec[3] = vec2( -iSize , 0. );
+
 
   vec2 sR = uv + vec2( iSize , 0. );
   vec2 sL = uv - vec2( iSize , 0. );
@@ -58,6 +61,15 @@ void main(){
     sDR.y -= iSize;
 
 
+    modVec[1] = vec2( 0. , iSize );
+    modVec[2] = vec2( -iSize , iSize );
+    modVec[4] = vec2( -iSize , -iSize );
+    modVec[5] = vec2( 0. , -iSize );
+
+    /*modVec[1] = vec2( iSize , iSize );
+    modVec[2] = vec2( 0. , iSize );
+    modVec[4] = vec2( 0 , -iSize );
+    modVec[5] = vec2( iSize , -iSize );*/
 
 
   }else{
@@ -74,6 +86,16 @@ void main(){
     sDR.x += iSize;
     sDR.y -= iSize;
 
+    modVec[1] = vec2( iSize , iSize );
+    modVec[2] = vec2( 0. , iSize );
+    modVec[4] = vec2( 0 , -iSize );
+    modVec[5] = vec2( iSize , -iSize );
+
+    /*modVec[1] = vec2( 0. , iSize );
+    modVec[2] = vec2( -iSize , iSize );
+    modVec[4] = vec2( -iSize , -iSize );
+    modVec[5] = vec2( 0. , -iSize );*/
+
 
   }
 
@@ -87,7 +109,7 @@ void main(){
 
   // Sets our 'seed' 
   // of the crystal
-  if( length(d) < iSize * .1 ){
+  if( length(d) < iSize * 4. ){
 
     pos.x = 1.;
     pos.y = .0;
@@ -127,28 +149,18 @@ void main(){
   s = xBasis;
   float xAmount = dot( v , s ) / dot( s , s );
 
-  float sim = 1.;
-  vec2 pHex = vec2( xAmount , -yAmount );
- 
-  vec2 pCenter = getCenterPos( pHex * vec2( .69282 , 1. ) * vec2( 14. )  );
-
-  sim = texture2D( t_sim , uv ).x;// * length(pHex);
-  //sim *= pow( hexNoise( pHex , 50. , 4.1 ), 2. );
- // sim += hexNoise( pHex , 100. , 10.1 );
-  //sim *= hexNoise( pHex , 25. , 10.1 );
-
- // sim = pow( sim , .6 );// 100.;
- 
-  //sim = tDif;
-  //pos.x = sim;
- // lookup = vec2( abs(xAmount*noiseSize*10.) , yAmount* noiseSize*10.);
- // sim += .1 * snoise( lookup ) * (1.- abs(xAmount)*5.);
+  float noiseSize = 10.;
+  vec2 lookup = vec2( abs(xAmount*noiseSize) , yAmount* noiseSize);
+  float sim = snoise( lookup )* abs(xAmount)*10. ;
+  
+  lookup = vec2( abs(xAmount*noiseSize/10.) , yAmount* noiseSize/10.);
+  sim += snoise( lookup )* (1.- abs(xAmount)*5.);
 
   // Temperature
   // Level
   // crystalized
 
-  vec4 audio = texture2D( t_audio , vec2( sim   , 0.)  );
+  vec4 audio = texture2D( t_audio , vec2( ( abs( sim )) , 0.)  );
 
   // Limits our growth using alpha, and makes sure
   // we don't hit the edge
@@ -179,14 +191,8 @@ void main(){
       // Part of crystal
       if( pos.z > .5 ){
 
-        float hexL = length(abs(pHex)-abs(pCenter));
-     //   vec4 audio2 = texture2D( t_audio , vec2( abs(sin( hexL ))  , 0.)  );
-       // audio2 *= texture2D( t_audio , vec2( abs( abs(yAmount) * 10. ) , 0.)  );
-        
-        //pos.x +=  length(audio2) * .1 *( 1. / (tDif+.5));
-        pos.x += length( audio ) * abs( sim );// length( audio )* .2 + .8; //* (abs(xAmount ) + ( 1. -tDif)) ;//pow( abs( xAmount ) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
-        pos.a -= abs( sim ) * 10.;
-        pos.a -= .1;//pow( length( audio ) , .1 );
+        pos.x += length( audio )/ 10.;
+        pos.a -=  1.1;
 
       //lonely
       }else{
@@ -197,15 +203,9 @@ void main(){
 
           if( data.z > .5 ){
 
-            //sim = float(int(sim * 3. )) + .1;
-            pos.y -= abs(sim) * 30.;
-            //pos.y -=( pow(  length( audio ) , 10. ) + .4);// * length( audio ) * length( audio );// * max( .1 ,  (abs(sim)-2.)) * 10. * (1./(abs(xAmount *10.) +.1)) ;
-
+            pos.y -= pow( length( audio ) , 1. ) * 20. ;
          //   pos.z += abs( sim );
          //   pos.x += abs( sim );
-
-
-          pos.a -= sim;
 
 
           }
@@ -225,28 +225,33 @@ void main(){
           if( pos.y < 0. ){
 
             pos.z += 1.;
-            //pos.x += 0.;//length( audio ) / 10.;//abs(sim);
-
+            pos.x += 1.;
 
           }
 
-        pos.a -= abs( sim ) * abs( xAmount ) * 2.3;
-       /// pos.a -= pow( abs(xAmount) , 3. ) * 1000.;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
-
-       // pos.a -= length( d ) * length( d ) * .1;
-
+          pos.a -= abs(sim) *  ( abs( yAmount) * .5);
 
 
 
 
       }
-   
+    
+     /* for( int i = 0; i < 6; i++ ){
+
+        if( i != int( pos.y ) ){
+          vec4 data = dP[i];
+
+          if( data.x < pos.x ){
+            pos.x += .1;//data.z;
+          }
+        }
+      }*/
+
 
     }
 
   }
 
-  //pos.x = sim * 10.;
   gl_FragColor = pos;
 
 

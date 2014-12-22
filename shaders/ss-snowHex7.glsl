@@ -12,8 +12,6 @@ uniform sampler2D t_og;
 
 uniform float time;
 uniform sampler2D t_audio;
-uniform sampler2D t_sim;
-
 
 varying vec2 vUv;
 
@@ -32,6 +30,15 @@ void main(){
 
   vec2 uv = gl_FragCoord.xy / resolution ;
   vec4 pos = texture2D( t_pos , uv );
+
+
+
+  vec2 modVec[6];
+
+
+  modVec[0] = vec2( iSize , 0. );
+  modVec[3] = vec2( -iSize , 0. );
+
 
   vec2 sR = uv + vec2( iSize , 0. );
   vec2 sL = uv - vec2( iSize , 0. );
@@ -58,6 +65,15 @@ void main(){
     sDR.y -= iSize;
 
 
+    modVec[1] = vec2( 0. , iSize );
+    modVec[2] = vec2( -iSize , iSize );
+    modVec[4] = vec2( -iSize , -iSize );
+    modVec[5] = vec2( 0. , -iSize );
+
+    /*modVec[1] = vec2( iSize , iSize );
+    modVec[2] = vec2( 0. , iSize );
+    modVec[4] = vec2( 0 , -iSize );
+    modVec[5] = vec2( iSize , -iSize );*/
 
 
   }else{
@@ -73,6 +89,16 @@ void main(){
     
     sDR.x += iSize;
     sDR.y -= iSize;
+
+    modVec[1] = vec2( iSize , iSize );
+    modVec[2] = vec2( 0. , iSize );
+    modVec[4] = vec2( 0 , -iSize );
+    modVec[5] = vec2( iSize , -iSize );
+
+    /*modVec[1] = vec2( 0. , iSize );
+    modVec[2] = vec2( -iSize , iSize );
+    modVec[4] = vec2( -iSize , -iSize );
+    modVec[5] = vec2( 0. , -iSize );*/
 
 
   }
@@ -132,12 +158,13 @@ void main(){
  
   vec2 pCenter = getCenterPos( pHex * vec2( .69282 , 1. ) * vec2( 14. )  );
 
-  sim = texture2D( t_sim , uv ).x;// * length(pHex);
+  sim *= hexNoise( pHex , 20. , 10.1 ) * length(abs(pHex)-abs(pCenter));
+  sim *= hexNoise( pHex , 10. , 20.1 ) * length(abs(pHex)-abs(pCenter));// * length(pHex);
   //sim *= pow( hexNoise( pHex , 50. , 4.1 ), 2. );
  // sim += hexNoise( pHex , 100. , 10.1 );
   //sim *= hexNoise( pHex , 25. , 10.1 );
 
- // sim = pow( sim , .6 );// 100.;
+  sim = pow( sim , .6 );// 100.;
  
   //sim = tDif;
   //pos.x = sim;
@@ -148,7 +175,7 @@ void main(){
   // Level
   // crystalized
 
-  vec4 audio = texture2D( t_audio , vec2( sim   , 0.)  );
+  vec4 audio = texture2D( t_audio , vec2( abs(sin(sim * 100.))   , 0.)  );
 
   // Limits our growth using alpha, and makes sure
   // we don't hit the edge
@@ -180,12 +207,12 @@ void main(){
       if( pos.z > .5 ){
 
         float hexL = length(abs(pHex)-abs(pCenter));
-     //   vec4 audio2 = texture2D( t_audio , vec2( abs(sin( hexL ))  , 0.)  );
+        vec4 audio2 = texture2D( t_audio , vec2( abs(sin( hexL ))  , 0.)  );
        // audio2 *= texture2D( t_audio , vec2( abs( abs(yAmount) * 10. ) , 0.)  );
         
         //pos.x +=  length(audio2) * .1 *( 1. / (tDif+.5));
-        pos.x += length( audio ) * abs( sim );// length( audio )* .2 + .8; //* (abs(xAmount ) + ( 1. -tDif)) ;//pow( abs( xAmount ) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
-        pos.a -= abs( sim ) * 10.;
+        pos.x += length( audio2 ); //* (abs(xAmount ) + ( 1. -tDif)) ;//pow( abs( xAmount ) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
+        pos.a -= abs( sim ) * 5.;
         pos.a -= .1;//pow( length( audio ) , .1 );
 
       //lonely

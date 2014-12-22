@@ -48,7 +48,7 @@ void main() {
 				gl_FragColor = vec4( 1., 0., 1., 0. );
 				return;
 			}
-			luh = 1. - texture2D( t_depth, uv2  ).r /20.;
+			luh = 1. - texture2D( t_normal, uv2  ).a /3.;
 
 
 			if( luh < depth ){ 
@@ -81,12 +81,14 @@ void main() {
 	vec3 rR = refract( normalize( e ), n, .6 );
 	vec3 rEnv = texture2D( t_pano, normalToUV( rR ) ).rgb;
 	vec3 color = .1 + vec3( 95. / 255., 185. / 255., 255. / 255. ) * ( .5 * env + .5 * light ) + pow( light, vec3( 2. ) );//mix( env, rEnv, .2 ) + light;
-	float a = texture2D( t_depth, uv2 ).r/2.;
+	float a = texture2D( t_normal, uv2 ).a * 3.;
     vec4 audio = texture2D( t_audio,vec2( vN.x, 0. ) );
     audio *= texture2D( t_audio,vec2( vN.y, 0. ) );
     
 
   	gl_FragColor = vec4( color, a ) * (vec4( .3 ) + audio *.7 );
-	//gl_FragColor = vec4( 1. );
+
+    vec4 fCol =  max( vec4( 0. ) , texture2D( t_normal , vUv ));
+	//gl_FragColor = fCol;//vec4( fCol , 1. );
 }
 	

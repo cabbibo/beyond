@@ -141,7 +141,7 @@
 
     // Lets us skip to different sections of audio
     // for timing purposes
-    var startingSection = 0;
+    var startingSection = 2;
     
 
     // 3D Text Chunks
@@ -216,6 +216,8 @@
     shaders.load( 'ss-snowHex5' , 'snowHex5'  , 'simulation' );
     shaders.load( 'ss-snowHex6' , 'snowHex6'  , 'simulation' );
 
+    shaders.load( 'fs-depthToNormal'  , 'depthToNormal'   , 'fragment' );
+    shaders.load( 'fs-hexCorrection'  , 'hexCorrection'   , 'fragment' );
 
     // Audio should always load after shaders,
     // so lets leave it

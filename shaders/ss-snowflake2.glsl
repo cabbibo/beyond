@@ -1,3 +1,15 @@
+
+/*
+
+
+   Good with high notes, can grow alot around edges,
+   can stop growth, and continue in a kindof unnatural manner
+
+
+
+*/
+
+
 const float size = @SIZE;
 const float PI = 3.14159;
 

@@ -27,7 +27,12 @@ void main(){
   }
 
 
-  gl_FragColor = ( 1. - pow( vFR , 10. ))* color;
+  gl_FragColor = ( 1. - pow( vFR , 10. ))* color;// + vEdge * vEdge * vEdge * (vec4( 1.1 ) - color);// vec4( 1. , 0. , 1. , 1. );// vec4( normalize( vNorm ) , 1. );
+ // gl_FragColor = vEdge * vec4( 1., 0. , 0. , 1. ) + vec4( 0. , 0. , 1. , 0. );//* color;// vec4( 1. , 0. , 1. , 1. );// vec4( normalize( vNorm ) , 1. );
+  //gl_FragColor =vec4( vec3(max( 0. ,  dot( vNorm , vec3( 1. , 0. , 0. ) ))) , 1. );//* color;// vec4( 1. , 0. , 1. , 1. );// vec4( normalize( vNorm ) , 1. );
+ // gl_FragColor =vec4( vec3( vFade , 0. , 0. )+ vec3( 0. , 0. , 1. ) , 1. );//* color;// vec4( 1. , 0. , 1. , 1. );// vec4( normalize( vNorm ) , 1. );
+  
+//  gl_FragColor =vec4( 1. );// vec4( 1. , 0. , 1. , 1. );// vec4( normalize( vNorm ) , 1. );
 
 }
 
