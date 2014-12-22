@@ -142,13 +142,13 @@ function updateStory( t ) {
 
       
 
-        console.log( averageData( simulationStoryline, t,'flake' + ( j + 1 ) ) );
+        //console.log( averageData( simulationStoryline, t,'flake' + ( j + 1 ) ) );
         
         var active =   averageData( simulationStoryline, t,'flake' + ( j + 1 ) ) || 0;
 
         if( active > .5 ){
 
-          console.log( 'ACTIVE' );
+         // console.log( 'ACTIVE' );
           f.active = true;
 
 
