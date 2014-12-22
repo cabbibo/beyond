@@ -1,7 +1,9 @@
-function Snowflake( ss , vs , fs , u ){
+function Snowflake( ss , u ){
 
   this.active = false;
 
+
+  console.log( ss );
   //console.log( ss );
   this.ss = shaders.setValue( ss , 'SIZE' , SIM_SIZE+"." );
 
@@ -27,18 +29,19 @@ function Snowflake( ss , vs , fs , u ){
 
 
  
-  this.geo = new THREE.PlaneGeometry( 2, 2, 2, 2 );
+  this.geo = new THREE.PlaneGeometry( 150, 150, 2, 2 );
 
   this.mat = new THREE.ShaderMaterial({
     uniforms: this.uniforms,
-    vertexShader: shaders.vs.raytrace,
-    fragmentShader: shaders.fs.raytrace,
+    vertexShader: shaders.vs.cabSnow,
+    fragmentShader: shaders.fs.cabSnow,
     shading: THREE.SmoothShading,
-    side: THREE.FrontSide,
+    side: THREE.DoubleSide,
     depthTest: false,
     depthWrite: false,
     transparent: true
   });
+
      /* console.log( shaders.vs );
 
            object = new THREE.Object3D();
@@ -62,10 +65,19 @@ function Snowflake( ss , vs , fs , u ){
 
   this.body = new THREE.Object3D();
 
-  this.mesh = new THREE.Mesh( this.geo , this.mat );
-  this.mesh.geometry.computeTangents();
+  for( var i = 0; i < 1; i ++ ){
+    var mesh = new THREE.Mesh( this.geo , this.mat );
+    mesh.geometry.computeTangents();
+    var s = .5 + .5 * Math.random();
+    mesh.position.z = i * 5;
+    mesh.scale.set( s, s, s );
+    this.body.add( mesh );
+  }
 
-  this.body.add( this.mesh );
+  var mesh = new THREE.Mesh( new THREE.PlaneGeometry( 10 , 10 ) , new THREE.MeshNormalMaterial({ side: THREE.DoubleSide }) );
+  mesh.position.z = -5;
+  //this.body.add( mesh );
+  ///this.body.add( this.mesh );
 
 
   // Do the reset on creation, so we don't have to 

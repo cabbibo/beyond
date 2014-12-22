@@ -254,6 +254,9 @@ var timeLabel = document.getElementById( 'time' );
     shaders.load( 'vs-spiteSnow'  , 'spiteSnow'   , 'vertex'   );
     shaders.load( 'fs-spiteSnow'  , 'spiteSnow'   , 'fragment' );
 
+    shaders.load( 'vs-cabSnow'  , 'cabSnow'   , 'vertex'   );
+    shaders.load( 'fs-cabSnow'  , 'cabSnow'   , 'fragment' );
+
 
     shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
     shaders.load( 'ss-snowflake1' , 'snowflake1'  , 'simulation' );
@@ -319,7 +322,7 @@ var timeLabel = document.getElementById( 'time' );
 
       console.log('HELLO')
       var elem = document.getElementById("songLoad");
-      elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
+      elem.innerHTML = "<a onclick='start(.1)'>Let It Snow</a>"
       onLoad();
 
     }
@@ -366,7 +369,8 @@ var timeLabel = document.getElementById( 'time' );
       console.log( 'SETTING UP' );
       container = document.getElementById( 'pano' );
 
-      renderer = new THREE.WebGLRenderer();
+      renderer = new THREE.WebGLRenderer( { antialiasing: false });
+	  renderer.setClearColor( 0, 1 );
       renderer.setSize( window.innerWidth, window.innerHeight );
      
       window.addEventListener( 'resize', onWindowResize , false );
@@ -382,6 +386,9 @@ var timeLabel = document.getElementById( 'time' );
 
       camera.target = new THREE.Vector3( 0, 0, 0 );
       //camera.position.set( 50, 50, 50 );
+      
+	//camera.target = new THREE.Vector3( 0, 0, 0 );
+	//camera.position.set( 50, 50, 50 );
 
       camera.position.z = 1;
       controls = new THREE.TrackballControls( camera , renderer.domElement );
@@ -419,7 +426,7 @@ var timeLabel = document.getElementById( 'time' );
       clock = new THREE.Clock();
 
       initText( quoteText );
-      initSnowflakes();
+      //initSnowflakes();
       //initChoreography();
       initScene();
 
@@ -473,10 +480,6 @@ var timeLabel = document.getElementById( 'time' );
       timeLabel.textContent = t;
       updateStory( t );
       updateScene( t );
-    /*var r = 50;
-    camera.position.x += r * noise.noise( .01 * t, .234234, .456465 );
-    camera.position.y += r * noise.noise( .01 * t, .456456, .109208 );
-    camera.position.z += r * noise.noise( .01 * t, .234672, .523423 );*/
     }
 	/*camera.position.copy( sampleAtTime( t ) );
 	camera.lookAt( camera.target );*/
@@ -589,12 +592,12 @@ var timeLabel = document.getElementById( 'time' );
       window.setTimeout( function(){
 
    
-        /*var t = sections[ startingSection ];
+        var t = 10;
         console.log( t );
         console.log( 'HELL');
-        uniforms.time.value += t;*/
+        uniforms.time.value += t;
 
-        var t = 0;
+        //var t = 0;
         
         audio.play( t );
         loaded = true;

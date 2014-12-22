@@ -114,24 +114,36 @@ function initScene() {
 	material.uniforms.tDetailNormal.value.wrapS = material.uniforms.tDetailNormal.value.wrapT = THREE.RepeatWrapping;
 	//var material = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'flake.png' ), transparent: true, side: THREE.DoubleSide }) 
 
+    var sims = [
+
+      'snowHex3',
+      'snowHex4',
+      'snowHex5',
+      'snowSimplex6',
+      'snowSimplex7',
+      'snowSimplex8',
+
+    ]
+
 	for( var j = 0; j < 5; j++ ) {
 		var size = 140;
-		var group = new THREE.Object3D();
-		for( var i = 0; i < 3; i++ ) {
-			var flake = new THREE.Mesh( new THREE.PlaneGeometry( size, size, 1, 1 ), material );
-			flake.geometry.computeTangents();
-			var s = .5 + .5 * Math.random();
-			flake.position.z = i * 5;
-			flake.scale.set( s, s, s );
-			//flake.rotation.x = Math.random() * 2 * Math.PI;
-			flake.rotation.z = Math.random() * 2 * Math.PI;
-			group.add( flake );
-		}
-		group.position.x = 0;
-		group.position.y = -750 + 1500 * j / 4;
-		group.position.z = 100;
-		scene.add( group );
-		flakes.push( group );
+		
+        var snowflake = new Snowflake( shaders.ss[sims[j]] ); 
+        //var x = (j * 375 )
+
+        var x = 0;
+	    var y = -750 + 1500 * j / 4;
+	    var z = 100;
+        var position = new THREE.Vector3( x , y , z );
+        
+        snowflake.body.position.copy( position );
+        snowflakes.push( snowflake );
+        snowflake.activate();
+
+        flakes.push( snowflake.body );
+
+        console.log( snowflakes );
+        //snowflakes,
 	}
 
 	cylinder = new THREE.Mesh( new THREE.CylinderGeometry( 500, 500, 5000, 36, 50 ), new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'img/tunnel.jpg' ), side: THREE.DoubleSide } ) ) ;
