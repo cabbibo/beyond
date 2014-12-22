@@ -5,7 +5,17 @@ var planeObject;
 function createShafts() {
 
 	planeObject = new THREE.Object3D();
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'img/shaft.png' ), color: 0x17249b, emissive: 0xffffff, opacity: .1, transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending } );
+	var planeMaterial = new THREE.MeshBasicMaterial( { 
+        //map: THREE.ImageUtils.loadTexture( 'img/shaft.png' ),
+        map: uniforms.t_audio.value,
+        color: 0x17249b, 
+        emissive: 0xffffff, 
+        opacity: .1, 
+        transparent: true, 
+        side: THREE.DoubleSide, 
+        depthWrite: false, 
+        blending: THREE.AdditiveBlending 
+    } );
 	var planeGeometry = new THREE.PlaneGeometry( 100, 10000 );
 	for( var j = 0; j < 100; j++ ) {
 		var plane = new THREE.Mesh( planeGeometry, planeMaterial );

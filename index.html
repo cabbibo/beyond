@@ -336,8 +336,7 @@ var timeLabel = document.getElementById( 'time' );
     var panoTexture   = THREE.ImageUtils.loadTexture( 'img/pano-blur-red.jpg'    );
     var detailNormal  = THREE.ImageUtils.loadTexture( 'img/scratch.png' );
 
-    /*detailNormal.wrapS = detailNormal.value.wrapT  = 
-	THREE.RepeatWrapping;*/
+    detailNormal.wrapS = detailNormal.wrapT  = 	THREE.RepeatWrapping;
     
     var aT = audioController.texture;
 

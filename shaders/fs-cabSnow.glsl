@@ -47,9 +47,9 @@ void main() {
 	color += vec3( f ); // <- much icier
 	float a =  length( color ) * texture2D( t_normal, vUv ).a;
 
+    vec4 aColor = texture2D( t_audio , vec2(abs( sin( m * 1. )) , 0. ) );
    // vec4 aColor = 
-   // vec4 aColor = 
-	gl_FragColor = vec4( color, a /100. );
+	gl_FragColor = (aColor + .5) * vec4( color, a /100. );
 
    // gl_FragColor = vec4( 1. );
 //	gl_FragColor = vec4( .5 + .5 * n, 1. );
