@@ -112,8 +112,8 @@ var effectsStoryline = parseStoryline( {
 		'11 ease to 1',
 		'14 ease to 0',
 
-		'106 ease to 0',
-		'107 ease to 1'
+		//'106 ease to 0',
+		//'107 ease to 1'
 	]
 
 } );
