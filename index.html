@@ -85,23 +85,40 @@
       font-size: 40px;
 
     }
+
+    #sharePanel{ position: absolute; left: 50%; top: 50%; width: 800px; height: 400px; background-color: rgba( 0,0,0, .8 ); margin-left: -400px; margin-top: -200px; padding: 20px; display: none;}
+    #sharePanel h1{ font-size: 22px;} 
   </style>
 
   </head>
   <body>
 
 
-    <div id="pano" ></div>
-<div id="fade"></div>
-		<div id="time"></div>
-    
+  <div id="pano" ></div>
+  <div id="fade"></div>
+  <div id="time"></div>
 
-<div id = "loading">
-  <div id="dedication"></div>
-  <div id="songLoad"></div>
-</div>
+  <div id="loading">
+    <div id="dedication"></div>
+    <div id="songLoad"></div>
+  </div>
 
-
+  <div id="sharePanel" >
+    <h1>Who are you sending this message to?</h1>
+    <input type="text" id="shareTo" ></input>
+    <h1>What's the message?</h1>
+    <textarea id="shareMessage"></textarea>
+    <h1>You can sign, if you want</h1>
+    <input type="text" id="shareFrom" ></input>
+    <p>That'is it. This is your link:</p>
+    <input type="text" id="shareLink"></input>
+    <p>You can share it on your favorite social network:</p>
+    <ul>
+      <li class="twitter"></li>
+      <li class="facebook"></li>
+      <li class="googleplus"></li>
+    </ul>
+  </div>
 
 <script src = "lib/three.js"                  ></script>
 <script src = "lib/jquery.min.js"             ></script>
@@ -120,13 +137,13 @@
 
 <script src = "lib/TextCreator.js"            ></script>
 <script src = "lib/DiffusionRenderer.js"      ></script>
-<script src = "lib/NormalMapper.js"      ></script>
+<script src = "lib/NormalMapper.js"           ></script>
 
 <script src = "SnowflakeGeometry.js"          ></script>
 <script src = "Snowflake.js"                  ></script>
 <script src = "HexGrid.js"                    ></script>
 <script src = "Choreography.js"               ></script>
-<script src = "Aurora.js"               ></script>
+<script src = "Aurora.js"                     ></script>
 
 <script src = "initLoadSnowflake.js"          ></script>
 <script src = "initSnowflakes.js"             ></script>
@@ -505,7 +522,7 @@ var timeLabel = document.getElementById( 'time' );
       // Resets the renderer to be the proper size
     function onWindowResize(){
 
-      var s = window.location.hash.substr( 1 ) || 1;
+      var s = 1;//window.location.hash.substr( 1 ) || 1;
 	var w = s * container.clientWidth, 
 		h = s * container.clientHeight;
       renderer.setSize( w, h );
@@ -527,6 +544,8 @@ var timeLabel = document.getElementById( 'time' );
     }
 
     function onKeyDown(e){
+
+      return;
 
       if( e.keyCode == 32 ){
 
@@ -653,6 +672,70 @@ var timeLabel = document.getElementById( 'time' );
 
    }
 
+   var sharePanel = document.getElementById( 'sharePanel' );
+   initSharePanel();
+
+   function initSharePanel() {
+
+    var shareTo = document.getElementById( 'shareTo' ),
+      shareMessage = document.getElementById( 'shareMessage' ),
+      shareFrom = document.getElementById( 'shareFrom' ),
+      shareLink = document.getElementById( 'shareLink' );
+
+    function updateShare() {
+
+      var to = shareTo.value,
+        msg = shareMessage.value,
+        from = shareFrom.value;
+
+      var str = [
+        [ 'to', to ],
+        [ 'msg', msg ],
+        [ 'from', from ] 
+      ].map( function( a, b ) { 
+        return a.join( '=' );
+      } ).join( '&' );
+
+      var link = window.location.protocol + '//' + window.location.host + '#' + btoa( encodeURIComponent( escape( str ) ) );
+      shareLink.value = link;
+
+    }
+
+    shareTo.addEventListener( 'change', updateShare );
+    shareMessage.addEventListener( 'change', updateShare );
+    shareFrom.addEventListener( 'change', updateShare );
+      
+
+   }
+
+   function showSharePanel() {
+   }
+
+   function extractShareData() {
+
+      var queryString = unescape( decodeURIComponent( atob( window.location.hash.substr( 1 ) ) ) );
+      var fields = queryString.split( '&' ).map( function( a ) { return a.split( '=' ); } );
+     
+      console.log( fields );
+
+      if( fields.length === 3 ) {
+
+        function extractField( id ) { return function( a ){ if( a[ 0 ] === id ){ return a[ 1 ] } } }
+        function clean( a ) { return a != undefined }
+
+        console.log( 'To:' + ( fields.map( extractField( 'to' ) ).filter( clean ) ) );
+        console.log( 'From:' + ( fields.map( extractField( 'from' ) ).filter( clean ) ) );
+        console.log( 'Message:' + ( fields.map( extractField( 'msg' ) ).filter( clean ) ) );
+
+      } else {
+
+        console.log( 'No Share Data' );
+
+      }
+
+   }
+
+   extractShareData();
 
    var ellapsedTime;
 var isEnded = false;
@@ -668,7 +751,6 @@ window.addEventListener( 'mousemove', function( e ) {
 	timeLabel.textContent = t;
 } );
    
-
    function end(){
 
      $("#loading").fadeIn( 1000 , function(){});
