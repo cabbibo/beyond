@@ -11,7 +11,9 @@ function initText( quoteText ){
 
   title.position.y = -1000;
 
+  title.position.set( 20, 0, 50 )
 
+  title.rotation.y = Math.PI;
   scene.add( title );
   //title.material.opacity = 0;
 

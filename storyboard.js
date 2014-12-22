@@ -109,8 +109,9 @@ var effectsStoryline = parseStoryline( {
 
 	fade: [
 		'0 cut to 1',
-		'11 ease to 1',
-		'14 ease to 0',
+        //'14 linear to 1'
+	  	'1 ease to 1',
+		'5 ease to 0',
 
 		//'106 ease to 0',
 		//'107 ease to 1'
