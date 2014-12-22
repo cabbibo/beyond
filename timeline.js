@@ -178,4 +178,6 @@ function updateStory( t ) {
 
 	fade.style.opacity = setValue( fade.style.opacity, averageData( effectsStoryline, t, 'fade' ) );
 
+	//console.log( averageData( simulationStoryline, t, 'flake1' ) );
+
 }

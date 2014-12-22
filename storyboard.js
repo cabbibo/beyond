@@ -33,6 +33,18 @@ var flakeStoryline = parseStoryline( {
 
 } );
 
+var simulationStoryline = parseStoryline( {
+
+	flake1: [
+		'0 cut to 1',
+		'30 linear to 1',
+		'30 cut to 0',
+		'107 linear to 0'
+	],
+
+
+} );
+
 var effectsStoryline = parseStoryline( {
 
 	fade: [
