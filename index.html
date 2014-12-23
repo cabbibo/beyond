@@ -734,6 +734,22 @@ var timeLabel = document.getElementById( 'time' );
 
    }
 
+   function processMessage( msg ) {
+
+    var sentences = msg.split( /\r?\n|\r/ );
+    var words = sentences.map( function( s ) {
+      return s.split( /( )/ );
+    } );
+    console.log( words );
+
+   }
+
+   console.clear();
+   processMessage( 'word' );
+   processMessage( 'very long sentence without any line break because we want to test if this algorithm can break up the sentences in chunks that can be rendered on canvas' );
+    processMessage( 'this is not a poem\rit\'s a silly convenient\rjapanese thingie');
+    // dG8lMjUzRGhlbGxvJTI1MjZtc2clMjUzRHRoaXMlMjUyMGlzJTI1MjBhJTI1MjB0ZXN0JTI1MEF3aXRoJTI1MjBtdWx0aXBsZSUyNTIwbGluZXMlMjUwQWFuZCUyNTIwdmVyeSUyNTIwdmVyeSUyNTIwd2luZGluZyUyNTIwYW5kJTI1MjBsb25nJTI1MjBsaW5lcyUyNTIwdG8lMjUyMHRlc3QlMjUyMHRoZSUyNTIwYWxnb3JpdGhtJTI1MjZmcm9tJTI1M0RNZQ
+
    extractShareData();
 
    var ellapsedTime;
