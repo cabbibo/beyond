@@ -124,7 +124,7 @@ function initScene() {
 	material.uniforms.tDetailNormal.value.wrapS = material.uniforms.tDetailNormal.value.wrapT = THREE.RepeatWrapping;
 	//var material = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'flake.png' ), transparent: true, side: THREE.DoubleSide }) 
 
-    var sims = [
+   /* var sims = [
 
       'snowHex5',
       'snowHex3',
@@ -133,7 +133,19 @@ function initScene() {
       'snowHex4',
       //'snowSimplex7',
 
+    ]*/
+
+    var sims = [
+
+      'snowSimplex8',
+      'snowHex3',
+      'snowSimplex8',
+      'snowSimplex6',
+      'snowHex3',
+      //'snowSimplex7',
+
     ]
+
 
     var alphaMult = [
 
