@@ -33,44 +33,44 @@ var simulationStoryline = parseStoryline( {
 
     flake1: [
 		'11.9 cut to 1',
-		'30 linear to 1',
-		'30 cut to 0',
+		'39.1 linear to 1',
+		'39.1 cut to 0',
 		'107 linear to 0'
 	],
 
     flake2: [
         '0 cut to 0',
-        '27 linear to 0',
-		'27 cut to 1',
-		'40 linear to 1',
-		'40 cut to 0',
+        '39.1 linear to 0',
+		'39.1 cut to 1',
+		'59.74 linear to 1',
+		'59.74 cut to 0',
 		'107 linear to 0'
 	],
 
     flake3: [
         '0 cut to 0',
-        '35 linear to 0',
-		'35 cut to 1',
-		'60 linear to 1',
-		'60 cut to 0',
+        '59.74 linear to 0',
+		'59.74 cut to 1',
+		'66.42 linear to 1',
+		'66.42 cut to 0',
 		'107 linear to 0'
 	],
 
     flake4: [
         '0 cut to 0',
-        '55 linear to 0',
-		'50 cut to 1',
-		'80 linear to 1',
-		'80 cut to 0',
+        '66.42 linear to 0',
+		'66.42 cut to 1',
+		'79.8 linear to 1',
+		'79.8 cut to 0',
 		'107 linear to 0'
 	],
 
     flake5: [
         '0 cut to 0',
-        '70 linear to 0',
-		'70 cut to 1',
-		'107 linear to 1',
-		'107 cut to 0',
+        '79.8 linear to 0',
+		'79.8 cut to 1',
+		'91.70 linear to 1',
+		'91.70 cut to 0',
 
 		//'107 linear to 0'
 	],
@@ -121,6 +121,10 @@ var effectsStoryline = parseStoryline( {
 
 var cameraStoryline = parseStoryline( {
 
+/*
+ 
+
+  SNOWFLAKE 1
 
   11.9 --> Audio starts
   16.95
@@ -131,16 +135,27 @@ var cameraStoryline = parseStoryline( {
   37.34 // Begin Transition to next section ( flow up )
   39.1  // Cut to next section
 
+  
+
+  SNOWFLAKE 2
   42.48 //ech yo
   49.35
-  53.48 // begin transition
-  59.74 // CAME FROM
 
+
+  53.48 // begin transition
+
+  SNOWFLAKE 3
+  59.74 // CAME FROM
   64.73
 
+
+
+  SNOWFLAKE 4
   66.42 // last section start
   73.4
 
+
+  // SNOWFLAKE 5
   79.8 // Last snowflake zoom start
 
   86.93 // Final hit 1
@@ -148,10 +163,44 @@ var cameraStoryline = parseStoryline( {
 
 
   91.70 // Head up!
-
   107 // music ends
+
+  */
 	x: [
 		'0 cut to 0',
+
+        '0 cut to 0',
+        '6 ease to 4',
+        '10 ease to 2',
+        '11.9 ease to -1',
+        '11.9 cut to 1',
+        '16.95 ease to 3',
+        '16.95 cut to 0',
+        '23.7 ease to -1',
+        '23.7 cut to -2',
+
+        '26.3 ease to 0',
+        //'26.3  -755',
+        '37.32 ease to 1',
+        '37.34 cut to 1.2',
+        '39.1 ease to 2.', 
+
+        '39.1 cut to -1.',
+        '46.5 ease to -2.',
+        '46.5 cut to 2.',
+        '49.3 ease to 3',
+
+        '59.74 ease to -2',
+        //'59.74 cut to -4',
+
+
+        '66.42 cut to -4',
+        '73.4 ease to -3',
+
+        '73.4 cut to 2',
+        '79.8 ease to 0',
+
+
 		'97 ease to 0'
 	],
 
@@ -161,19 +210,58 @@ var cameraStoryline = parseStoryline( {
         '10 ease to -890',
         '11.9 ease to -880',
         '11.9 cut to -750',
-        '16.95 ease to -740',
-        '16.95 cut to -760',
+        '16.95 ease to -745',
+        '16.95 cut to -750',
+        '23.7 ease to -740',
+        '23.7 ease to -750',
 
-        '107 linear to 0'
+        '26.3 cut to -750',
+        //'26.3  -755',
+        '37.32 ease to -760',
+        '37.34 cut to -750',
+        '39.1 ease to -748', 
+
+
+        '39.1 cut to -370',
+        '59.74 ease to -380',
+
+
+        '59.74 cut to -5',
+        '66.42 ease to 0',
+
+
+        '66.42 cut to 380',
+        '73.4 ease to 385',
+
+        '73.4 cut to 360',
+        '79.8 ease to 355',
+
+        '79.8 cut to 740',
+        '91.70 ease to 760',
+
+        '107 linear to 1000'
 		//'12.4 cut to -800',
 		//'97 linear to 750',
 		//'107 linear to 900'
 	],
 
 	z: [
-		'0 cut to 0',
-        '11.9 ease to 1',
+		'0 cut to -50',
+        '11.9 ease to -30',
+        //'11.9 ease to 1',
         '11.9 cut to 20',
+        '16.95 ease to 30',
+        '16.95 cut to 40',
+        '23.7 ease to 35',
+
+        '37.34 cut to 20',
+        '39.1 ease to 0', 
+
+
+        '39.1 cut to 20',
+
+        '46.5 linear to 40',
+
 
 		'97 ease to 0'
 	],
@@ -190,9 +278,25 @@ var cameraStoryline = parseStoryline( {
         '11.9 cut to -750',
         '16.95 ease to -745',
         '16.95 cut to -755',
+
+        '39.1 cut to -375',
+        '59.74 ease to -375',
+
+        '59.74 cut to 0',
+        '66.42 ease to 0',
+
+        '66.42 cut to 375',
+        '79.8 ease to 375',
+
+        
+        
+        '79.8 cut to 750',
+        '91.70 ease to 750',
+
+
         //'12.4 linear to -900',
         //'12.4 cut to -700',
-        '107 linear to -900'
+        '107 linear to 1500'
 		//'11 cut to -820',
 		//'97 linear to 800',
 		//'107 linear to 1000'

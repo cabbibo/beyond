@@ -135,10 +135,22 @@ function initScene() {
 
     ]
 
+    var alphaMult = [
+
+      20.,
+      100,
+      100, 
+      1000, 
+      100000
+
+    ]
+
 	for( var j = 0; j < 5; j++ ) {
 		var size = 140;
 		
-        var snowflake = new Snowflake( shaders.ss[sims[j]] ); 
+        var snowflake = new Snowflake( shaders.ss[sims[j]] , {
+          alphaMultiplier:{ type:"f" , value: alphaMult[j] } 
+        }); 
         //var x = (j * 375 )
 
         var x = 0;

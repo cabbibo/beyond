@@ -75,7 +75,7 @@ function Snowflake( ss , u ){
   var mesh = new THREE.Mesh( new THREE.PlaneGeometry( 10 , 10 ) , new THREE.MeshNormalMaterial({ side: THREE.DoubleSide }) );
   mesh.position.z = -5;
   //this.body.add( mesh );
-  this.body.add( mesh );
+  //this.body.add( mesh );
 
 
   // Do the reset on creation, so we don't have to 

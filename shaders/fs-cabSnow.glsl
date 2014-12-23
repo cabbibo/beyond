@@ -4,6 +4,7 @@ uniform sampler2D t_matCap;
 uniform sampler2D t_detailNormal;
 uniform sampler2D t_pano;
 uniform sampler2D t_audio;
+uniform float alphaMultiplier;
 uniform mat3 normalMatrix;
 uniform float time;
 varying vec2 vUv;
@@ -49,7 +50,7 @@ void main() {
 
     vec4 aColor = texture2D( t_audio , vec2(abs( sin( m * 1. )) , 0. ) );
    // vec4 aColor = 
-	gl_FragColor = (aColor + .5) * vec4( color, a /100. );
+	gl_FragColor = (aColor + .5) * vec4( color, a * alphaMultiplier );
 
    // gl_FragColor = vec4( 1. );
 //	gl_FragColor = vec4( .5 + .5 * n, 1. );
