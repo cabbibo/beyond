@@ -46,11 +46,11 @@ void main() {
 	float f = clamp( rimPower * abs( dot( n, normalize( vEye ) ) ), 0., 1. );
 	f = smoothstep( .6, 1., f ); // <- controls glass look
 	color += vec3( f ); // <- much icier
-	float a =  length( color ) * texture2D( t_normal, vUv ).a;
+	float a =  length( color ) * pow( texture2D( t_normal, vUv ).a, .3 );
 
     vec4 aColor = texture2D( t_audio , vec2(abs( sin( m * 1. )) , 0. ) );
    // vec4 aColor = 
-	gl_FragColor = (aColor + .5) * vec4( color, a * alphaMultiplier );
+	gl_FragColor = (aColor + .5) * vec4( color, clamp( a * alphaMultiplier , 0. , .9));
 
    // gl_FragColor = vec4( 1. );
 //	gl_FragColor = vec4( .5 + .5 * n, 1. );

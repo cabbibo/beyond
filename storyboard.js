@@ -285,19 +285,16 @@ var cameraStoryline = parseStoryline( {
         '16.95 cut to -755',
 
         '39.1 cut to -375',
-        '59.74 ease to -375',
+        '59.74 ease to -376',
 
         '59.74 cut to 0',
         '66.42 ease to 0',
 
         '66.42 cut to 375',
         '79.8 ease to 375',
-
-        
         
         '79.8 cut to 750',
         '91.70 ease to 750',
-
 
         //'12.4 linear to -900',
         //'12.4 cut to -700',

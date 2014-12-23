@@ -8,9 +8,9 @@ function createShafts() {
 	var planeMaterial = new THREE.MeshBasicMaterial( { 
         //map: THREE.ImageUtils.loadTexture( 'img/shaft.png' ),
         map: uniforms.t_audio.value,
-        color: 0x17249b, 
+        color: 0xffffff, 
         emissive: 0xffffff, 
-        opacity: .1, 
+        opacity: .02, 
         transparent: true, 
         side: THREE.DoubleSide, 
         depthWrite: false, 
@@ -41,7 +41,7 @@ function createParticles() {
 		blending: THREE.AdditiveBlending,
 		depthTest: false,
 		transparent: true,
-		opacity: 1,
+		opacity: .3,
 		size: 4
 	} );
 
@@ -137,11 +137,11 @@ function initScene() {
 
     var alphaMult = [
 
-      20.,
-      100,
-      100, 
-      1000, 
-      100000
+      .2,
+      .2,
+      .2, 
+      .1, 
+      .3
 
     ]
 
