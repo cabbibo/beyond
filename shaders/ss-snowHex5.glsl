@@ -234,7 +234,7 @@ void main(){
          //   pos.x += abs( sim );
 
 
-          pos.a -= sim;
+            pos.a -= sim;
 
 
           }
@@ -254,7 +254,7 @@ void main(){
           if( pos.y < 0. ){
 
             pos.z += 1.;
-            pos.x += 0.;//length( audio ) / 10.;//abs(sim);
+            pos.x += abs(sim);//length( audio ) / 10.;//abs(sim);
 
 
           }
