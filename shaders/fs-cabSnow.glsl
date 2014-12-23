@@ -37,20 +37,22 @@ void main() {
     vec2 vN = r.xy / m + .5;
 	vec3 light = texture2D( t_matCap, vN ).rgb;
     vec3 env = texture2D( t_pano, normalToUV( r ) ).rgb;
-    vec3 refract = texture2D( t_pano, normalToUV( refract( eye, n, .1 ) ) ).rgb;
+    vec3 ref = texture2D( t_pano, normalToUV( refract( eye, n, .1 ) ) ).rgb;
 	vec3 color = clamp( env + light, 0., 1. );
 	//color = light; // alabaster looking flakes
-	color = mix( refract, env, .7 );
+	color = mix( ref, env, .7 );
 	float rimPower = 1.;
 	float useRim = 1.;
 	float f = clamp( rimPower * abs( dot( n, normalize( vEye ) ) ), 0., 1. );
 	f = smoothstep( .6, 1., f ); // <- controls glass look
 	color += vec3( f ); // <- much icier
-	float a =  length( color ) * pow( texture2D( t_normal, vUv ).a, .3 );
+	float a = clamp( length( color ) * pow( texture2D( t_normal, vUv ).a, .3 ), 0., 1. );
 
     vec4 aColor = texture2D( t_audio , vec2(abs( sin( m * 1. )) , 0. ) );
    // vec4 aColor = 
-	gl_FragColor = (aColor + .5) * vec4( color, clamp( a * alphaMultiplier , 0. , .9));
+	//gl_FragColor = (aColor + .5) * vec4( color, clamp( a * alphaMultiplier , 0. , .9));
+	gl_FragColor = (aColor + .5) *vec4( color, 1. );// vec4( color, clamp( a * alphaMultiplier , 0. , .9));
+	gl_FragColor.a = a;
 
    // gl_FragColor = vec4( 1. );
 //	gl_FragColor = vec4( .5 + .5 * n, 1. );
