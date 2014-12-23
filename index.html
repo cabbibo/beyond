@@ -86,6 +86,13 @@
 
     }
 
+    #splitFlake{
+
+      width:40px;
+      height:40px;
+
+    }
+
     #sharePanel{ position: absolute; left: 50%; top: 50%; width: 800px; height: 400px; background-color: rgba( 0,0,0, .8 ); margin-left: -400px; margin-top: -200px; padding: 20px; display: none;}
     #sharePanel h1{ font-size: 22px;} 
   </style>
@@ -209,20 +216,50 @@ var timeLabel = document.getElementById( 'time' );
     // 3D Text Chunks
     var title , quote;
 
-    var dedication = "For All Mankind";
+    
+    var toString, fromString , msgString;
 
-    var quoteText = [
+    extractShareData();
 
-      "Out beyond ideas of wrongdoing and rightdoing,",
-      "there is a field. I'll meet you there.",
-      "",
-      "When the soul lies down in that grass,",
-      "the world is too full to talk about.",
-      "",
-      "                       - Rumi"
+    quoteText = [ msgString ];
+    
 
 
-    ];
+    var imgText = "<img id='splitFlake' src='img/splitFlake.png'></img>"
+
+    var dedication;
+    
+    if( toString ){
+      dedication = "To: " + toString;
+    }else{
+      dedication = "For All Mankind";
+    }
+
+    if( fromString ){
+
+      dedication += imgText + " From: " + fromString;
+
+    }else{
+
+
+    }
+
+    var quoteText;
+    
+    if( msgString ){
+      quoteText = [ msgString ];
+    }else{
+      quoteText = [
+
+        "Out beyond ideas of wrongdoing and rightdoing,",
+        "there is a field. I'll meet you there.",
+        "",
+        "When the soul lies down in that grass,",
+        "the world is too full to talk about.",
+        "",
+        "                       - Rumi"
+      ];
+    }
 
 
 
@@ -722,6 +759,11 @@ var timeLabel = document.getElementById( 'time' );
         function extractField( id ) { return function( a ){ if( a[ 0 ] === id ){ return a[ 1 ] } } }
         function clean( a ) { return a != undefined }
 
+        toString = fields.map( extractField( 'to' ) ).filter( clean );
+        fromString = fields.map( extractField( 'from' ) ).filter( clean );
+        msgString = fields.map( extractField( 'msg' ) ).filter( clean );
+
+
         console.log( 'To:' + ( fields.map( extractField( 'to' ) ).filter( clean ) ) );
         console.log( 'From:' + ( fields.map( extractField( 'from' ) ).filter( clean ) ) );
         console.log( 'Message:' + ( fields.map( extractField( 'msg' ) ).filter( clean ) ) );
@@ -734,7 +776,7 @@ var timeLabel = document.getElementById( 'time' );
 
    }
 
-   extractShareData();
+
 
    var ellapsedTime;
 var isEnded = false;

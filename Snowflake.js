@@ -2,8 +2,6 @@ function Snowflake( ss , u ){
 
   this.active = false;
 
-
-  console.log( ss );
   //console.log( ss );
   this.ss = shaders.setValue( ss , 'SIZE' , SIM_SIZE+"." );
 
