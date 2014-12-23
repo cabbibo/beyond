@@ -740,6 +740,9 @@ var timeLabel = document.getElementById( 'time' );
    var sharePanel = document.getElementById( 'sharePanel' );
    initSharePanel();
 
+    var baseURL = 'http://b-e-y-o-n-d.com/';
+    var shareURL = baseURL;
+
    function initSharePanel() {
 
     var shareTo = document.getElementById( 'shareTo' ),
@@ -761,8 +764,8 @@ var timeLabel = document.getElementById( 'time' );
         return a.join( '=' );
       } ).join( '&' );
 
-      var link = window.location.protocol + '//' + window.location.host + '#' + btoa( encodeURIComponent( escape( str ) ) );
-      shareLink.value = link;
+      shareURL = baseURL + '#' + btoa( encodeURIComponent( escape( str ) ) );
+      shareLink.value = shareURL;
 
     }
 
@@ -777,6 +780,26 @@ var timeLabel = document.getElementById( 'time' );
     document.getElementById( 'shareClose' ).addEventListener( 'click', function() {
       sharePanel.classList.add( 'hide' );
     } );
+
+    document.querySelector( '#socialPanel .facebook' ).onclick = function( e ) {
+
+      window.open( 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent( shareURL ), 'facebook-share-dialog', 'width=626,height=436'); 
+      return false;
+    }
+
+    document.querySelector( '#socialPanel .twitter' ).onclick = function( e ) {
+
+      var msg = 'Go beyond | ' + shareURL + ' #beyond';
+      window.open( 'https://twitter.com/intent/tweet?original_referer=' + encodeURIComponent( baseURL ) + '&text=' + encodeURIComponent( msg ), 'twitter-share-dialog', 'width=626,height=436'); 
+      return false;
+    }
+
+    document.querySelector( '#socialPanel .googleplus' ).onclick = function( e ) {
+
+      window.open( 'https://plus.google.com/share?url=' + shareURL, 'gplus-share-dialog','width=626,height=436' );
+      return false;
+
+    }
 
    }
 
