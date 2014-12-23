@@ -31,8 +31,8 @@ function initText( quoteText ){
 
     if( quoteText[i] !== "" ){
       var line =textCreator.createMesh( quoteText[i] , {
-        size: .3,
-        crispness: 3,
+        size: .5,
+        crispness: 5,
       });
 
       line.material.blending = THREE.SubtractiveBlending
