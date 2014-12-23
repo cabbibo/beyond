@@ -1,6 +1,6 @@
 var flakeStoryline = parseStoryline( {
 
-	flake1a: [
+/*	flake1a: [
 		'0 cut to .3433',
 		'30 ease to -5.123'
 	],
@@ -25,14 +25,14 @@ var flakeStoryline = parseStoryline( {
 	flake5a: [
 		'70 cut to .3433',
 		'107 ease to -5.123'
-	]
+	]*/
 
 } );
 
 var simulationStoryline = parseStoryline( {
 
     flake1: [
-		'0 cut to 1',
+		'11.9 cut to 1',
 		'30 linear to 1',
 		'30 cut to 0',
 		'107 linear to 0'
@@ -120,34 +120,82 @@ var effectsStoryline = parseStoryline( {
 } );
 
 var cameraStoryline = parseStoryline( {
-	
+
+
+  11.9 --> Audio starts
+  16.95
+  23.7
+  26.3
+  29.75
+  32.55
+  37.34 // Begin Transition to next section ( flow up )
+  39.1  // Cut to next section
+
+  42.48 //ech yo
+  49.35
+  53.48 // begin transition
+  59.74 // CAME FROM
+
+  64.73
+
+  66.42 // last section start
+  73.4
+
+  79.8 // Last snowflake zoom start
+
+  86.93 // Final hit 1
+  88.73 // final hit 2
+
+
+  91.70 // Head up!
+
+  107 // music ends
 	x: [
 		'0 cut to 0',
 		'97 ease to 0'
 	],
 
 	y: [
-		'0 cut to -1400',
-		'11 cut to -800',
-		'97 linear to 750',
-		'107 linear to 900'
+		'0 cut to -920',
+        '6 ease to -900',
+        '10 ease to -890',
+        '11.9 ease to -880',
+        '11.9 cut to -750',
+        '16.95 ease to -740',
+        '16.95 cut to -760',
+
+        '107 linear to 0'
+		//'12.4 cut to -800',
+		//'97 linear to 750',
+		//'107 linear to 900'
 	],
 
 	z: [
 		'0 cut to 0',
+        '11.9 ease to 1',
+        '11.9 cut to 20',
+
 		'97 ease to 0'
 	],
 	
 	targetx: [
-		'0 cut to 20',
-		'97 ease to 20',
+		'0 cut to 0',
+		'97 ease to 0',
 	],
 
 	targety: [
-		'0 cut to -820',
-		'11 cut to -820',
-		'97 linear to 800',
-		'107 linear to 1000'
+		'0 cut to -900',
+        '10 linear to -895',
+        '11.9 ease to -860',
+        '11.9 cut to -750',
+        '16.95 ease to -745',
+        '16.95 cut to -755',
+        //'12.4 linear to -900',
+        //'12.4 cut to -700',
+        '107 linear to -900'
+		//'11 cut to -820',
+		//'97 linear to 800',
+		//'107 linear to 1000'
 	],
 
 	targetz: [
@@ -155,7 +203,7 @@ var cameraStoryline = parseStoryline( {
 		'97 ease to 50',
 	],
 	
-	cutx: [
+	/*cutx: [
 		'17 cut to -10',
 		'19.5 ease to 10',
 		'23 cut to 0',
@@ -345,6 +393,6 @@ var cameraStoryline = parseStoryline( {
 
 		'90 cut to 100',
 		'107 ease to 100',
-	],
+	],*/
 
 } );

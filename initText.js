@@ -9,9 +9,9 @@ function initText( quoteText ){
   });
   title.scale.multiplyScalar( 100. );
 
-  title.position.y = -1000;
+  //title.position.y = -900;
 
-  title.position.set( 20, 0, 50 )
+  title.position.set( 0 , -900 , 50)
 
   title.rotation.y = Math.PI;
   scene.add( title );
