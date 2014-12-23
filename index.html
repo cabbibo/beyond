@@ -4,23 +4,24 @@
   <meta name="twitter:card" content="photo">
   <meta name="twitter:site" content="@cabbibo">
   <meta name="twitter:creator" content="@cabbibo">
-  <meta name="twitter:url" content="http://cabbi.bo">
-  <meta name="twitter:title" content="Long Live Synesthesia">
-  <meta name="twitter:description" content="Long Live Synesthesia">
-  <meta name="twitter:creator" content="@cabbibo">
-  <meta name="twitter:image" content="http://cabbi.bo/image.png">
+  <meta name="twitter:url" content="http://b-e-y-o-n-d.com">
+  <meta name="twitter:title" content="BEYOND">
+  <meta name="twitter:description" content="BEYOND">
+  <meta name="twitter:creator" content="@thespite">
+  <meta name="twitter:image" content="http://b-e-y-o-n-d.com/image.png">
   <meta name="twitter:image:width" content="1440">
   <meta name="twitter:image:height" content="900">
   <meta name="twitter:domain" content="cabbi.bo">
   <meta itemprop="name" content="Cabbi.bo">
-  <meta itemprop="description" content="Long Live Synesthesia">
-  <meta itemprop="image" src="http://cabbi.bo/image.png">
-  <meta property="og:title" content="Cabbi.bo">
+  <meta itemprop="description" content="BEYOND">
+  <meta itemprop="image" src="http://b-e-y-o-n-d.com/image.png">
+  <meta property="og:title" content="BEYOND">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="http://cabbi.bo/image.png"/>
-  <meta property="og:site_name" content="Cabbi.bo">
-  <meta property="og:description" content="Long Live Synesthesia">
+  <meta property="og:image" content="http://b-e-y-o-n-d.com/image.png"/>
+  <meta property="og:site_name" content="b-e-y-o-n-d.com">
+  <meta property="og:description" content="BEYOND">
   <style>
+  *{ box-sizing: border-box;       font-family:"GeoSans";}
      @font-face {
       font-family: "GeoSans";
       src: url("lib/GeosansLight.ttf");
@@ -96,8 +97,19 @@
       top: 10px;
     }
 
-    #sharePanel{ position: absolute; left: 50%; top: 50%; width: 800px; height: 400px; background-color: rgba( 0,0,0, .8 ); margin-left: -400px; margin-top: -200px; padding: 20px; display: none;}
+    #sharePanel{ position: absolute; left: 50%; top: 50%; width: 800px; height: 400px; background-color: rgba( 0,0,0, .8 ); margin-left: -400px; margin-top: -200px; transition: opacity 250ms ease-out;}
+    #sharePanel.hide{ opacity: 0; pointer-events: none;}
     #sharePanel h1{ font-size: 22px;} 
+    .panel{ position: absolute; left: 0; top: 0;}
+    #toPanel{ left: 20px; top: 20px;}
+    #msgPanel{ left: 20px; top: 110px;}
+    #fromPanel{ left: 20px; top: 260px;}
+    #socialPanel{ left: 420px; top: 20px;}
+    .panel input, .panel textarea{ width: 360px ; padding: 5px; font-size: 16px;}
+    .panel textarea{ height: 90px;}
+    #shareLink{ height: 120px;}
+    #closePanel{ top: 360px; right: 20px; left: auto;}
+    #shareClose{ color: white;}
   </style>
 
   </head>
@@ -113,21 +125,33 @@
     <div id="songLoad"></div>
   </div>
 
-  <div id="sharePanel" >
-    <h1>Who are you sending this message to?</h1>
-    <input type="text" id="shareTo" ></input>
-    <h1>What's the message?</h1>
-    <textarea id="shareMessage"></textarea>
-    <h1>You can sign, if you want</h1>
-    <input type="text" id="shareFrom" ></input>
-    <p>That'is it. This is your link:</p>
-    <input type="text" id="shareLink"></input>
-    <p>You can share it on your favorite social network:</p>
-    <ul>
-      <li class="twitter"></li>
-      <li class="facebook"></li>
-      <li class="googleplus"></li>
-    </ul>
+  <div id="sharePanel" class="hide">
+    <div id="toPanel" class="panel">
+      <h1>Who are you sending this message to?</h1>
+      <input type="text" id="shareTo" placeholder="This should be someone's name"></input>
+    </div>
+    <div id="msgPanel" class="panel">
+      <h1>What's the message?</h1>
+      <textarea id="shareMessage" placeholder="Go crazy here"></textarea>
+    </div>
+    <div id="fromPanel" class="panel">
+      <h1>You can sign, if you want</h1>
+      <input type="text" id="shareFrom" placeholder="This can be your name" ></input>
+    </div>
+    <div id="socialPanel" class="panel">
+      <h1>That'is it!</h1>
+      <p>This is your link:</p>
+      <textarea id="shareLink"></textarea>
+      <p>You can share it on your favorite social network:</p>
+      <ul>
+        <li class="twitter">Twitter</li>
+        <li class="facebook">Facebook</li>
+        <li class="googleplus">Google+</li>
+      </ul>
+    </div>
+    <div id="closePanel" class="panel">
+      <a href="#" id="shareClose" >Close</a>
+    </div>
   </div>
 
 <script src = "lib/three.js"                  ></script>
@@ -746,10 +770,20 @@ var timeLabel = document.getElementById( 'time' );
     shareMessage.addEventListener( 'change', updateShare );
     shareFrom.addEventListener( 'change', updateShare );
       
+    shareTo.addEventListener( 'keyup', updateShare );
+    shareMessage.addEventListener( 'keyup', updateShare );
+    shareFrom.addEventListener( 'keyup', updateShare );
+
+    document.getElementById( 'shareClose' ).addEventListener( 'click', function() {
+      sharePanel.classList.add( 'hide' );
+    } );
 
    }
 
    function showSharePanel() {
+
+      sharePanel.classList.remove( 'hide' );
+
    }
 
    function extractShareData() {
@@ -757,7 +791,7 @@ var timeLabel = document.getElementById( 'time' );
       var queryString = unescape( decodeURIComponent( atob( window.location.hash.substr( 1 ) ) ) );
       var fields = queryString.split( '&' ).map( function( a ) { return a.split( '=' ); } );
      
-      console.log( fields );
+      //console.log( fields );
 
       if( fields.length === 3 ) {
 
