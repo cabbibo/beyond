@@ -69,6 +69,7 @@
 
     #songLoad a{
 
+      font-size: 50px;
       opacity:.6;
       text-decoration:underline;
 
@@ -232,7 +233,7 @@ var timeLabel = document.getElementById( 'time' );
     if( toString ){
       dedication = "To: " + toString;
     }else{
-      dedication = "For All Mankind";
+      dedication = "To: Human Beings";
     }
 
     if( fromString ){
@@ -240,6 +241,8 @@ var timeLabel = document.getElementById( 'time' );
       dedication += imgText + " From: " + fromString;
 
     }else{
+
+      dedication += imgText + " From: " + 'Spite / Cabbibo';
 
 
     }
@@ -376,7 +379,7 @@ var timeLabel = document.getElementById( 'time' );
 
       console.log('HELLO')
       var elem = document.getElementById("songLoad");
-      elem.innerHTML = "<a onclick='start(.1)'>Let It Snow</a>"
+      elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
       onLoad();
 
     }
