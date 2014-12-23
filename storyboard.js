@@ -309,7 +309,7 @@ var cameraStoryline = parseStoryline( {
         '46.5 linear to 40',
 
         '79.8 cut to 50',
-        '91.70 ease to 20',
+        '91.70 ease to 0',
 
 
 		'97 ease to 0'

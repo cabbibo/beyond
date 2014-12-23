@@ -221,7 +221,7 @@ void main(){
           if( data.z > .5 ){
 
             //sim = float(int(sim * 3. )) + .1;
-            pos.y -= abs(sim) * 50.;
+            pos.y -= abs(sim) * 500.;
             //pos.y -=( pow(  length( audio ) , 10. ) + .4);// * length( audio ) * length( audio );// * max( .1 ,  (abs(sim)-2.)) * 10. * (1./(abs(xAmount *10.) +.1)) ;
 
          //   pos.z += abs( sim );
