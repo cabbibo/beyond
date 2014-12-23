@@ -139,7 +139,7 @@
   </div>
 
   <div id="footer" >
-    <p><b>BEYOND</b> | A sleepless combination of <a href="http://twitter.com/cabbibo" rel="external">@cabbibo</a> (<a href="http://cabbi.bo" rel="external">cabbi.bo</a>) and <a href="http://twitter.com/thespite" rel="external">@thespite</a> (<a href="http://www.clicktorelease.com" rel="external">clicktorelease</a>) for <a href="http://christmasexperiments.com/" rel="external">Christmas Experiments</a> 2014</p>
+    <p><b>BEYOND</b><br/>A sleepless combination of<br/><a href="http://twitter.com/cabbibo" rel="external">@cabbibo</a> (<a href="http://cabbi.bo" rel="external">cabbi.bo</a>) and <a href="http://twitter.com/thespite" rel="external">@thespite</a> (<a href="http://www.clicktorelease.com" rel="external">clicktorelease</a>)<br/>for <a href="http://christmasexperiments.com/" rel="external">Christmas Experiments</a> 2014</p>
     <div class="social" >
         <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en" data-text="Go beyond | By @thespite and @cabbibo" data-url="http://b-e-y-o-n-d.com">Tweet</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
@@ -257,8 +257,16 @@ var timeLabel = document.getElementById( 'time' );
       return res;
     };
 
+    function randomize( a, b ) { return Math.random() > .5 } 
 
-  
+    var names = [ 'Spite', 'Cabbibo' ]
+    names.sort( randomize );
+
+    var aliases = [ '@thespite', '@cabbibo' ]
+    aliases.sort( randomize );
+ 
+    document.querySelector( '.twitter-share-button' ).setAttribute( 'data-text', 'Go beyond | By ' + aliases.join( ' and ' ) );
+
     // Lets us skip to different sections of audio
     // for timing purposes
     var startingSection = 0;
@@ -288,7 +296,7 @@ var timeLabel = document.getElementById( 'time' );
 
     }else{
 
-      dedication += "<br/>From: " + 'Spite / Cabbibo';
+      dedication += "<br/>From: " + names.join( ' + ' );
 
     }
 
