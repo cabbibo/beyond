@@ -114,7 +114,7 @@ void main(){
 
   // Sets our 'seed' 
   // of the crystal
-  if( length(d) < iSize * .1 ){
+  if( length(d) < iSize * 1. ){
 
     pos.x = 1.;
     pos.y = .0;
