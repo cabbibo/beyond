@@ -157,7 +157,7 @@ void main(){
   float sim = 1.;
   vec2 pHex = vec2( xAmount , -yAmount );
  
-  vec2 pCenter = getCenterPos( pHex * vec2( .69282 , 1. ) * vec2( 14. )  );
+  //vec2 pCenter = getCenterPos( pHex * vec2( .69282 , 1. ) * vec2( 14. )  );
 
   sim *= hexNoise( pHex , 14. , 30.1 );
   sim *= hexNoise( pHex , 20. , 30.1 );
