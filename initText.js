@@ -23,7 +23,7 @@ function initText( quoteText ){
   quote.rotation.y = Math.PI;
   quote.rotation.x = -1.2;
 
-  quote.position.y = 1014;
+  quote.position.y = 820;
   quote.position.z = 5;
   quote.lines = [];
   

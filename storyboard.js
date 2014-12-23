@@ -177,7 +177,7 @@ var cameraStoryline = parseStoryline( {
         '16.95 ease to 3',
         '16.95 cut to 0',
         '23.7 ease to -1',
-        '23.7 cut to -2',
+        '23.7 cut to -1',
 
         '26.3 ease to 0',
         //'26.3  -755',
@@ -198,8 +198,10 @@ var cameraStoryline = parseStoryline( {
         '73.4 ease to -3',
 
         '73.4 cut to 2',
-        '79.8 ease to 0',
+        '79.8 ease to -4',
 
+        '79.8 cut to 0',
+        '91.70 ease to 0',
 
 		'97 ease to 0'
 	],
@@ -217,7 +219,7 @@ var cameraStoryline = parseStoryline( {
 
         '26.3 cut to -750',
         //'26.3  -755',
-        '37.32 ease to -760',
+        '37.32 ease to -755',
         '37.34 cut to -750',
         '39.1 ease to -748', 
 
@@ -231,15 +233,15 @@ var cameraStoryline = parseStoryline( {
 
 
         '66.42 cut to 380',
-        '73.4 ease to 385',
+        '73.4 ease to 375',
 
-        '73.4 cut to 360',
-        '79.8 ease to 355',
+        '73.4 cut to 370',
+        '79.8 ease to 372',
 
-        '79.8 cut to 740',
-        '91.70 ease to 760',
+        '79.8 cut to 750',
+        '91.70 ease to 750',
 
-        '107 linear to 1000'
+        '107 ease to 800'
 		//'12.4 cut to -800',
 		//'97 linear to 750',
 		//'107 linear to 900'
@@ -261,6 +263,9 @@ var cameraStoryline = parseStoryline( {
         '39.1 cut to 20',
 
         '46.5 linear to 40',
+
+        '79.8 cut to 50',
+        '91.70 ease to 20',
 
 
 		'97 ease to 0'
@@ -296,7 +301,7 @@ var cameraStoryline = parseStoryline( {
 
         //'12.4 linear to -900',
         //'12.4 cut to -700',
-        '107 linear to 1500'
+        '107 ease to 1000'
 		//'11 cut to -820',
 		//'97 linear to 800',
 		//'107 linear to 1000'
