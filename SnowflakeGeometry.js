@@ -356,19 +356,19 @@ SnowflakeGeometry.prototype.createGeometry = function(){
       positions[ v3ID + 8 ] = p.z;
 
       var p = b.norms[j][0];
-      normals[ v3ID + 0 ] = p.x; 
-      normals[ v3ID + 1 ] = p.y; 
-      normals[ v3ID + 2 ] = p.z;
+      normals[ v3ID + 0 ] = -p.x; 
+      normals[ v3ID + 1 ] = -p.y; 
+      normals[ v3ID + 2 ] = -p.z;
        
       var p = b.norms[j][1];
-      normals[ v3ID + 3 ] = p.x; 
-      normals[ v3ID + 4 ] = p.y; 
-      normals[ v3ID + 5 ] = p.z;
+      normals[ v3ID + 3 ] = -p.x; 
+      normals[ v3ID + 4 ] = -p.y; 
+      normals[ v3ID + 5 ] = -p.z;
         
       var p = b.norms[j][2];
-      normals[ v3ID + 6 ] = p.x; 
-      normals[ v3ID + 7 ] = p.y; 
-      normals[ v3ID + 8 ] = p.z;
+      normals[ v3ID + 6 ] = -p.x; 
+      normals[ v3ID + 7 ] = -p.y; 
+      normals[ v3ID + 8 ] = -p.z;
 
       ids[ fID + 0 ] = b.id;
       ids[ fID + 1 ] = b.id;

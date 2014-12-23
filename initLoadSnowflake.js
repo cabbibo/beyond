@@ -144,7 +144,7 @@ function initLoadSnowflake(){
     "",
    // "  vec4 sem = texture2D( t_matcap , vSEM );",
     "",
-    "  vec4 nCol =  vec4( vNorm * .5 + .7 , 1. );",
+    "  vec4 nCol =  vec4( -vNorm * .5 + .7 , 1. );",
     "",
     "  vec4 color = nCol;", //* pow(( 1.-abs(vFR)) , 10. );",
     "",
@@ -182,6 +182,7 @@ function initLoadSnowflake(){
     vertexShader: vs,
     fragmentShader: fs,
     transparent: true,
+    side: THREE.DoubleSide
 
   });
 
