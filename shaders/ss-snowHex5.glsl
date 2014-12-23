@@ -154,12 +154,12 @@ void main(){
   s = xBasis;
   float xAmount = dot( v , s ) / dot( s , s );
 
-  float sim = 1.;
+  float sim = 0.;
   vec2 pHex = vec2( xAmount , -yAmount );
  
   //vec2 pCenter = getCenterPos( pHex * vec2( .69282 , 1. ) * vec2( 14. )  );
 
-  sim *= hexNoise( pHex , 14. , 30.1 );
+  sim = hexNoise( pHex , 14. , 30.1 );
   sim *= hexNoise( pHex , 20. , 30.1 );
   sim *= pow( hexNoise( pHex , 50. , 4.1 ), 2. );
  // sim += hexNoise( pHex , 100. , 10.1 );
