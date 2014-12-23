@@ -200,12 +200,16 @@
     var geometry, material, mesh;
     var controls;
 
+
+    var startTimeForLastCall;
+
     // uses space to switch from sweeping to non sweeping
     var canSweep = false;
     var debugLines , debugPoints , debugMesh;
     var choreography , sections; 
 
     var loaded = false;
+    var hasEnded = false;
     var loadSnowflake;
 
     var textCreator;
@@ -514,6 +518,16 @@ var timeLabel = document.getElementById( 'time' );
         uniforms.dT.value = clock.getDelta();
         uniforms.time.value += uniforms.dT.value;
 
+        if( Math.abs( uniforms.time.value - startTimeForLastCall ) >= 120 ){
+
+          if( hasEnded == false ){
+
+            end();
+
+          }
+
+        }
+
        // choreography.update();
 
         if( updateSim == true ){
@@ -660,8 +674,8 @@ var timeLabel = document.getElementById( 'time' );
 
         playing = true;
         startTime = Date.now();
-
-
+      
+        startTimeForLastCall = uniforms.time.value - t;
 
       }, 1000 * speed );
 
@@ -878,10 +892,17 @@ window.addEventListener( 'mousemove', function( e ) {
    
    function end(){
 
-     $("#loading").fadeIn( 1000 , function(){});
+
+   
+   hasEnded = true;
+
+   showSharePanel();
+    
+   /* $("#loading").fadeIn( 1000 , function(){});
 
     var elem = document.getElementById("loading");
-    elem.innerHTML =  "<a class='finalLink' onclick='createShareLink()'>Send Your Own Card</a>";
+    elem.innerHTML =  "<a class='finalLink' onclick='createShareLink()'>Send Your Own Card</a>";*/
+
 
    }
 
