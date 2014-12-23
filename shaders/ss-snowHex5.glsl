@@ -206,12 +206,14 @@ void main(){
       // Part of crystal
       if( pos.z > .5 ){
 
-        vec2 hexL = abs(pHex - pCenter);
-        vec4 audio2 = texture2D( t_audio , vec2( abs(sin(length( hexL )*10.))  , 0.)  );
+        //vec2 hexL = abs(pHex - pCenter);
+       // vec4 audio2 = texture2D( t_audio , vec2( abs(sin(length( hexL )*10.))  , 0.)  );
        // audio2 *= texture2D( t_audio , vec2( abs( abs(yAmount) * 10. ) , 0.)  );
-        
+       
+        vec4 audio2 = texture2D( t_audio , vec2( abs( abs(xAmount) * 10. ) , 0.)  );
+        audio2 *= texture2D( t_audio , vec2( abs( abs(yAmount) * 10. ) , 0.)  );
         //pos.x +=  length(audio2) * .1 *( 1. / (tDif+.5));
-        pos.x +=  .1 *length( audio2 ); //* (abs(xAmount ) + ( 1. -tDif)) ;//pow( abs( xAmount ) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
+        pos.x +=  1. *length( audio2 ); //* (abs(xAmount ) + ( 1. -tDif)) ;//pow( abs( xAmount ) , 10.);/// length( audio );// (1. +  length( audio2 ) *.1 *( 1. / (xAmount+.5)))/2.;
         pos.a -= abs( sim ) * 5.;
         pos.a -= .1;//pow( length( audio ) , .1 );
 
@@ -257,10 +259,11 @@ void main(){
 
           }
 
-        pos.a -= abs( sim * sim * sim ) * abs( xAmount ) * 200.3;
-        pos.a -= pow( abs(xAmount) , 3. ) * 1000.;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
+        //pos.a -= abs( sim * sim * sim ) * abs( xAmount ) * 200.3;
+        //pos.a -= pow( abs(xAmount) , 3. ) * 1000.;// * .01* pow(length( audio ), 10. );//* .01 + abs( xAmount * xAmount * xAmount  * .0001) *  1.5;
 
-        pos.a -= length( d ) * length( d ) * .1;
+        pos.a -= abs( sim) * abs( xAmount ) *4.3;
+       // pos.a -= length( d ) * length( d ) * .1;
 
 
 
