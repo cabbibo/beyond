@@ -46,6 +46,7 @@
         position: absolute;
         left: 0;
         top: 0;
+        display:none;
       }
     
     #loading{
@@ -159,10 +160,8 @@
 <script src = "lib/Tween.js"                  ></script>
 <script src = "lib/TrackballControls.js"      ></script>
 <script src = "lib/MouseMoveControls.js"      ></script>
-<script src = "lib/CabShaderLoader.js"           ></script>
+<script src = "lib/CabShaderLoader.js"        ></script>
 <script src = "lib/underscore.js"             ></script>
-<script src = "lib/dat.gui.min.js"            ></script>
-<script src = "lib/GUI.js"                    ></script>
 
 <script src = "lib/AudioController.js"        ></script>
 <script src = "lib/AudioTexture.js"           ></script>
@@ -185,13 +184,13 @@
 <script src = "initText.js"                   ></script>
 
 
-<script src="Wagner/Wagner.js"></script>
-<script src="Wagner/Wagner.base.js"></script>
-<script src="Wagner/ShaderLoader.js"></script>
+<script src = "Wagner/Wagner.js"              ></script>
+<script src = "Wagner/Wagner.base.js"         ></script>
+<script src = "Wagner/ShaderLoader.js"        ></script>
 
-<script src="timeline.js"></script>
-<script src="storyboard.js"></script>
-<script src="scripts.js"></script>
+<script src = "timeline.js"                   ></script>
+<script src = "storyboard.js"                 ></script>
+<script src = "scripts.js"                    ></script>
 
 
 <script>
@@ -317,41 +316,16 @@ var timeLabel = document.getElementById( 'time' );
 
     var shaders = new CabShaderLoader('shaders');
 
-   // var gui = new dat.GUI();
-
-    shaders.load( 'vs-snow'       , 'snow'        , 'vertex'   );
-    shaders.load( 'fs-snow'       , 'snow'        , 'fragment' );
-    
-    shaders.load( 'vs-aurora'       , 'aurora'        , 'vertex'   );
-    shaders.load( 'fs-aurora'       , 'aurora'        , 'fragment' );
-    
-    shaders.load( 'vs-test1'      , 'test1'       , 'vertex'   );
-    shaders.load( 'fs-test1'      , 'test1'       , 'fragment' );
-    
-    shaders.load( 'vs-debugMesh'  , 'debugMesh'   , 'vertex'   );
-    shaders.load( 'fs-debugMesh'  , 'debugMesh'   , 'fragment' );
-
-    shaders.load( 'vs-raytrace'  , 'raytrace'   , 'vertex'   );
-    shaders.load( 'fs-raytrace'  , 'raytrace'   , 'fragment' );
-
-    shaders.load( 'vs-spiteSnow'  , 'spiteSnow'   , 'vertex'   );
-    shaders.load( 'fs-spiteSnow'  , 'spiteSnow'   , 'fragment' );
 
     shaders.load( 'vs-cabSnow'  , 'cabSnow'   , 'vertex'   );
     shaders.load( 'fs-cabSnow'  , 'cabSnow'   , 'fragment' );
 
 
-    shaders.load( 'ss-test1'      , 'test1'       , 'simulation' );
-    shaders.load( 'ss-snowflake1' , 'snowflake1'  , 'simulation' );
-    shaders.load( 'ss-snowHex1' , 'snowHex1'  , 'simulation' );
-    shaders.load( 'ss-snowHex2' , 'snowHex2'  , 'simulation' );
     shaders.load( 'ss-snowHex3' , 'snowHex3'  , 'simulation' );
     shaders.load( 'ss-snowHex4' , 'snowHex4'  , 'simulation' );
     shaders.load( 'ss-snowHex5' , 'snowHex5'  , 'simulation' );
-    shaders.load( 'ss-snowHex6' , 'snowHex6'  , 'simulation' );
 
     shaders.load( 'ss-snowSimplex6' , 'snowSimplex6'  , 'simulation' );
-    shaders.load( 'ss-snowSimplex7' , 'snowSimplex7'  , 'simulation' );
     shaders.load( 'ss-snowSimplex8' , 'snowSimplex8'  , 'simulation' );
 
     shaders.load( 'fs-depthToNormal'  , 'depthToNormal'   , 'fragment' );
@@ -405,7 +379,7 @@ var timeLabel = document.getElementById( 'time' );
 
       console.log('HELLO')
       var elem = document.getElementById("songLoad");
-      elem.innerHTML = "<a onclick='start(.001)'>Let It Snow</a>"
+      elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
       onLoad();
 
     }
@@ -513,13 +487,13 @@ var timeLabel = document.getElementById( 'time' );
       initScene();
 
 
-      aurora = createAurora();
+     /* aurora = createAurora();
       scene.add( aurora );
 
       aurora.position.x = -3.;
       aurora.rotation.y = .3;
       aurora.rotation.x = .1;
-      aurora.rotation.z = -Math.PI / 2;
+      aurora.rotation.z = -Math.PI / 2;*/
       /* var snowflake = new Snowflake( ss , vs , fs );
       snowflakes.push( snowflake );
 
