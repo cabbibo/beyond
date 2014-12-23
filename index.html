@@ -99,8 +99,8 @@
       top: 10px;
     }
 
-    #sharePanel{ position: absolute; left: 50%; top: 50%; width: 800px; height: 400px; background-color: rgba( 0,0,0, .8 ); margin-left: -400px; margin-top: -200px; transition: opacity 250ms ease-out;}
-    #sharePanel.hide{ opacity: 0; pointer-events: none;}
+    #sharePanel{ position: absolute; left: 50%; top: 50%; width: 800px; height: 400px; background-color: rgba( 0,0,0, .8 ); margin-left: -400px; margin-top: -200px; }
+    .hide{ opacity: 0; pointer-events: none;}
     #sharePanel h1{ font-size: 22px;} 
     .panel{ position: absolute; left: 0; top: 0;}
     #toPanel{ left: 20px; top: 20px;}
@@ -112,9 +112,13 @@
     #shareLink{ height: 120px;}
     #closePanel{ top: 360px; right: 20px; left: auto;}
     #shareClose{ color: white;}
+    #sharePanel li{ cursor: pointer ;}
 
-    #footer{ position: absolute; left: 0; bottom: 0; right: 0; text-align: center; text-shadow: 0 1px 0 black; background-color: rgba( 0,0,0,0); padding: 10px;}
+    .fadeable{ transition: opacity 250ms ease-out; }
+    #footer{ position: absolute; left: 0; bottom: 0; right: 0; text-align: center; text-shadow: 0 1px 0 black; background-color: rgba( 0,0,0,0); padding: 10px; }
     #footer a{ color: inherit;}
+    #createYourOwnButton{ position: absolute; top: 20px; left: 20px; right: 20px; text-align: center;}
+     #createYourOwnButton a{ color: black; font-size: 28px;}
   </style>
 
   </head>
@@ -138,8 +142,8 @@
     <div id="songLoad"></div>
   </div>
 
-  <div id="footer" >
-    <p><b>BEYOND</b><br/>A sleepless combination of<br/><a href="http://twitter.com/cabbibo" rel="external">@cabbibo</a> (<a href="http://cabbi.bo" rel="external">cabbi.bo</a>) and <a href="http://twitter.com/thespite" rel="external">@thespite</a> (<a href="http://www.clicktorelease.com" rel="external">clicktorelease</a>)<br/>for <a href="http://christmasexperiments.com/" rel="external">Christmas Experiments</a> 2014</p>
+  <div id="footer" class="fadeable hide" >
+    <p><b>BEYOND</b><br/><span id="whatIsThis" ></span><br/><a href="http://twitter.com/cabbibo" rel="external">@cabbibo</a> (<a href="http://cabbi.bo" rel="external">cabbi.bo</a>) and <a href="http://twitter.com/thespite" rel="external">@thespite</a> (<a href="http://www.clicktorelease.com" rel="external">clicktorelease</a>)<br/>for <a href="http://christmasexperiments.com/" rel="external">Christmas Experiments</a> 2014</p>
     <div class="social" >
         <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en" data-text="Go beyond | By @thespite and @cabbibo" data-url="http://b-e-y-o-n-d.com">Tweet</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
@@ -151,7 +155,7 @@
       </div>
   </div>
 
-  <div id="sharePanel" class="hide">
+  <div id="sharePanel" class="fadeable hide">
     <div id="toPanel" class="panel">
       <h1>Who are you sending this message to?</h1>
       <input type="text" id="shareTo" placeholder="This should be someone's name"></input>
@@ -179,6 +183,8 @@
       <a href="#" id="shareClose" >Close</a>
     </div>
   </div>
+
+  <div id="createYourOwnButton" class="fadeable hide"><a href="#">Create and share your own message</a></div>
 
 <script src = "lib/three.js"                  ></script>
 <script src = "lib/jquery.min.js"             ></script>
@@ -270,6 +276,16 @@ var timeLabel = document.getElementById( 'time' );
     aliases.sort( randomize );
  
     document.querySelector( '.twitter-share-button' ).setAttribute( 'data-text', 'Go beyond | By ' + aliases.join( ' and ' ) );
+
+    var footerSentences = [
+      'a sleeples combination of',
+      'an intercontinental undeavour by',
+      'an emotional experience by',
+      'a bunch of WebGL shenanigans by',
+      'the fruit of peaceful interactions by'
+    ];
+
+    document.getElementById( 'whatIsThis' ).textContent = footerSentences.sort( randomize )[ 0 ];
 
     // Lets us skip to different sections of audio
     // for timing purposes
@@ -770,6 +786,9 @@ var timeLabel = document.getElementById( 'time' );
       }, false );
     } );
 
+   document.getElementById( 'createYourOwnButton' ).addEventListener( 'click', showSharePanel );
+
+   var footer = document.getElementById( 'footer' );
    var sharePanel = document.getElementById( 'sharePanel' );
    initSharePanel();
 
@@ -934,7 +953,9 @@ window.addEventListener( 'mousemove', function( e ) {
    
    hasEnded = true;
 
-   showSharePanel();
+   document.getElementById( 'createYourOwnButton' ).classList.remove( 'hide' );
+
+   footer.classList.remove( 'hide' );
     
    /* $("#loading").fadeIn( 1000 , function(){});
 
