@@ -137,7 +137,7 @@ function initScene() {
 
     var sims = [
 
-      'snowSimplex8',
+      'snowSimplex9',
       'snowHex3',
       'snowSimplex8',
       'snowSimplex6',
