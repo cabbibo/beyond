@@ -332,9 +332,9 @@ var timeLabel = document.getElementById( 'time' );
     shaders.load( 'fs-hexCorrection'  , 'hexCorrection'   , 'fragment' );
 
     // Audio should always load after shaders,
-    // so lets leave it
+    // so lets leave it   
     shaders.shaderSetLoaded = function(){
-      //  onShadersLoaded();
+      onLoad();
       console.log('SHRDERS LOADES');
     }
 
@@ -377,9 +377,7 @@ var timeLabel = document.getElementById( 'time' );
     // Adds in first start text
     audio.onLoad = function(){
 
-      console.log('HELLO')
-      var elem = document.getElementById("songLoad");
-      elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
+   
       onLoad();
 
     }
@@ -705,10 +703,19 @@ var timeLabel = document.getElementById( 'time' );
 
    }
 
-   //loaded = ++
+   var thingsLoaded = 0;
    function onLoad(){
 
 
+     thingsLoaded  ++;
+
+     if( thingsLoaded == 2 ){
+
+       console.log('HELLO')
+      var elem = document.getElementById("songLoad");
+      elem.innerHTML = "<a onclick='start(1)'>Let It Snow</a>"
+
+    }
    }
 
    var sharePanel = document.getElementById( 'sharePanel' );
@@ -859,7 +866,7 @@ var timeLabel = document.getElementById( 'time' );
 var isEnded = false;
 
 window.addEventListener( 'mousemove', function( e ) {
-	console.log( 'mousemove' );
+	//console.log( 'mousemove' );
     if( !audio || !canSweep ) return;
 
     console.log( audio );
