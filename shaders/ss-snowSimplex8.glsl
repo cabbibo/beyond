@@ -11,6 +11,7 @@ uniform sampler2D t_oPos;
 uniform sampler2D t_og;
 
 uniform float time;
+uniform float dT;
 uniform sampler2D t_audio;
 
 varying vec2 vUv;
@@ -235,12 +236,12 @@ void main(){
           if( data.z > .5 ){
 
             //sim = float(int(sim * 3. )) + .1;
-            pos.y -= abs(sim) * 100. * (1./(abs(xAmount *10.) +.1)) ;
+            pos.y -= abs(sim) * 100. * (1./(abs(xAmount *10.) +.1))* dT * 60. ;
          //   pos.z += abs( sim );
          //   pos.x += abs( sim );
 
 
-           pos.a -= length( audio )* 1.4;
+           pos.a -= length( audio )* 1.4 * dT * 60.;
 
 
           }
