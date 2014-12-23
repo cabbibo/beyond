@@ -137,7 +137,7 @@ function initScene() {
 
     var alphaMult = [
 
-      .2,
+      100.2,
       .2,
       .2, 
       .1, 
