@@ -5,7 +5,9 @@ function initText( quoteText ){
 
 
   title = textCreator.createMesh( "B E Y O N D" , {
-    size: .1
+    size: .1,
+    type:"20pt GeoSans",
+    font:"GeoSans"
   });
   title.scale.multiplyScalar( 100. );
 
