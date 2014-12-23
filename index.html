@@ -57,7 +57,7 @@
       width:100%;
       height: 50px;
       text-align: center;
-      margin-top: -25px;
+      margin-top: -70px;
       margin-left:-50%;
       font-size: 40px;
     
@@ -65,6 +65,7 @@
 
     #songLoad{
 
+      margin-top: 15px;
       font-size: 25px;
 
     }
@@ -74,7 +75,7 @@
       font-size: 50px;
       opacity:.6;
       text-decoration:underline;
-
+      cursor: pointer;
     }
 
     #songLoad a:hover{
@@ -111,11 +112,22 @@
     #shareLink{ height: 120px;}
     #closePanel{ top: 360px; right: 20px; left: auto;}
     #shareClose{ color: white;}
+
+    #footer{ position: absolute; left: 0; bottom: 0; right: 0; text-align: center; text-shadow: 0 1px 0 black; background-color: rgba( 0,0,0,0); padding: 10px;}
+    #footer a{ color: inherit;}
   </style>
 
   </head>
   <body>
 
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
 
   <div id="pano" ></div>
   <div id="fade"></div>
@@ -124,6 +136,19 @@
   <div id="loading">
     <div id="dedication"></div>
     <div id="songLoad"></div>
+  </div>
+
+  <div id="footer" >
+    <p><b>BEYOND</b> | A sleepless combination of <a href="http://twitter.com/cabbibo" rel="external">@cabbibo</a> (<a href="http://cabbi.bo" rel="external">cabbi.bo</a>) and <a href="http://twitter.com/thespite" rel="external">@thespite</a> (<a href="http://www.clicktorelease.com" rel="external">clicktorelease</a>) for <a href="http://christmasexperiments.com/" rel="external">Christmas Experiments</a> 2014</p>
+    <div class="social" >
+        <a href="https://twitter.com/share" class="twitter-share-button" data-lang="en" data-text="Go beyond | By @thespite and @cabbibo" data-url="http://b-e-y-o-n-d.com">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        
+        <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+        <div class="g-plusone" data-size="medium" data-annotation="bubble"></div>
+        
+        <div class="fb-like" data-href="http://b-e-y-o-n-d.com/" data-colorscheme="light" data-layout="button_count" data-action="like" data-show-faces="true" data-send="false"></div>
+      </div>
   </div>
 
   <div id="sharePanel" class="hide">
@@ -219,7 +244,7 @@
    var playing = false;
     var composer;
     var vignettePass, FXAAPass, bloomPass, noisePass, lensPass, chromaticAbberationPass;
-
+    var dirtyLensPass;
 
     var startTime;
 var timeLabel = document.getElementById( 'time' );
@@ -249,10 +274,6 @@ var timeLabel = document.getElementById( 'time' );
 
     quoteText = [ msgString ];
     
-
-
-    var imgText = "<img id='splitFlake' src='img/splitFlake.png'></img>"
-
     var dedication;
     
     if( toString ){
@@ -263,14 +284,15 @@ var timeLabel = document.getElementById( 'time' );
 
     if( fromString ){
 
-      dedication += imgText + " From: " + fromString;
+      dedication += "<br/>From: " + fromString;
 
     }else{
 
-      dedication += imgText + " From: " + 'Spite / Cabbibo';
-
+      dedication += "<br/>From: " + 'Spite / Cabbibo';
 
     }
+
+    dedication += '<br/>';
 
     var quoteText;
     
@@ -462,7 +484,7 @@ var timeLabel = document.getElementById( 'time' );
       noisePass = new WAGNER.NoisePass();
       noisePass.params.amount = .05;
       chromaticAbberationPass = new WAGNER.ChromaticAberrationPass();
-      
+      //dirtyLensPass = new WAGNER.DirtPass();      
 
 
       onWindowResize();
@@ -544,9 +566,10 @@ var timeLabel = document.getElementById( 'time' );
 	composer.reset();
 		
 	composer.render( scene, camera );
+  //composer.pass( dirtyLensPass );
 	composer.pass( chromaticAbberationPass );
 	composer.pass( bloomPass );
-	composer.pass( vignettePass );
+  composer.pass( vignettePass );
 	composer.pass( FXAAPass );
 	composer.pass( noisePass );
 	
@@ -717,6 +740,13 @@ var timeLabel = document.getElementById( 'time' );
 
     }
    }
+
+   [].slice.call( document.querySelectorAll( 'a[rel=external]' ), 0 ).forEach( function( a ) {
+      a.addEventListener( 'click', function( e ) {
+        window.open( this.href, '_blank' );
+        e.preventDefault();
+      }, false );
+    } );
 
    var sharePanel = document.getElementById( 'sharePanel' );
    initSharePanel();
