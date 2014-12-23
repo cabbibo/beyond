@@ -1,13 +1,57 @@
 var flakeStoryline = parseStoryline( {
 
-/*	flake1a: [
+  
+    flake1a: [
+		'11.9 cut to 0',
+		'39.1 linear to .5433',
+		'39.1 cut to 0',
+		'107 linear to 0'
+	],
+
+    flake2a: [
+        '0 cut to 0',
+        '39.1 linear to 0',
+		'39.1 cut to 0',
+		'59.74 linear to -.5433',
+		'107 linear to 0'
+	],
+
+    flake3a: [
+        '0 cut to 0',
+        '59.74 linear to 0',
+		'59.74 cut to 0',
+		'66.42 linear to .61',
+		'66.42 cut to 0',
+		'107 linear to 0'
+	],
+
+    flake4a: [
+        '0 cut to 0',
+        '66.42 linear to 0',
+		'66.42 cut to 0',
+		'79.8 linear to -.31',
+		'79.8 cut to 0',
+		'107 linear to 0'
+	],
+
+    flake5a: [
+        '0 cut to 0',
+        '79.8 linear to 0',
+		'79.8 cut to 0',
+		'91.70 linear to 0',
+		'91.70 cut to 0',
+
+		//'107 linear to 0'
+	],
+
+  	/*flake1a: [
 		'0 cut to .3433',
-		'30 ease to -5.123'
+		'30 ease to -1.123'
 	],
 
 	flake2a: [
 		'27 cut to 1.3433',
-		'40 ease to 3.123'
+		'40 ease to 2.123'
 	],
 
 	flake3a: [
