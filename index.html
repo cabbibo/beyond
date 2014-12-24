@@ -809,7 +809,7 @@ var timeLabel = document.getElementById( 'time' );
    var sharePanel = document.getElementById( 'sharePanel' );
    initSharePanel();
 
-    var baseURL = window.location.protocol + '//' + window.location.host;//http://b-e-y-o-n-d.com/';
+    var baseURL = window.location.protocol + '//' + window.location.host + window.location.pathname;//http://b-e-y-o-n-d.com/';
     var shareURL = baseURL;
 
     document.querySelector( '.twitter-share-button' ).setAttribute( 'data-url', baseURL );
